@@ -1,21 +1,21 @@
 import cv2 as cv
 import numpy as np
-from ultralytics import YOLO
 
-videoCapture = cv.VideoCapture(1, cv.CAP_DSHOW)
+videoCapture = cv.VideoCapture(0, cv.CAP_DSHOW)
 
 while True:
     ret, frame = videoCapture.read()
     if not ret: break
 
     grayFrame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    #contrFrame = cv.convertScaleAbs(grayFrame, 0.5, 10)
     #blurFrame = cv.GaussianBlur(grayFrame, (17,17), 0)
     #blurFrame = cv.blur(grayFrame, (5,5))
 
     clrFrame = cv.cvtColor(grayFrame, cv.COLOR_GRAY2BGR)
 
     circles = cv.HoughCircles(grayFrame, cv.HOUGH_GRADIENT, 1, 2,
-                              param1=80, param2=17, minRadius=1, maxRadius=8) #Param1 = sensitivity (smaller == more circles), param2 = number of points in the circle (precision)
+                              param1=80, param2=17, minRadius=2, maxRadius=8) #Param1 = sensitivity (smaller == more circles), param2 = number of points in the circle (precision)
 
     showFrame = frame
 
