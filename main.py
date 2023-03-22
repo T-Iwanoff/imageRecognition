@@ -1,17 +1,19 @@
 import cv2 as cv
 import numpy as np
 
-videoPath = 'Video/Moving balls.mp4'
-video = False
+videoPath = 'Video/Balls3.mp4'
+video = True
 
 if video:
     videoCapture = cv.VideoCapture(videoPath)
+    videoCapture.set(3, 640)
+    videoCapture.set(4, 480)
+
 else:
     videoCapture = cv.VideoCapture(0, cv.CAP_DSHOW)
 
 # TODO Sample multiple images for the circles, only mark circles that appear in multiple
 # TODO Only map the border at the start, so the car can't obscure it
-# TODO Find a way to map the cross obstacle; what if we push it?
 # TODO Turn rectangles into coordinates
 
 
