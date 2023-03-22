@@ -14,9 +14,10 @@ cap = cv2.VideoCapture(0)
 
 # Define color ranges for ping pong ball and red wall detection
 lower_ball_color = (29, 86, 6)
-upper_ball_color = (64, 255, 255)
-lower_wall_color = (0, 0, 100)
-upper_wall_color = (80, 80, 255)
+upper_ball_color = (255, 255, 255)
+
+lower_wall_color = (80, 70, 50)
+upper_wall_color = (100, 255, 255)
 
 # Loop over frames from the camera
 while True:
@@ -24,9 +25,9 @@ while True:
     ret, frame = cap.read()
     if not ret:
         break
-
+    invFrame = cv2.bitwise_not(frame)
     # Convert the frame to the HSV color space
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(invFrame, cv2.COLOR_BGR2HSV)
 
     # Apply color masks to the frame to detect the ping pong ball and red wall
     ball_mask = cv2.inRange(hsv, lower_ball_color, upper_ball_color)
