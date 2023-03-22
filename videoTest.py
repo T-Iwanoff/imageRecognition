@@ -1,6 +1,6 @@
 import cv2 as cv
 
-videoPath = 'Video/Balls.mp4'
+videoPath = 'Video/Sample_balls.mp4'
 
 video = cv.VideoCapture(videoPath)
 
