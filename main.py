@@ -1,8 +1,8 @@
 import cv2 as cv
 import numpy as np
 
-videoPath = 'Video/Balls.mp4'
-video = True
+videoPath = 'Video/Moving balls.mp4'
+video = False
 
 if video:
     videoCapture = cv.VideoCapture(videoPath)
@@ -43,7 +43,7 @@ while True:
 
     # find circles
     circles = cv.HoughCircles(grayFrame, cv.HOUGH_GRADIENT, 1, 1,
-                              param1=70, param2=17, minRadius=1, maxRadius=8)  # Param1 = sensitivity (smaller == more circles), param2 = number of points in the circle (precision)
+                              param1=65, param2=17, minRadius=1, maxRadius=10)  # Param1 = sensitivity (smaller == more circles), param2 = number of points in the circle (precision)
 
     if circles is not None:
         circles = np.uint16(np.around(circles))
