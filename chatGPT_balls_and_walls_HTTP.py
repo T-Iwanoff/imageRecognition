@@ -1,5 +1,5 @@
 import cv2
-import requests
+import numpy as np
 
 """
     This program uses two color masks to detect both ping pong
@@ -10,12 +10,9 @@ import requests
 """
 
 # Set up camera capture
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
-# Define color ranges for ping pong ball and red wall detection
-lower_ball_color = (29, 86, 6)
-upper_ball_color = (255, 255, 255)
-
+# Define color ranges for red wall detection
 lower_wall_color = (80, 70, 50)
 upper_wall_color = (100, 255, 255)
 
@@ -25,41 +22,44 @@ while True:
     ret, frame = cap.read()
     if not ret:
         break
-    invFrame = cv2.bitwise_not(frame)
+
+    # Create a grayFrame
+    grayFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # Convert the frame to the HSV color space
-    hsv = cv2.cvtColor(invFrame, cv2.COLOR_BGR2HSV)
+    blurFrame = cv2.GaussianBlur(frame, (11, 11), 0)
+    invFrame = cv2.bitwise_not(frame)
+    hsvFrame = cv2.cvtColor(invFrame, cv2.COLOR_BGR2HSV)
+    # Apply color mask to the frame to detect the red walls
+    wall_mask = cv2.inRange(hsvFrame, lower_wall_color, upper_wall_color)
 
-    # Apply color masks to the frame to detect the ping pong ball and red wall
-    ball_mask = cv2.inRange(hsv, lower_ball_color, upper_ball_color)
-    wall_mask = cv2.inRange(hsv, lower_wall_color, upper_wall_color)
+    # Find ping pong balls
+    circles = cv2.HoughCircles(grayFrame, cv2.HOUGH_GRADIENT, 1, 3,
+                            param1=80, param2=17, minRadius=3, maxRadius=9)
 
-    # Find contours in the ping pong ball mask
-    ball_contours, _ = cv2.findContours(ball_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # Draw the circles
+    if circles is not None:
+        circles = np.uint16(np.around(circles))
+        for i in circles[0, :]:
+            #Center of the circle
+            cv2.circle(frame, (i[0], i[1]), 1, (0, 0, 0), 2)
 
-    # Loop over the ping pong ball contours and draw a circle around each ball
-    for ball_contour in ball_contours:
-        ball_area = cv2.contourArea(ball_contour)
-        if ball_area > 100:
-            x, y, w, h = cv2.boundingRect(ball_contour)
-            cv2.circle(frame, (int(x + w / 2), int(y + h / 2)), int((w + h) / 4), (0, 255, 0), 2)
-
-            # Send ping pong ball coordinates to server via HTTP
-            ball_coordinates = {'x': x, 'y': y}
-            r = requests.post('http://example.com/ball_coordinates', data=ball_coordinates)
+            #Outer circle
+            cv2.circle(frame, (i[0], i[1]), i[2], (255,0,255), 2)
 
     # Find contours in the red wall mask
-    wall_contours, _ = cv2.findContours(wall_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    wall_contours, _ = cv2.findContours(wall_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     # Loop over the red wall contours and draw a rectangle around each wall
     for wall_contour in wall_contours:
         wall_area = cv2.contourArea(wall_contour)
-        if wall_area > 100:
+        if 210000 > wall_area > 1000:
+            print(wall_area)
             x, y, w, h = cv2.boundingRect(wall_contour)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
             # Send red wall coordinates to server via HTTP
-            wall_coordinates = {'x': x, 'y': y, 'w': w, 'h': h}
-            r = requests.post('http://example.com/wall_coordinates', data=wall_coordinates)
+            # wall_coordinates = {'x': x, 'y': y, 'w': w, 'h': h}
+            # r = requests.post('http://example.com/wall_coordinates', data=wall_coordinates)
 
     # Display the resulting frame
     cv2.imshow('frame', frame)
