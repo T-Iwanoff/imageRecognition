@@ -2,6 +2,9 @@ import cv2 as cv
 from Coordinates import *
 from collections import Counter
 
+SAVED_FRAMES = 10
+CUTOFF = 4
+
 videoPath = 'Video/Balls3.mp4'
 useCamera = True
 
@@ -91,22 +94,23 @@ def findCircles(frame):
     return circles
 
 
-def findRepeatedCoordinates(frames, cutoff):
+def findRepeatedCoordinates(frames, cutoff, values = 2):
     complete_list = []
     for frame in frames:
         for coordinate in frame:
             complete_list.append(coordinate)
-    repeated_list = []
 
+    repeated_list = []
     for coordinate in complete_list:
+        temp = [coordinate[0], coordinate[1], coordinate[2]]
         count = 0
         for i in complete_list:
             if (i == coordinate).all():
                 count = count + 1
-        if count >= cutoff:
-            repeated_list.append(coordinate)
-    print("repeated list")
-    print(repeated_list)
+        if count >= cutoff and temp not in repeated_list:
+            repeated_list.append(temp)
+
+    print("repeated list: ", repeated_list)
     return repeated_list
 
 
@@ -157,7 +161,7 @@ while True:
             cv.drawContours(frame, [box], 0, (0, 255, 255), 2)
 
             # Warp the frame to fit the outer wall
-            frame = warpFrame(box, frame)
+            # frame = warpFrame(box, frame)
 
     # Find contours in the warped frame
     wall_mask = frameToWallMask(frame)
@@ -179,12 +183,12 @@ while True:
 
     # Find the balls
     circles = findCircles(frame)
-    if counter < 5:
+    if counter < SAVED_FRAMES:
         savedData.append(circles)
     else:
-        savedData[counter % 5] = circles
+        savedData[counter % SAVED_FRAMES] = circles
     counter = counter + 1
-    circles = findRepeatedCoordinates(savedData, 3)
+    circles = findRepeatedCoordinates(savedData, CUTOFF, 3)
 
     # Draw the circles
     drawCircles(frame, circles)
