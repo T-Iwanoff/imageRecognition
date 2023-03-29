@@ -96,7 +96,7 @@ def findRepeatedCoordinates(frames, cutoff):
     for frame in frames:
         for coordinate in frame:
             complete_list.append(coordinate)
-    print("complete list "+ complete_list.str)
+    print("complete list "+ complete_list.)
     repeated_list = []
     counter_list = Counter(complete_list)
     print("counter list "+ counter_list.str)
