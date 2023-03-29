@@ -1,24 +1,25 @@
 import cv2 as cv
 import numpy as np
 
-videoPath = 'Video/Moving balls.mp4'
-video = False
+videoPath = 'Video/Image2.jpg'
+useCamera = False
 
-if video:
-    videoCapture = cv.VideoCapture(videoPath)
-else:
+if useCamera:
     videoCapture = cv.VideoCapture(0, cv.CAP_DSHOW)
+else:
+    videoCapture = cv.VideoCapture(videoPath)
 
 # TODO Sample multiple images for the circles, only mark circles that appear in multiple
 # TODO Only map the border at the start, so the car can't obscure it
-# TODO Find a way to map the cross obstacle; what if we push it?
 # TODO Turn rectangles into coordinates
 
-
 if not videoCapture.isOpened():
-    print("Video file or camera not found")
+    print("File or camera not found")
 
-frameCounter = 0
+if useCamera is False:
+    frameCounter = 0
+    fileType = videoPath[-3]
+
 
 # Define color ranges for red wall detection
 lower_wall_color = (80, 70, 50)
@@ -26,18 +27,22 @@ upper_wall_color = (100, 255, 255)
 
 # Loop over frames from the camera
 while True:
-    if video:
+    if useCamera is False and fileType == 'mp4':
         # If out of frames, reset the video
         if frameCounter == videoCapture.get(7):  # propertyID 7 is the number of frames in the video
             frameCounter = 0
             videoCapture.set(1, 0)  # propertyID 1 is the current frame
         frameCounter += 1
 
-    # Get the current frame
-    ret, frame = videoCapture.read()
+    if useCamera is False and fileType == 'jpg' or 'png':
+        frame = cv.imread(videoPath)
+    else:
+        # Get the current frame
+        ret, frame = videoCapture.read()
 
-    if not ret:
-        break
+        if not ret:
+            print("Frame not found")
+            break
 
     # Create a grayFrame
     grayFrame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
