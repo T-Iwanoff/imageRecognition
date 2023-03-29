@@ -1,14 +1,14 @@
 import cv2 as cv
 import numpy as np
 
-COURSE_HEIGHT = 1.2
-COURSE_WIDTH = 1.8
+COURSE_HEIGHT = 1.235
+COURSE_WIDTH = 1.683
 
 def coordinate_convertion (box, frame_x, frame_y):
-    x_scale = (box[2][0]-box[0][0])/COURSE_WIDTH
+    x_scale = (box[2][0]-box[3][0])/COURSE_WIDTH
     meter_x = frame_x/x_scale
-    y_scale = (box[0][1]-box[2][1])/COURSE_HEIGHT
-    meter_y = (box[0][1]-frame_y)/y_scale
+    y_scale = (box[3][1]-box[0][1])/COURSE_HEIGHT
+    meter_y = (box[3][1]-frame_y)/y_scale
     print("meter x: "+str(meter_x))
     print("meter y: " + str(meter_y))
     return meter_x, meter_y

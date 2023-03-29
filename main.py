@@ -88,10 +88,10 @@ while True:
 
             # Warp image, code from https://thinkinfi.com/warp-perspective-opencv/
             # Pixel values in original image
-            red_point = [box[1][0], box[1][1]]
-            green_point = [box[2][0], box[2][1]]
-            black_point = [box[0][0], box[0][1]]
-            blue_point = [box[3][0], box[3][1]]
+            black_point = box[0]
+            red_point = box[1]
+            green_point = box[2]
+            blue_point = box[3]
 
             # Create point matrix
             point_matrix = np.float32([red_point, green_point, black_point, blue_point])
@@ -106,10 +106,10 @@ while True:
             width, height = 640, 480
 
             # Desired points value in output images
-            converted_red_pixel_value = [100, 100]
-            converted_green_pixel_value = [width-100, 100]
-            converted_black_pixel_value = [100, height-100]
-            converted_blue_pixel_value = [width-100, height-100]
+            converted_red_pixel_value = [0, 0]
+            converted_green_pixel_value = [width, 0]
+            converted_black_pixel_value = [0, height]
+            converted_blue_pixel_value = [width, height]
 
             # Convert points
             converted_points = np.float32([converted_red_pixel_value, converted_green_pixel_value,
@@ -119,12 +119,10 @@ while True:
             perspective_transform = cv.getPerspectiveTransform(point_matrix, converted_points)
             frame = cv.warpPerspective(frame, perspective_transform, (width, height))
 
-
-
             # Converting to meter
-            # halfPoint_x = (box[3][0] - box[0][0]) / 2
-            # halfPoint_y = (box[0][1] + box[1][1]) / 2
-            # coordinate_convertion(box, halfPoint_x, halfPoint_y)
+            halfPoint_x = (converted_points[2][0] - converted_points[3][0]) / 2
+            halfPoint_y = (converted_points[3][1] + converted_points[0][1]) / 2
+            coordinate_convertion(converted_points, halfPoint_x, halfPoint_y)
 
         # For the cross obstacle, mark the corners
         if 1300 > wall_area > 1000:
