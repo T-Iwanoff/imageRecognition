@@ -1,5 +1,6 @@
 import cv2 as cv
 from Coordinates import *
+from collections import Counter
 
 videoPath = 'Video/Balls3.mp4'
 useCamera = True
@@ -95,8 +96,11 @@ def findRepeatedCoordinates(frames, cutoff):
     for frame in frames:
         for coordinate in frame:
             complete_list.append(coordinate)
+    print("complete list "+ complete_list.str)
     repeated_list = []
-    for coordinate in complete_list:
+    counter_list = Counter(complete_list)
+    print("counter list "+ counter_list.str)
+    for coordinate in counter_list:
         count = complete_list.count(coordinate)
         if count >= cutoff and coordinate not in repeated_list:
             repeated_list.append(coordinate)
@@ -111,6 +115,9 @@ def drawCircles(frame, circles):
         # Outer circle
         cv.circle(frame, (i[0], i[1]), i[2], (255, 0, 255), 2)
 
+
+savedData = []
+counter = 0
 
 # Loop over frames from the camera
 while True:
@@ -169,6 +176,12 @@ while True:
 
     # Find the balls
     circles = findCircles(frame)
+    if counter < 5:
+        savedData.append(circles)
+    else:
+        savedData[counter % 5] = circles
+    counter = counter + 1
+    circles = findRepeatedCoordinates(savedData, 3)
 
     # Draw the circles
     drawCircles(frame, circles)
