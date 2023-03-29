@@ -3,7 +3,7 @@ from Coordinates import *
 from collections import Counter
 
 SAVED_FRAMES = 10
-CUTOFF = 4
+CUTOFF = 5
 
 videoPath = 'Video/Balls3.mp4'
 useCamera = True
@@ -26,7 +26,6 @@ if not videoCapture.isOpened():
 if useCamera is False:
     frameCounter = 0
     fileType = videoPath[-3]
-
 
 # Define color ranges for red wall detection
 lower_wall_color = (80, 70, 50)
@@ -84,8 +83,9 @@ def findCircles(frame):
     # Create a grayFrame
     grayFrame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     # Find ping pong balls
-    circles = cv.HoughCircles(grayFrame, cv.HOUGH_GRADIENT, 1, 3,        # param1 is sensitivity (smaller == more circles)
-                        param1=80, param2=17, minRadius=3, maxRadius=9)  # param2 is number of points in the circle (precision)
+    circles = cv.HoughCircles(grayFrame, cv.HOUGH_GRADIENT, 1, 3,  # param1 is sensitivity (smaller == more circles)
+                              param1=80, param2=17, minRadius=3,
+                              maxRadius=9)  # param2 is number of points in the circle (precision)
 
     # Convert circles to array
     if circles is not None:
@@ -94,7 +94,7 @@ def findCircles(frame):
     return circles
 
 
-def findRepeatedCoordinates(frames, cutoff, values = 2):
+def findRepeatedCoordinates(frames, cutoff, values=2):
     complete_list = []
     for frame in frames:
         for coordinate in frame:
@@ -102,7 +102,9 @@ def findRepeatedCoordinates(frames, cutoff, values = 2):
 
     repeated_list = []
     for coordinate in complete_list:
-        temp = [coordinate[0], coordinate[1], coordinate[2]]
+        temp = []
+        for i in range(values):
+            temp.append(coordinate[i])
         count = 0
         for i in complete_list:
             if (i == coordinate).all():
