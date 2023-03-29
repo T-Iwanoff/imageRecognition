@@ -7,7 +7,7 @@ def findRepeatedCoordinates(frames, cutoff):
     for frame in frames:
         for coordinate in frame:
             complete_list.add(coordinate)
-    repeated_list = []
+    repeated_list = set()
     for coordinate in complete_list:
         count = complete_list.count(coordinate)
         if count >= cutoff and coordinate not in repeated_list:
