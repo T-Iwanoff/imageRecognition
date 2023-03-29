@@ -2,11 +2,12 @@ import cv2 as cv
 import numpy as np
 from Coordinates import *
 
-videoPath = 'Image/Border1.jpg'
-video = False
+videoPath = 'Video/Balls3.mp4'
+video = True
 
 if video:
     videoCapture = cv.VideoCapture(videoPath)
+    videoCapture.set(cv.CAP_PROP_FPS,1)
     videoCapture.set(3, 640)
     videoCapture.set(4, 480)
 
@@ -85,10 +86,45 @@ while True:
             box = np.intp(box)
             cv.drawContours(frame, [box], 0, (0, 255, 255), 2)
 
+            # Warp image, code from https://thinkinfi.com/warp-perspective-opencv/
+            # Pixel values in original image
+            red_point = [box[1][0], box[1][1]]
+            green_point = [box[2][0], box[2][1]]
+            black_point = [box[0][0], box[0][1]]
+            blue_point = [box[3][0], box[3][1]]
+
+            # Create point matrix
+            point_matrix = np.float32([red_point, green_point, black_point, blue_point])
+
+            # Draw circle for each point
+            cv.circle(frame, (red_point[0], red_point[1]), 10, (0, 0, 255), cv.FILLED)
+            cv.circle(frame, (green_point[0], green_point[1]), 10, (0, 255, 0), cv.FILLED)
+            cv.circle(frame, (blue_point[0], blue_point[1]), 10, (255, 0, 0), cv.FILLED)
+            cv.circle(frame, (black_point[0], black_point[1]), 10, (0, 0, 0), cv.FILLED)
+
+            # Output image size
+            width, height = 640, 480
+
+            # Desired points value in output images
+            converted_red_pixel_value = [100, 100]
+            converted_green_pixel_value = [width-100, 100]
+            converted_black_pixel_value = [100, height-100]
+            converted_blue_pixel_value = [width-100, height-100]
+
+            # Convert points
+            converted_points = np.float32([converted_red_pixel_value, converted_green_pixel_value,
+                                           converted_black_pixel_value, converted_blue_pixel_value])
+
+            # perspective transform
+            perspective_transform = cv.getPerspectiveTransform(point_matrix, converted_points)
+            frame = cv.warpPerspective(frame, perspective_transform, (width, height))
+
+
+
             # Converting to meter
-            halfPoint_x = (box[3][0] - box[0][0]) / 2
-            halfPoint_y = (box[0][1] + box[1][1]) / 2
-            coordinate_convertion(box, halfPoint_x, halfPoint_y)
+            # halfPoint_x = (box[3][0] - box[0][0]) / 2
+            # halfPoint_y = (box[0][1] + box[1][1]) / 2
+            # coordinate_convertion(box, halfPoint_x, halfPoint_y)
 
         # For the cross obstacle, mark the corners
         if 1300 > wall_area > 1000:
