@@ -87,17 +87,29 @@ def findCircles(frame):
     if circles is not None:
         circles = np.uint16(np.around(circles))
         circles = circles[0, :]
-
-    # Draw the circles
-    if circles is not None:
-        for i in circles:
-            # Center of the circle
-            cv.circle(frame, (i[0], i[1]), 1, (0, 0, 0), 2)
-
-            # Outer circle
-            cv.circle(frame, (i[0], i[1]), i[2], (255, 0, 255), 2)
-
     return circles
+
+
+def findRepeatedCoordinates(frames, cutoff):
+    complete_list = []
+    for frame in frames:
+        for coordinate in frame:
+            complete_list.append(coordinate)
+    repeated_list = []
+    for coordinate in complete_list:
+        count = complete_list.count(coordinate)
+        if count >= cutoff and coordinate not in repeated_list:
+            repeated_list.append(coordinate)
+    return repeated_list
+
+
+def drawCircles(frame, circles):
+    for i in circles:
+        # Center of the circle
+        cv.circle(frame, (i[0], i[1]), 1, (0, 0, 0), 2)
+
+        # Outer circle
+        cv.circle(frame, (i[0], i[1]), i[2], (255, 0, 255), 2)
 
 
 # Loop over frames from the camera
@@ -158,6 +170,9 @@ while True:
     # Find the balls
     circles = findCircles(frame)
 
+    # Draw the circles
+    drawCircles(frame, circles)
+
     # Converting to meter
     # if circles is not None and converted_points is not None:
     #     for circle in circles:
@@ -166,7 +181,7 @@ while True:
     # Display the resulting frame
     cv.imshow('frame', frame)
 
-    # If
+    # If q is pressed, end the program
     if cv.waitKey(1) == ord('q'):
         break
 
