@@ -58,22 +58,6 @@ while True:
     # Apply color mask to the frame to detect the red walls
     wall_mask = cv.inRange(hsvFrame, lower_wall_color, upper_wall_color)
 
-    # Find ping pong balls
-    circles = cv.HoughCircles(grayFrame, cv.HOUGH_GRADIENT, 1, 3,
-                            param1=80, param2=17, minRadius=3, maxRadius=9)
-    # param1 is sensitivity (smaller == more circles)
-    # param2 is number of points in the circle (precision)
-
-    # Draw the circles
-    if circles is not None:
-        circles = np.uint16(np.around(circles))
-        for i in circles[0, :]:
-            #Center of the circle
-            cv.circle(frame, (i[0], i[1]), 1, (0, 0, 0), 2)
-
-            #Outer circle
-            cv.circle(frame, (i[0], i[1]), i[2], (255,0,255), 2)
-
     # Find contours in the red wall mask
     wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
@@ -92,10 +76,38 @@ while True:
             box = np.intp(box)
             cv.drawContours(frame, [box], 0, (0, 255, 255), 2)
 
-            # Converting to meter
-            halfPoint_x = (box[3][0] - box[0][0]) / 2
-            halfPoint_y = (box[0][1] + box[1][1]) / 2
-            coordinate_convertion(box, halfPoint_x, halfPoint_y)
+            # Warp image, code from https://thinkinfi.com/warp-perspective-opencv/
+            # Pixel values in original image
+            lower_left_point = box[0] #Black
+            upper_left_point = box[1] #Red
+            upper_right_point = box[2] #Green
+            lower_right_point = box[3] #Blue
+
+            # Create point matrix
+            point_matrix = np.float32([upper_left_point, upper_right_point, lower_left_point, lower_right_point])
+
+            # Draw circle for each point
+            cv.circle(frame, (upper_left_point[0], upper_left_point[1]), 10, (0, 0, 255), cv.FILLED)
+            cv.circle(frame, (upper_right_point[0], upper_right_point[1]), 10, (0, 255, 0), cv.FILLED)
+            cv.circle(frame, (lower_right_point[0], lower_right_point[1]), 10, (255, 0, 0), cv.FILLED)
+            cv.circle(frame, (lower_left_point[0], lower_left_point[1]), 10, (0, 0, 0), cv.FILLED)
+
+            # Output image size
+            width, height = 640, 480
+
+            # Desired points value in output images
+            converted_ul_pixel_value = [0, 0]
+            converted_ur_pixel_value = [width, 0]
+            converted_ll_pixel_value = [0, height]
+            converted_lr_pixel_value = [width, height]
+
+            # Convert points
+            converted_points = np.float32([converted_ul_pixel_value, converted_ur_pixel_value,
+                                           converted_ll_pixel_value, converted_lr_pixel_value])
+
+            # perspective transform
+            perspective_transform = cv.getPerspectiveTransform(point_matrix, converted_points)
+            frame = cv.warpPerspective(frame, perspective_transform, (width, height))
 
         # For the cross obstacle, mark the corners
         if 1300 > wall_area > 1000:
@@ -111,6 +123,33 @@ while True:
             # Send red wall coordinates to server via HTTP
             # wall_coordinates = {'x': x, 'y': y, 'w': w, 'h': h}
             # r = requests.post('http://example.com/wall_coordinates', data=wall_coordinates)
+
+    # Create a grayFrame
+    grayFrame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+
+    # Find ping pong balls
+    circles = cv.HoughCircles(grayFrame, cv.HOUGH_GRADIENT, 1, 3,
+                              param1=80, param2=17, minRadius=3, maxRadius=9)
+    # param1 is sensitivity (smaller == more circles)
+    # param2 is number of points in the circle (precision)
+    aCircle = None
+    # Draw the circles
+    if circles is not None:
+        circles = np.uint16(np.around(circles))
+        for i in circles[0, :]:
+            # Center of the circle
+            cv.circle(frame, (i[0], i[1]), 1, (0, 0, 0), 2)
+
+            # Outer circle
+            cv.circle(frame, (i[0], i[1]), i[2], (255, 0, 255), 2)
+
+            aCircle = i
+
+    # Converting to meter
+    halfPoint_x = (converted_points[2][0] - converted_points[3][0]) / 2
+    halfPoint_y = (converted_points[3][1] + converted_points[0][1]) / 2
+    if aCircle is not None:
+        coordinate_conversion(converted_points, aCircle[0], aCircle[1])
 
     # Display the resulting frame
     cv.imshow('frame', frame)
