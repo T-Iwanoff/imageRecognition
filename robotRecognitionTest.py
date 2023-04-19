@@ -4,10 +4,12 @@ import cv2
 import numpy as np
 import math
 
+# resize image here
 # Reading the image
-
 # 0-grader er til venstre og bevæger med uret rundt, hvor vandret er både 360 og 0 grader til venstre
-img = cv2.imread('test-image-0grader.jpg')
+imgS = cv2.imread('robo-real-test.jpg')
+img = cv2.resize(imgS, (960, 540))
+
 
 # define kernel size
 kernel = np.ones((7, 7), np.uint8)
@@ -15,12 +17,12 @@ kernel = np.ones((7, 7), np.uint8)
 # convert to hsv colorspace
 hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-# lower bound and upper bound for Green color original
-lower_bound_pointer = np.array([50, 20, 20])
-upper_bound_pointer = np.array([70, 255, 255])
+# lower bound and upper bound for pointer color
+lower_bound_pointer = np.array([30, 190, 20])
+upper_bound_pointer = np.array([55, 250, 255])
 
-# lower bound and upper bound for Green color
-lower_bound_center = np.array([80, 20, 20])
+# lower bound and upper bound for center color
+lower_bound_center = np.array([80, 140, 20])
 upper_bound_center = np.array([100, 255, 255])
 
 # find the colors within the boundaries
@@ -76,6 +78,7 @@ def calculate_angle(x0, y0, x, y):
     # x0,y0 = the center of the robot : x,y = is the coordinate of the oriantation point
     angle = math.degrees(math.atan2(y0 - y, x0 - x)) % 360
     print(f'The angle is = {angle}')
+
 
 # draw a circle around the center of the robot
 cv2.circle(img=img, center=(cX_center, cY_center), radius=200, color=(255, 0, 0), thickness=5)
