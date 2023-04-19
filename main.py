@@ -4,8 +4,8 @@ from calibration import *
 
 # TODO Only map the border at the start, so the robot can't obscure it
 
-path = 'Media/Image/Cluster1.jpg'
-media = 'CAMERA'    # 'CAMERA', 'VIDEO' or 'IMAGE'
+path = 'Media/Video/MovingBalls.mp4'
+media = 'VIDEO'    # 'CAMERA', 'VIDEO' or 'IMAGE'
 
 # Define the frames sampled and minimum number of frames
 # that a circle has to be present to in to count as a ball
@@ -35,7 +35,7 @@ def analyseFrame(frame, savedCircles=None, counter=None):
         wall_area = cv.contourArea(wall_contour)
         # For the outer wall, draw a rectangle
         if 195000 > wall_area > 10000:
-            # print(wall_area) # for calibration
+            # print(wall_area)  # for calibration
             # Draw an angled rectangle
             wall_corners = findRectangle(wall_contour)
             cv.drawContours(frame, [wall_corners], 0, (0, 255, 255), 2)
@@ -43,7 +43,7 @@ def analyseFrame(frame, savedCircles=None, counter=None):
             # Warp the frame to fit the outer wall
             # frame = warpFrame(box, frame)
 
-    # print("---") # For calibration
+    # print("---")  # For calibration
     # Find contours in the frame again (in case the warp above is used)
     # wall_mask = frameToWallMask(frame)
     # wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
@@ -56,7 +56,7 @@ def analyseFrame(frame, savedCircles=None, counter=None):
             # print(wall_area) # For calibration
             # Find the corners of the obstacle
             obstacle = findRectangle(wall_contour)
-            cv.drawContours(frame, [obstacle], 0, (0, 255, 255), 2)
+            # cv.drawContours(frame, [obstacle], 0, (0, 255, 255), 2)
             # Draw the points of the obstacle
             for coord in obstacle:
                 cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
@@ -133,8 +133,8 @@ def findCircles(frame):
     # Create a grayFrame
     grayFrame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     # Find ping pong balls
-    circles = cv.HoughCircles(grayFrame, cv.HOUGH_GRADIENT, 1, 3,  # param1 is sensitivity (smaller == more circles)
-                              param1=80, param2=17, minRadius=3,
+    circles = cv.HoughCircles(grayFrame, cv.HOUGH_GRADIENT, 1, 3,
+                              param1=80, param2=17, minRadius=3,  # param1 is sensitivity (smaller == more circles)
                               maxRadius=9)  # param2 is number of points in the circle (precision)
 
     # Convert circles to array
