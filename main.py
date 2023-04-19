@@ -2,34 +2,75 @@ import cv2 as cv
 from Coordinates import *
 from collections import Counter
 
+# TODO Only map the border at the start, so the robot can't obscure it
+
+path = 'Video/Balls3.mp4'
+media = 'CAMERA'    # 'CAMERA', 'VIDEO' or 'IMAGE'
+
+# Define the frames sampled and minimum number of frames
+# that a circle has to be present to in to count as a ball
 SAVED_FRAMES = 10
 CUTOFF = 5
 
-videoPath = 'Video/Balls3.mp4'
-useCamera = True
-
-if useCamera:
-    videoCapture = cv.VideoCapture(0, cv.CAP_DSHOW)
-    videoCapture.set(3, 640)
-    videoCapture.set(4, 480)
-else:
-    videoCapture = cv.VideoCapture(videoPath)
-
-# TODO Sample multiple images for the circles, only mark circles that appear in multiple
-# TODO Only map the border at the start, so the car can't obscure it
-# TODO Turn rectangles into coordinates
-
-
-if not videoCapture.isOpened():
-    print("File or camera not found")
-
-if useCamera is False:
-    frameCounter = 0
-    fileType = videoPath[-3]
-
-# Define color ranges for red wall detection
+# Define color ranges for red wall detection (inverted to cyan)
 lower_wall_color = (80, 70, 50)
 upper_wall_color = (100, 255, 255)
+
+
+def analyseFrame(frame, savedCircles=None, counter=None):
+    # Make a mask for the wall
+    wall_mask = frameToWallMask(frame)
+
+    # Find contours in the red wall mask
+    wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+
+    # Loop over the wall contours and draw walls
+    for wall_contour in wall_contours:
+        wall_area = cv.contourArea(wall_contour)
+        # For the outer wall, draw a rectangle
+        if 210000 > wall_area > 10000:
+            # Draw an angled rectangle
+            box = findRectangle(wall_contour)
+            cv.drawContours(frame, [box], 0, (0, 255, 255), 2)
+
+            # Warp the frame to fit the outer wall
+            # frame = warpFrame(box, frame)
+
+    # Find contours in the frame again (in case the warp above is used)
+    # wall_mask = frameToWallMask(frame)
+    # wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+
+    # Loop over the wall contours and draw obstacle
+    for wall_contour in wall_contours:
+        wall_area = cv.contourArea(wall_contour)
+        # For the cross obstacle, mark the corners
+        if 1800 > wall_area > 1600:
+            # Find the corners of the obstacle
+            box = findRectangle(wall_contour)
+            cv.drawContours(frame, [box], 0, (0, 255, 255), 2)
+            # Draw the points of the obstacle
+            for coord in box:
+                cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
+
+    # Find the balls
+    circles = findCircles(frame)
+    if savedCircles and counter is not None:
+        if counter < SAVED_FRAMES:
+            savedCircles.append(circles)
+        else:
+            savedCircles[counter % SAVED_FRAMES] = circles
+        circles = findRepeatedCoordinates(savedCircles, CUTOFF, 3)
+
+    # Draw the circles
+    drawCircles(frame, circles)
+
+    # Converting to meter
+    # if circles is not None and converted_points is not None:
+    #     for circle in circles:
+    #         coordinate_conversion(converted_points, circle[0], circle[1])
+
+    # Display the resulting frame
+    cv.imshow('frame', frame)
 
 
 def frameToWallMask(frame):
@@ -125,88 +166,81 @@ def drawCircles(frame, circles):
         cv.circle(frame, (i[0], i[1]), i[2], (255, 0, 255), 2)
 
 
-savedData = []
-counter = 0
+if media == 'IMAGE':
+    videoCapture = cv.VideoCapture(path)
+    if not videoCapture.isOpened():
+        print("Error: Image not found")
+        exit()
 
-# Loop over frames from the camera
-while True:
-    if useCamera is False and fileType == 'mp4':
+    # Get the current frame
+    ret, frame = cv.imread(path)
+    if not ret:
+        print("Error: Frame not found")
+        exit()
+
+    analyseFrame(frame)
+
+#####
+
+if media == 'VIDEO':
+    videoCapture = cv.VideoCapture(path)
+    if not videoCapture.isOpened():
+        print("Error: Video not found")
+        exit()
+
+    frameCounter = 0
+    savedData = []
+
+    while True:
         # If out of frames, reset the video
         if frameCounter == videoCapture.get(7):  # propertyID 7 is the number of frames in the video
             frameCounter = 0
             videoCapture.set(1, 0)  # propertyID 1 is the current frame
+
+        # Get the current frame
+        ret, frame = videoCapture.read()
+        if not ret:
+            print("Error: Frame not found")
+            exit()
+
+        analyseFrame(frame, savedData, frameCounter)
+
         frameCounter += 1
 
-    if useCamera is False and fileType == 'jpg' or 'png':
-        frame = cv.imread(videoPath)
+        # If q is pressed, end the program
+        if cv.waitKey(1) == ord('q'):
+            break
 
-    # Get the current frame
-    ret, frame = videoCapture.read()
+######
 
-    if not ret:
-        print("Frame not found")
-        break
+if media == 'CAMERA':
+    videoCapture = cv.VideoCapture(0, cv.CAP_DSHOW)
+    videoCapture.set(3, 640)
+    videoCapture.set(4, 480)
+    if not videoCapture.isOpened():
+        print("Error: Camera not found")
+        exit()
 
-    # Make a mask for the wall
-    wall_mask = frameToWallMask(frame)
+    frameCounter = 0
+    savedData = []
 
-    # Find contours in the red wall mask
-    wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+    while True:
+        # Get the current frame
+        ret, frame = videoCapture.read()
+        if not ret:
+            print("Error: Frame not found")
+            exit()
 
-    # Loop over the wall contours and draw as appropriate
-    for wall_contour in wall_contours:
-        wall_area = cv.contourArea(wall_contour)
-        # For the outer wall, draw a rectangle
-        if 210000 > wall_area > 10000:
-            # Draw an angled rectangle
-            box = findRectangle(wall_contour)
-            cv.drawContours(frame, [box], 0, (0, 255, 255), 2)
+        analyseFrame(frame, savedData, frameCounter)
 
-            # Warp the frame to fit the outer wall
-            # frame = warpFrame(box, frame)
+        frameCounter += 1
 
-    # Find contours in the warped frame
-    wall_mask = frameToWallMask(frame)
-    wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-
-    # Loop over the wall contours and draw as appropriate
-    for wall_contour in wall_contours:
-        wall_area = cv.contourArea(wall_contour)
-
-        # For the cross obstacle, mark the corners
-        if 1800 > wall_area > 1600:
-            # Find the corners of the obstacle
-            box = findRectangle(wall_contour)
-            cv.drawContours(frame, [box], 0, (0, 255, 255), 2)
-
-            # Draw the points of the obstacle
-            for coord in box:
-                cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
-
-    # Find the balls
-    circles = findCircles(frame)
-    if counter < SAVED_FRAMES:
-        savedData.append(circles)
-    else:
-        savedData[counter % SAVED_FRAMES] = circles
-    counter = counter + 1
-    circles = findRepeatedCoordinates(savedData, CUTOFF, 3)
-
-    # Draw the circles
-    drawCircles(frame, circles)
-
-    # Converting to meter
-    # if circles is not None and converted_points is not None:
-    #     for circle in circles:
-    #         coordinate_conversion(converted_points, circle[0], circle[1])
-
-    # Display the resulting frame
-    cv.imshow('frame', frame)
-
-    # If q is pressed, end the program
-    if cv.waitKey(1) == ord('q'):
-        break
+        # If q is pressed, end the program
+        if cv.waitKey(1) == ord('q'):
+            break
 
 # Release the camera and close the window
 videoCapture.release()
 cv.destroyAllWindows()
+
+
