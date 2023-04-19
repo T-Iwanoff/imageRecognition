@@ -4,13 +4,13 @@ from collections import Counter
 
 # TODO Only map the border at the start, so the robot can't obscure it
 
-path = 'Video/Balls3.mp4'
-media = 'CAMERA'    # 'CAMERA', 'VIDEO' or 'IMAGE'
+path = 'Image/Cluster1.jpg'
+media = 'IMAGE'    # 'CAMERA', 'VIDEO' or 'IMAGE'
 
 # Define the frames sampled and minimum number of frames
 # that a circle has to be present to in to count as a ball
 SAVED_FRAMES = 10
-CUTOFF = 5
+CUTOFF = 4
 
 # Define color ranges for red wall detection (inverted to cyan)
 lower_wall_color = (80, 70, 50)
@@ -54,7 +54,7 @@ def analyseFrame(frame, savedCircles=None, counter=None):
 
     # Find the balls
     circles = findCircles(frame)
-    if savedCircles and counter is not None:
+    if counter is not None:
         if counter < SAVED_FRAMES:
             savedCircles.append(circles)
         else:
@@ -153,11 +153,13 @@ def findRepeatedCoordinates(frames, cutoff, values=2):
         if count >= cutoff and temp not in repeated_list:
             repeated_list.append(temp)
 
-    print("repeated list: ", repeated_list)
     return repeated_list
 
 
 def drawCircles(frame, circles):
+    if circles is None:
+        return
+
     for i in circles:
         # Center of the circle
         cv.circle(frame, (i[0], i[1]), 1, (0, 0, 0), 2)
@@ -167,11 +169,6 @@ def drawCircles(frame, circles):
 
 
 if media == 'IMAGE':
-    videoCapture = cv.VideoCapture(path)
-    if not videoCapture.isOpened():
-        print("Error: Image not found")
-        exit()
-
     # Get the current frame
     ret, frame = cv.imread(path)
     if not ret:
