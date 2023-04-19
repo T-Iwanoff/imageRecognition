@@ -5,7 +5,7 @@ from collections import Counter
 # TODO Only map the border at the start, so the robot can't obscure it
 
 path = 'Image/Cluster1.jpg'
-media = 'IMAGE'    # 'CAMERA', 'VIDEO' or 'IMAGE'
+media = 'CAMERA'    # 'CAMERA', 'VIDEO' or 'IMAGE'
 
 # Define the frames sampled and minimum number of frames
 # that a circle has to be present to in to count as a ball
@@ -59,7 +59,7 @@ def analyseFrame(frame, savedCircles=None, counter=None):
             savedCircles.append(circles)
         else:
             savedCircles[counter % SAVED_FRAMES] = circles
-        circles = findRepeatedCoordinates(savedCircles, CUTOFF, 3)
+        circles = findRepeatedCoordinates(savedCircles, CUTOFF)
 
     # Draw the circles
     drawCircles(frame, circles)
@@ -135,24 +135,16 @@ def findCircles(frame):
     return circles
 
 
-def findRepeatedCoordinates(frames, cutoff, values=2):
+def findRepeatedCoordinates(frames, cutoff):
     complete_list = []
     for frame in frames:
         for coordinate in frame:
             complete_list.append(coordinate)
-
     repeated_list = []
     for coordinate in complete_list:
-        temp = []
-        for i in range(values):
-            temp.append(coordinate[i])
-        count = 0
-        for i in complete_list:
-            if (i == coordinate).all():
-                count = count + 1
-        if count >= cutoff and temp not in repeated_list:
-            repeated_list.append(temp)
-
+        count = complete_list.count(coordinate)
+        if count >= cutoff and coordinate not in repeated_list:
+            repeated_list.append(coordinate)
     return repeated_list
 
 
@@ -170,12 +162,12 @@ def drawCircles(frame, circles):
 
 if media == 'IMAGE':
     # Get the current frame
-    ret, frame = cv.imread(path)
-    if not ret:
-        print("Error: Frame not found")
-        exit()
+    frame = cv.imread(path)
 
     analyseFrame(frame)
+
+    if cv.waitKey(0) == ord('q'):
+        cv.destroyAllWindows()
 
 #####
 
@@ -208,12 +200,17 @@ if media == 'VIDEO':
         if cv.waitKey(1) == ord('q'):
             break
 
+    # Release the camera and close the window
+    videoCapture.release()
+    cv.destroyAllWindows()
+
 ######
 
 if media == 'CAMERA':
     videoCapture = cv.VideoCapture(0, cv.CAP_DSHOW)
     videoCapture.set(3, 640)
     videoCapture.set(4, 480)
+
     if not videoCapture.isOpened():
         print("Error: Camera not found")
         exit()
@@ -236,8 +233,8 @@ if media == 'CAMERA':
         if cv.waitKey(1) == ord('q'):
             break
 
-# Release the camera and close the window
-videoCapture.release()
-cv.destroyAllWindows()
+    # Release the camera and close the window
+    videoCapture.release()
+    cv.destroyAllWindows()
 
 
