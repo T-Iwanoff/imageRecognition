@@ -1,6 +1,6 @@
 import cv2 as cv
-from Coordinates import *
-from collections import Counter
+from coordinates import *
+from calibration import *
 
 # TODO Only map the border at the start, so the robot can't obscure it
 
@@ -18,24 +18,32 @@ upper_wall_color = (100, 255, 255)
 
 
 def analyseFrame(frame, savedCircles=None, counter=None):
+    # Calibrate the frame
+    frame = calibrateFrame(frame)
+
     # Make a mask for the wall
     wall_mask = frameToWallMask(frame)
 
     # Find contours in the red wall mask
     wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
+    # To prevent runtime error in meter conversion
+    wall_corners = None
+
     # Loop over the wall contours and draw walls
     for wall_contour in wall_contours:
         wall_area = cv.contourArea(wall_contour)
         # For the outer wall, draw a rectangle
-        if 200000 > wall_area > 10000:
+        if 195000 > wall_area > 10000:
+            # print(wall_area) # for calibration
             # Draw an angled rectangle
-            box = findRectangle(wall_contour)
-            cv.drawContours(frame, [box], 0, (0, 255, 255), 2)
+            wall_corners = findRectangle(wall_contour)
+            cv.drawContours(frame, [wall_corners], 0, (0, 255, 255), 2)
 
             # Warp the frame to fit the outer wall
             # frame = warpFrame(box, frame)
 
+    # print("---") # For calibration
     # Find contours in the frame again (in case the warp above is used)
     # wall_mask = frameToWallMask(frame)
     # wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
@@ -44,12 +52,13 @@ def analyseFrame(frame, savedCircles=None, counter=None):
     for wall_contour in wall_contours:
         wall_area = cv.contourArea(wall_contour)
         # For the cross obstacle, mark the corners
-        if 1800 > wall_area > 1000:
+        if 1800 > wall_area > 900:
+            # print(wall_area) # For calibration
             # Find the corners of the obstacle
-            box = findRectangle(wall_contour)
-            cv.drawContours(frame, [box], 0, (0, 255, 255), 2)
+            obstacle = findRectangle(wall_contour)
+            cv.drawContours(frame, [obstacle], 0, (0, 255, 255), 2)
             # Draw the points of the obstacle
-            for coord in box:
+            for coord in obstacle:
                 cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
 
     # Find the balls
@@ -65,9 +74,9 @@ def analyseFrame(frame, savedCircles=None, counter=None):
     drawCircles(frame, circles)
 
     # Converting to meter
-    # if circles is not None and converted_points is not None:
-    #     for circle in circles:
-    #         coordinate_conversion(converted_points, circle[0], circle[1])
+    if circles is not None and wall_corners is not None:
+        for circle in circles:
+            coordinate_conversion(wall_corners, circle[0], circle[1])
 
     # Display the resulting frame
     cv.imshow('frame', frame)
