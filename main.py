@@ -28,7 +28,7 @@ def analyseFrame(frame, savedCircles=None, counter=None):
     for wall_contour in wall_contours:
         wall_area = cv.contourArea(wall_contour)
         # For the outer wall, draw a rectangle
-        if 210000 > wall_area > 10000:
+        if 200000 > wall_area > 10000:
             # Draw an angled rectangle
             box = findRectangle(wall_contour)
             cv.drawContours(frame, [box], 0, (0, 255, 255), 2)
@@ -44,7 +44,7 @@ def analyseFrame(frame, savedCircles=None, counter=None):
     for wall_contour in wall_contours:
         wall_area = cv.contourArea(wall_contour)
         # For the cross obstacle, mark the corners
-        if 1800 > wall_area > 1600:
+        if 1800 > wall_area > 1000:
             # Find the corners of the obstacle
             box = findRectangle(wall_contour)
             cv.drawContours(frame, [box], 0, (0, 255, 255), 2)
@@ -54,12 +54,12 @@ def analyseFrame(frame, savedCircles=None, counter=None):
 
     # Find the balls
     circles = findCircles(frame)
-    if counter is not None:
-        if counter < SAVED_FRAMES:
-            savedCircles.append(circles)
-        else:
-            savedCircles[counter % SAVED_FRAMES] = circles
-        circles = findRepeatedCoordinates(savedCircles, CUTOFF)
+    # if counter is not None:
+    #     if counter < SAVED_FRAMES:
+    #         savedCircles.append(circles)
+    #     else:
+    #         savedCircles[counter % SAVED_FRAMES] = circles
+    #     circles = findRepeatedCoordinates(savedCircles, CUTOFF)
 
     # Draw the circles
     drawCircles(frame, circles)
