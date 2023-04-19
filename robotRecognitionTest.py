@@ -4,87 +4,130 @@ import cv2
 import numpy as np
 import math
 
-# resize image here
-# Reading the image
-# 0-grader er til venstre og bevæger med uret rundt, hvor vandret er både 360 og 0 grader til venstre
-imgS = cv2.imread('robo-real-test.jpg')
-img = cv2.resize(imgS, (960, 540))
+# Creating a VideoCapture object to read the video
+cap = cv2.VideoCapture('robo-video-test.mp4')
 
+# Loop until the end of the video
+while (cap.isOpened()):
 
-# define kernel size
-kernel = np.ones((7, 7), np.uint8)
+    # Capture frame-by-frame
+    ret, frame = cap.read()
+    frame = cv2.resize(frame, (540, 380), fx=0, fy=0,
+                       interpolation=cv2.INTER_CUBIC)
 
-# convert to hsv colorspace
-hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    # Display the resulting frame
+    cv2.imshow('Frame', frame)
 
-# lower bound and upper bound for pointer color
-lower_bound_pointer = np.array([30, 190, 20])
-upper_bound_pointer = np.array([55, 250, 255])
+    # define kernel size
+    kernel = np.ones((7, 7), np.uint8)
 
-# lower bound and upper bound for center color
-lower_bound_center = np.array([80, 140, 20])
-upper_bound_center = np.array([100, 255, 255])
+    # convert to hsv colorspace
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-# find the colors within the boundaries
-mask_pointer = cv2.inRange(hsv, lower_bound_pointer, upper_bound_pointer)
-mask_center = cv2.inRange(hsv, lower_bound_center, upper_bound_center)
+    # lower bound and upper bound for pointer color
+    lower_bound_pointer = np.array([30, 60, 20])
+    upper_bound_pointer = np.array([55, 250, 255])
 
-# Remove unnecessary noise from mask
-mask_pointer = cv2.morphologyEx(mask_pointer, cv2.MORPH_CLOSE, kernel)
-mask_pointer = cv2.morphologyEx(mask_pointer, cv2.MORPH_OPEN, kernel)
+    # lower bound and upper bound for center color
+    lower_bound_center = np.array([80, 120, 20])
+    upper_bound_center = np.array([100, 250, 255])
 
-mask_center = cv2.morphologyEx(mask_center, cv2.MORPH_CLOSE, kernel)
-mask_center = cv2.morphologyEx(mask_center, cv2.MORPH_OPEN, kernel)
+    # find the colors within the boundaries
+    # mask_pointer = cv2.inRange(hsv, lower_bound_pointer, upper_bound_pointer)
+    mask_center = cv2.inRange(hsv, lower_bound_center, upper_bound_center)
 
-# Segment only the detected region
-segmented_img_pointer = cv2.bitwise_and(img, img, mask=mask_pointer)
-segmented_img_center = cv2.bitwise_and(img, img, mask=mask_center)
+    # Remove unnecessary noise from mask
+    # mask_pointer = cv2.morphologyEx(mask_pointer, cv2.MORPH_CLOSE, kernel)
+    # mask_pointer = cv2.morphologyEx(mask_pointer, cv2.MORPH_OPEN, kernel)
 
-# Find contours from the mask
-contours_pointers, hierarchy = cv2.findContours(mask_pointer.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-contours_center, hierarchy = cv2.findContours(mask_center.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    mask_center = cv2.morphologyEx(mask_center, cv2.MORPH_CLOSE, kernel)
+    mask_center = cv2.morphologyEx(mask_center, cv2.MORPH_OPEN, kernel)
 
-output = cv2.drawContours(segmented_img_pointer, contours_pointers, -1, (0, 0, 255), 3)
-output = cv2.drawContours(segmented_img_center, contours_center, -1, (0, 0, 255), 3)
+    # Segment only the detected region
+    # segmented_img_pointer = cv2.bitwise_and(frame, frame, mask=mask_pointer)
+    segmented_img_center = cv2.bitwise_and(frame, frame, mask=mask_center)
 
-# loop over the contours
-for c in contours_pointers:
-    # compute the center of the contour
-    M = cv2.moments(c)
-    cX_pointer = int(M["m10"] / M["m00"])
-    cY_pointer = int(M["m01"] / M["m00"])
-    # draw the contour and center of the shape on the image
-    cv2.drawContours(img, [c], -1, (0, 255, 0), 2)
-    cv2.circle(img, (cX_pointer, cY_pointer), 7, (255, 255, 255), -1)
+    # Find contours from the mask
+    # contours_pointers, hierarchy = cv2.findContours(mask_pointer.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours_center, hierarchy = cv2.findContours(mask_center.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # check the coordinates found
-    print("pointer: x = " + str(cX_pointer) + " and " "y = " + str(cY_pointer))
+    # output = cv2.drawContours(segmented_img_pointer, contours_pointers, -1, (0, 0, 255), 3)
+    output = cv2.drawContours(segmented_img_center, contours_center, -1, (0, 0, 255), 3)
 
-for c in contours_center:
-    # compute the center of the contour
-    M = cv2.moments(c)
-    cX_center = int(M["m10"] / M["m00"])
-    cY_center = int(M["m01"] / M["m00"])
-    # draw the contour and center of the shape on the image
-    cv2.drawContours(img, [c], -1, (0, 255, 0), 2)
-    cv2.circle(img, (cX_center, cY_center), 7, (255, 255, 255), -1)
+    cY_center = 0
+    cX_center = 0
+    cY_pointer = 0
+    cX_pointer = 0
 
-    # check the coordinates found
-    print("center: x = " + str(cX_center) + " and " "y = " + str(cY_center))
+    for c in contours_center:
+        # compute the center of the contour
+        M = cv2.moments(c)
+        cX_center = int(M["m10"] / M["m00"])
+        cY_center = int(M["m01"] / M["m00"])
+        # draw the contour and center of the shape on the image
+        cv2.drawContours(frame, [c], -1, (0, 255, 0), 2)
+        cv2.circle(frame, (cX_center, cY_center), 7, (255, 255, 255), -1)
 
+        # check the coordinates found
+        print("center: x = " + str(cX_center) + " and " "y = " + str(cY_center))
 
-# calculate angle
-def calculate_angle(x0, y0, x, y):
-    # x0,y0 = the center of the robot : x,y = is the coordinate of the oriantation point
-    angle = math.degrees(math.atan2(y0 - y, x0 - x)) % 360
-    print(f'The angle is = {angle}')
+    # draw a circle around the center of the robot
+    cv2.circle(img=frame, center=(cX_center, cY_center), radius=200, color=(255, 0, 0), thickness=5)
 
+    #find only pointers in a certain area
+    # Circular ROI in original image; must be selected via an additional mask
+    # link: https://stackoverflow.com/questions/59873870/crop-a-circle-area-roi-of-an-image-and-put-it-onto-a-white-mask
+    roi = np.zeros(frame.shape[:2], np.uint8)
+    roi = cv2.circle(roi, (cX_center, cY_center), 200, 255, cv2.FILLED)
 
-# draw a circle around the center of the robot
-cv2.circle(img=img, center=(cX_center, cY_center), radius=200, color=(255, 0, 0), thickness=5)
+    # Target image; white background
+    mask = np.ones_like(frame) * 255
+    # Copy ROI part from original image to target image
+    mask = cv2.bitwise_and(mask, frame, mask=roi) + cv2.bitwise_and(mask, mask, mask=~roi)
+    cv2.imshow('mask after operation (ROI)', mask)
 
-# Showing the output
-calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)
-cv2.imshow("Output", img)
-cv2.waitKey(0)
+    #pointer finding setup for region of interest ROI (won't find pointer outside of ROI)
+    # convert to hsv colorspace
+    hsvP = cv2.cvtColor(mask, cv2.COLOR_BGR2HSV)
+    # find the colors within the boundaries
+    mask_pointer = cv2.inRange(hsvP, lower_bound_pointer, upper_bound_pointer)
+    # Remove unnecessary noise from mask
+    mask_pointer = cv2.morphologyEx(mask_pointer, cv2.MORPH_CLOSE, kernel)
+    mask_pointer = cv2.morphologyEx(mask_pointer, cv2.MORPH_OPEN, kernel)
+    # Segment only the detected region
+    segmented_img_pointer = cv2.bitwise_and(frame, frame, mask=mask_pointer)
+    # Find contours from the mask
+    contours_pointers, hierarchy = cv2.findContours(mask_pointer.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    output = cv2.drawContours(segmented_img_pointer, contours_pointers, -1, (0, 0, 255), 3)
+
+    # loop over the contours
+    for c in contours_pointers:
+        # compute the center of the contour
+        M = cv2.moments(c)
+        cX_pointer = int(M["m10"] / M["m00"])
+        cY_pointer = int(M["m01"] / M["m00"])
+        # draw the contour and center of the shape on the image
+        cv2.drawContours(frame, [c], -1, (0, 255, 0), 2)
+        cv2.circle(frame, (cX_pointer, cY_pointer), 7, (255, 255, 255), -1)
+
+        # check the coordinates found
+        print("pointer: x = " + str(cX_pointer) + " and " "y = " + str(cY_pointer))
+
+    # calculate angle
+    def calculate_angle(x0, y0, x, y):
+        # x0,y0 = the center of the robot : x,y = is the coordinate of the oriantation point
+        angle = math.degrees(math.atan2(y0 - y, x0 - x)) % 360
+        print(f'The angle is = {angle}')
+
+    # Showing the output
+    calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)
+
+    cv2.imshow('Thresh', frame)
+    # define q as the exit button
+    if cv2.waitKey(25) & 0xFF == ord('q'):
+        break
+
+# release the video capture object
+cap.release()
+# Closes all the windows currently opened.
 cv2.destroyAllWindows()
