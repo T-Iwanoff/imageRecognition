@@ -4,7 +4,7 @@ from calibration import *
 
 # TODO Only map the border at the start, so the robot can't obscure it
 
-path = 'Image/Cluster1.jpg'
+path = 'Media/Image/Cluster1.jpg'
 media = 'CAMERA'    # 'CAMERA', 'VIDEO' or 'IMAGE'
 
 # Define the frames sampled and minimum number of frames
