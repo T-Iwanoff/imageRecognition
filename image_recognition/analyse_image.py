@@ -41,6 +41,8 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
                 temp_walls = analyse_walls(frame)
                 if temp_walls is not None:
                     static_wall_corners = temp_walls
+                else:
+                    static_wall_corners = None
 
         while True:
             # If out of frames, reset the video

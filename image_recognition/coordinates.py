@@ -4,6 +4,8 @@ from constants import *
 
 def coordinate_conversion(box, frame_x, frame_y):
     # print(box)
+    if len(box) == 0:
+        return
     if box[1][0]-box[0][0] == 0:  # If the box is detected upside down, return nothing
         return
 

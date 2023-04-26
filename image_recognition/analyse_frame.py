@@ -8,6 +8,7 @@ import cv2 as cv
 def analyse_walls(frame, wall_contours=None):
     # Find the correct max area of the outer wall
     global wall_corners
+    wall_corners_detected = False
 
     if STATIC_OUTER_WALLS:
         # Calibrate the frame
@@ -34,8 +35,11 @@ def analyse_walls(frame, wall_contours=None):
             # print(wall_area)  # for calibration
             # Draw an angled rectangle
             wall_corners = find_rectangle(wall_contour)
+            wall_corners_detected = True
             cv.drawContours(frame, [wall_corners], 0, (0, 255, 255), 2)
-    if wall_corners is not None:
+    if not wall_corners_detected:
+        return
+    else:
         return wall_corners
 
 
@@ -65,7 +69,7 @@ def analyse_obstacles(frame, wall_contours=None):
     else:
         return obstacle
 
-def analyse_balls(frame, saved_circles=None, counter=None, prev_number_of_balls=None):
+def analyse_balls(frame, wall_corners, saved_circles=None, counter=None, prev_number_of_balls=None):
     # Find the balls
     circles = find_circles(frame)
     # circles = find_white_circles(frame)
@@ -103,7 +107,8 @@ def analyse_frame(frame, static_wall_corners=None):
     # Find the outer wall corners
     if STATIC_OUTER_WALLS:
         wall_corners = static_wall_corners
-        cv.drawContours(frame, [wall_corners], 0, (255, 0, 0), 2)
+        if wall_corners is not None:
+            cv.drawContours(frame, [wall_corners], 0, (255, 0, 0), 2)
     else:
         wall_corners = analyse_walls(frame, wall_contours)
 
