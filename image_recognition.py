@@ -50,7 +50,7 @@ def analyseFrame(frame, savedCircles=None, counter=None, prev_number_of_balls=No
                 cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
 
     # Find the balls
-    circles = findWhiteCircles(frame)
+    circles = findCircles(frame)
     # circles = findWhiteCircles(frame)
     # if counter is not None:
     #     if counter < SAVED_FRAMES:
