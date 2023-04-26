@@ -1,5 +1,6 @@
 from image_recognition.calibration import *
 from image_recognition.analyse_frame import analyse_frame
+from image_recognition.robotRecognition import robot_recognition
 
 
 def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_balls=None):
@@ -10,6 +11,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
         frame = cv.imread(path)
 
         analyse_frame(frame)
+        robot_recognition(frame)
 
         if cv.waitKey(0) == ord('q'):
             cv.destroyAllWindows()
@@ -42,6 +44,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
 
             prev_number_of_balls = analyse_frame(frame, saved_data, frame_counter,
                                                  prev_number_of_balls)
+            robot_recognition(frame)
 
             frame_counter += 1
 
@@ -75,6 +78,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
                 exit()
 
             analyse_frame(frame, saved_data, frame_counter)
+            robot_recognition(frame)
 
             frame_counter += 1
 

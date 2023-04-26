@@ -3,10 +3,8 @@ import math
 import cv2
 import numpy as np
 
-from calibration import calibrateFrame
 
-
-def robotRecognition(frame):
+def robot_recognition(frame):
 
     # define kernel size
     kernel = np.ones((7, 7), np.uint8)
