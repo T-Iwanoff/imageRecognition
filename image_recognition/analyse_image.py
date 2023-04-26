@@ -2,7 +2,6 @@ from course import Course
 from image_recognition.calibration import *
 from image_recognition.analyse_frame import analyse_frame
 import path_finder.graph_setup1 as gt
-import robot_connection.socket_connection as robot
 from image_recognition.robotRecognition import robot_recognition
 
 
@@ -210,7 +209,8 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
                 gt.create_graph(course)
                 # send coordinates
                 # robot.send_coords(course.ball_coordinates[0][0], course.ball_coordinates[0][1])
-                
+
+            robot_recognition(frame)
 
             frame_counter += 1
 
