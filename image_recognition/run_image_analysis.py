@@ -4,7 +4,7 @@ from refactoring.calibration import *
 from image_recognition import analyse_frame
 
 
-def run_image_analysis(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_balls=None):
+def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_balls=None):
     # TODO Only map the border at the start, so the robot can't obscure it
 
     if media == 'IMAGE':

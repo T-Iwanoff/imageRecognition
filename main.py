@@ -1,5 +1,6 @@
-from run_image_analysis import run_image_analysis
+
 import os
+from image_recognition.run_image_analysis import analyse_image
 
 # change this to the path of your image directory
 # image_dir = 'Media/Image'
@@ -14,7 +15,7 @@ import os
 
 # run_image_analysis()
 
-run_image_analysis(path='Media/Image/Bold3-3-120.5.jpg', media='IMAGE')
+analyse_image(path='Media/Image/Bold3-3-120.5.jpg', media='IMAGE')
 
 
 # media = 'CAMERA', 'VIDEO' or 'IMAGE'
