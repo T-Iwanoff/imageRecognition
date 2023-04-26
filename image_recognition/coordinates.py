@@ -17,7 +17,7 @@ def coordinate_conversion(box, frame_x, frame_y):
     if (PRINT_COORDINATES):
         print("x: ", meter_x)
         print("y: ", meter_y)
-    return meter_x, meter_y
+    return [meter_x, meter_y]
 
 
 # box = [[50, 400], [50, 30], [600, 30], [600, 400]]  # Straight box

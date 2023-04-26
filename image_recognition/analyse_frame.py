@@ -1,3 +1,4 @@
+from course import Course
 from image_recognition.coordinates import *
 from image_recognition.find_circles import *
 from image_recognition.find_walls import *
@@ -38,6 +39,9 @@ def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=
     # wall_mask = frameToWallMask(frame)
     # wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
+    # To prevent runtime error in meter conversion
+    obstacle = None
+
     # Loop over the wall contours and draw obstacle
     for wall_contour in wall_contours:
         wall_area = cv.contourArea(wall_contour)
@@ -64,16 +68,32 @@ def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=
     # Draw the circles
     draw_circles(frame, circles)
 
-    # Converting to meter
-    if circles is not None and wall_corners is not None:
-        for circle in circles:
-            coordinate_conversion(wall_corners, circle[0], circle[1])
+    circles_in_meters = []
+    obstacle_in_meters = []
+    walls_in_meters = []
 
-    if PRINT_NUMBER_OF_BALLS and circles is not None and prev_number_of_balls != len(circles):
-        print(len(circles))
-        prev_number_of_balls = len(circles)
+    if wall_corners is not None:
+    # Converting to meter
+        if circles is not None:
+            for circle in circles:
+                converted_coords = coordinate_conversion(wall_corners, circle[0], circle[1])
+                circles_in_meters.append(converted_coords)
+
+        if obstacle is not None:
+            for coord in obstacle:
+                converted_coords = coordinate_conversion(wall_corners, coord[0], coord[1])
+                obstacle_in_meters.append(converted_coords)
+        
+        if wall_corners is not None:
+            for coord in wall_corners:
+                converted_coords = coordinate_conversion(wall_corners, coord[0], coord[1])
+                walls_in_meters.append(converted_coords)
+
+    # if PRINT_NUMBER_OF_BALLS and circles is not None and prev_number_of_balls != len(circles):
+    #     print(len(circles))
+    #     prev_number_of_balls = len(circles)
 
     # Display the resulting frame
     cv.imshow('frame', frame)
 
-    return prev_number_of_balls
+    return Course(circles_in_meters, obstacle_in_meters, walls_in_meters)

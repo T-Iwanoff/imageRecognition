@@ -1,4 +1,4 @@
-from coordinates import *
+from image_recognition.coordinates import *
 from image_recognition.calibration import *
 
 # TODO Only map the border at the start, so the robot can't obscure it
