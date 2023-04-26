@@ -1,11 +1,11 @@
 from coordinates import *
-from find_circles import find_circles, draw_circles
-from find_walls import frame_to_wall_mask, find_rectangle
+from find_circles import *
+from find_walls import *
 from refactoring.calibration import *
 from constants import *
 
 
-def analyse_frame(frame, savedCircles=None, counter=None, prev_number_of_balls=None):
+def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=None):
     # Calibrate the frame
     frame = calibrate_frame(frame)
 
@@ -52,13 +52,13 @@ def analyse_frame(frame, savedCircles=None, counter=None, prev_number_of_balls=N
 
     # Find the balls
     circles = find_circles(frame)
-    # circles = findWhiteCircles(frame)
-    # if counter is not None:
-    #     if counter < SAVED_FRAMES:
-    #         savedCircles.append(circles)
-    #     else:
-    #         savedCircles[counter % SAVED_FRAMES] = circles
-    #     circles = findRepeatedCoordinates(savedCircles, CUTOFF)
+    # circles = find_white_circles(frame)
+    if counter is not None:
+        if counter < SAVED_FRAMES:
+            saved_circles.append(circles)
+        else:
+            saved_circles[counter % SAVED_FRAMES] = circles
+        circles = find_repeated_coordinates(saved_circles, CUTOFF)
 
     # Draw the circles
     draw_circles(frame, circles)

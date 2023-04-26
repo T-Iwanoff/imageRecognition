@@ -1,24 +1,5 @@
 
-import os
-from image_recognition.run_image_analysis import analyse_image
+from image_recognition.analyse_image import analyse_image
 
-# change this to the path of your image directory
-# image_dir = 'Media/Image'
-# image_paths = []
-
-# for filename in os.listdir(image_dir):
-#     # or any other image file extensions you have
-#     if (filename.endswith('.jpg') or filename.endswith('.png')) and filename.startswith('Bold'):
-#         image_paths.append(os.path.join(image_dir, filename))
-
-
-
-# run_image_analysis()
 
 analyse_image(path='Media/Image/Bold3-3-120.5.jpg', media='IMAGE')
-
-
-# media = 'CAMERA', 'VIDEO' or 'IMAGE'
-# for img_path in image_paths:
-#     print(img_path)
-#     run_image_analysis(path=img_path, media='IMAGE')

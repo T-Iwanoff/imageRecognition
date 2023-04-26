@@ -1,7 +1,7 @@
 import cv2 as cv
-from coordinates import *
+from image_recognition.coordinates import *
 from refactoring.calibration import *
-from image_recognition import analyse_frame
+from analyse_frame import analyse_frame
 
 
 def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_balls=None):
