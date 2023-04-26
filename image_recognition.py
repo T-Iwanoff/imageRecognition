@@ -1,6 +1,6 @@
 from coordinates import *
-from find_circles import findCircles, drawCircles
-from find_walls import frameToWallMask, findRectangle
+from find_circles import find_circles, draw_circles
+from find_walls import frame_to_wall_mask, find_rectangle
 from refactoring.calibration import *
 from constants import *
 

@@ -4,23 +4,23 @@ import numpy as np
 from constants import LOWER_WALL_COLOR, UPPER_WALL_COLOR
 
 
-def frameToWallMask(frame):
+def frame_to_wall_mask(frame):
     # Convert the frame to the HSV color space
-    invFrame = cv.bitwise_not(frame)
-    hsvFrame = cv.cvtColor(invFrame, cv.COLOR_BGR2HSV)
+    inv_frame = cv.bitwise_not(frame)
+    hsv_frame = cv.cvtColor(inv_frame, cv.COLOR_BGR2HSV)
     # Apply color mask to the frame to detect the red walls
-    wall_mask = cv.inRange(hsvFrame, LOWER_WALL_COLOR, UPPER_WALL_COLOR)
+    wall_mask = cv.inRange(hsv_frame, LOWER_WALL_COLOR, UPPER_WALL_COLOR)
     return wall_mask
 
 
-def findRectangle(wall):
+def find_rectangle(wall):
     rect = cv.minAreaRect(wall)
     box = cv.boxPoints(rect)
     box = np.intp(box)
     return box
 
 
-def warpFrame(box, frame):
+def warp_frame(box, frame):
     global converted_points
     # Warp image, code from https://thinkinfi.com/warp-perspective-opencv/
     # Pixel values in original image

@@ -4,11 +4,11 @@ import numpy as np
 from constants import CIRCLE_MIN_DIST, CIRCLE_PARAM_1, CIRCLE_PARAM_2, CIRCLE_MIN_RADIUS, CIRCLE_MAX_RADIUS
 
 
-def findCircles(frame):
+def find_circles(frame):
     # Create a grayFrame
-    grayFrame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     # Find ping pong balls
-    circles = cv.HoughCircles(grayFrame, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
+    circles = cv.HoughCircles(gray_frame, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
                               param1=CIRCLE_PARAM_1, param2=CIRCLE_PARAM_2, minRadius=CIRCLE_MIN_RADIUS,
                               maxRadius=CIRCLE_MAX_RADIUS)
     # param1 is sensitivity (smaller == more circles)
@@ -21,9 +21,9 @@ def findCircles(frame):
     return circles
 
 
-def findWhiteCircles(frame):
+def find_white_circles(frame):
     # Create a grayFrame
-    grayFrame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     # Find white ping pong balls
     # Threshold for white color
     white_mask = cv.inRange(frame, (200, 200, 200), (255, 255, 255))
@@ -37,7 +37,7 @@ def findWhiteCircles(frame):
         white_circles = white_circles[0, :]
 
     # Find ping pong balls in the grayFrame
-    circles = cv.HoughCircles(grayFrame, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
+    circles = cv.HoughCircles(gray_frame, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
                               param1=CIRCLE_PARAM_1, param2=CIRCLE_PARAM_2, minRadius=CIRCLE_MIN_RADIUS,
                               maxRadius=CIRCLE_MAX_RADIUS)
 
@@ -63,7 +63,7 @@ def findWhiteCircles(frame):
     return circles
 
 
-def findRepeatedCoordinates(frames, cutoff):
+def find_repeated_coordinates(frames, cutoff):
     complete_list = []
     for frame in frames:
         for coordinate in frame:
@@ -76,7 +76,7 @@ def findRepeatedCoordinates(frames, cutoff):
     return repeated_list
 
 
-def drawCircles(frame, circles):
+def draw_circles(frame, circles):
     if circles is None:
         return
 
