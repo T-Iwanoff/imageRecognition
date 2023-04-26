@@ -15,8 +15,10 @@ def robotRecognition(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     # lower bound and upper bound for pointer color
-    lower_bound_pointer = np.array([30, 60, 20])
-    upper_bound_pointer = np.array([55, 250, 255])
+    # lower_bound_pointer = np.array([30, 60, 20]) # lego color
+    # upper_bound_pointer = np.array([55, 250, 255]) # lego color
+    lower_bound_pointer = np.array([0, 0, 0]) # black detection - test
+    upper_bound_pointer = np.array([179, 100, 130]) # black detection - test
 
     # lower bound and upper bound for center color
     lower_bound_center = np.array([80, 120, 20])
@@ -57,13 +59,13 @@ def robotRecognition(frame):
         print("center: x = " + str(cX_center) + " and " "y = " + str(cY_center))
 
     # draw a circle around the center of the robot
-    cv2.circle(img=frame, center=(cX_center, cY_center), radius=200, color=(255, 0, 0), thickness=5)
+    cv2.circle(img=frame, center=(cX_center, cY_center), radius=25, color=(255, 0, 0), thickness=2)
 
     # find only pointers in a certain area
     # Circular ROI in original image; must be selected via an additional mask
     # link: https://stackoverflow.com/questions/59873870/crop-a-circle-area-roi-of-an-image-and-put-it-onto-a-white-mask
     roi = np.zeros(frame.shape[:2], np.uint8)
-    roi = cv2.circle(roi, (cX_center, cY_center), 200, 255, cv2.FILLED)
+    roi = cv2.circle(roi, (cX_center, cY_center), 25, 255, cv2.FILLED)
 
     # Target image; white background
     mask = np.ones_like(frame) * 255
