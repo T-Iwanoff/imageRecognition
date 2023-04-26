@@ -1,8 +1,9 @@
-from coordinates import *
-from find_circles import *
-from find_walls import *
-from refactoring.calibration import *
+from image_recognition.coordinates import *
+from image_recognition.find_circles import *
+from image_recognition.find_walls import *
+from image_recognition.calibration import *
 from constants import *
+import cv2 as cv
 
 
 def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=None):
@@ -53,12 +54,12 @@ def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=
     # Find the balls
     circles = find_circles(frame)
     # circles = find_white_circles(frame)
-    if counter is not None:
-        if counter < SAVED_FRAMES:
-            saved_circles.append(circles)
-        else:
-            saved_circles[counter % SAVED_FRAMES] = circles
-        circles = find_repeated_coordinates(saved_circles, CUTOFF)
+    # if counter is not None:
+    #     if counter < SAVED_FRAMES:
+    #         saved_circles.append(circles)
+    #     else:
+    #         saved_circles[counter % SAVED_FRAMES] = circles
+    #     circles = find_repeated_coordinates(saved_circles, CUTOFF)
 
     # Draw the circles
     draw_circles(frame, circles)

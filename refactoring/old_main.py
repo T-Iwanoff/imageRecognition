@@ -1,6 +1,5 @@
-import cv2 as cv
 from coordinates import *
-from refactoring.calibration import *
+from image_recognition.calibration import *
 
 # TODO Only map the border at the start, so the robot can't obscure it
 
