@@ -2,7 +2,7 @@ from run_image_analysis import run_image_analysis
 import os
 
 # change this to the path of your image directory
-# image_dir = 'Media\Image'
+# image_dir = 'Media/Image'
 # image_paths = []
 
 # for filename in os.listdir(image_dir):
@@ -12,9 +12,9 @@ import os
 
 
 
-run_image_analysis()
+# run_image_analysis()
 
-run_image_analysis(path='Media\Image\Cluster2.jpg', media='IMAGE')
+run_image_analysis(path='Media/Image/Bold3-3-120.5.jpg', media='IMAGE')
 
 
 # media = 'CAMERA', 'VIDEO' or 'IMAGE'

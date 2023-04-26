@@ -15,8 +15,8 @@ def coordinate_conversion(box, frame_x, frame_y):
     y_scale = COURSE_HEIGHT/(box[3][1]-box[0][1])
     meter_y = (box[2][1]-frame_y) * y_scale
     if (PRINT_COORDINATES):
-        print("frame x: ", frame_x)
-        print("frame y: ", frame_y)
+        print("x: ", meter_x)
+        print("y: ", meter_y)
     return meter_x, meter_y
 
 
