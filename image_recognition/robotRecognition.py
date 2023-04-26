@@ -101,7 +101,7 @@ def robot_recognition(frame):
     def calculate_angle(x0, y0, x, y):
         # x0,y0 = the center of the robot : x,y = is the coordinate of the oriantation point
         angle = math.degrees(math.atan2(y0 - y, x0 - x)) % 360
-        print(f'The angle is = {angle}')
+        # print(f'The angle is = {angle}')
 
     # Showing the output
     calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)

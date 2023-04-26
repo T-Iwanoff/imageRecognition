@@ -26,6 +26,7 @@ def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=
     for wall_contour in wall_contours:
         wall_area.append(cv.contourArea(wall_contour))
 
+    
     max_wall_area = calibrate_wall_area(wall_area, False) + 100
 
     # Loop over the wall contours and draw walls

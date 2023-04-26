@@ -20,6 +20,7 @@ EDGE_WIDTH = 1
 DISPLAY_HEIGHT = 3.5
 DISPLAY_WIDTH = 6
 
+global left_obstacle, right_obstacle, top_obstacle, bottom_obstacle
 left_obstacle = None
 right_obstacle = None
 top_obstacle = None
@@ -41,7 +42,6 @@ def create_graph(course: Course):
 
     # add nodes
     G.add_nodes_from(range(nmbr_of_nodes))
-
 
     pos = nx.random_layout(G, dim=2, center=None)
     # add nodes at ball coordinates
@@ -141,7 +141,7 @@ def create_graph(course: Course):
     nx.draw_networkx_labels(G, pos, font_size=12, font_family="sans-serif")
 
     # edge weight labels
-    edge_labels = {k: "{:.0f}".format(v) for k, v in edge_weights.items()}
+    edge_labels = {k: "{:.2f}".format(v) for k, v in edge_weights.items()}
     nx.draw_networkx_edge_labels(
         G, pos, edge_labels=edge_labels, font_size=6, label_pos=0.5, bbox=dict(boxstyle="round", fc="w", ec="1", alpha=0.9, pad=0.1))
 
