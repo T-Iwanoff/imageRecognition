@@ -20,13 +20,14 @@ upper_wall_color = (100, 255, 255)
 
 def analyseFrame(frame, savedCircles=None, counter=None):
     # Calibrate the frame
-    frame = calibrateFrame(frame)
+    frame = calibrate_frame(frame)
 
     # Make a mask for the wall
     wall_mask = frameToWallMask(frame)
 
     # Find contours in the red wall mask
-    wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+    wall_contours, _ = cv.findContours(
+        wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
     # To prevent runtime error in meter conversion
     wall_corners = None
@@ -108,12 +109,17 @@ def warpFrame(box, frame):
     upper_right_point = box[2]  # Green
     lower_right_point = box[3]  # Blue
     # Create point matrix
-    point_matrix = np.float32([upper_left_point, upper_right_point, lower_left_point, lower_right_point])
+    point_matrix = np.float32(
+        [upper_left_point, upper_right_point, lower_left_point, lower_right_point])
     # Draw circle for each point
-    cv.circle(frame, (upper_left_point[0], upper_left_point[1]), 10, (0, 0, 255), cv.FILLED)
-    cv.circle(frame, (upper_right_point[0], upper_right_point[1]), 10, (0, 255, 0), cv.FILLED)
-    cv.circle(frame, (lower_right_point[0], lower_right_point[1]), 10, (255, 0, 0), cv.FILLED)
-    cv.circle(frame, (lower_left_point[0], lower_left_point[1]), 10, (0, 0, 0), cv.FILLED)
+    cv.circle(
+        frame, (upper_left_point[0], upper_left_point[1]), 10, (0, 0, 255), cv.FILLED)
+    cv.circle(
+        frame, (upper_right_point[0], upper_right_point[1]), 10, (0, 255, 0), cv.FILLED)
+    cv.circle(
+        frame, (lower_right_point[0], lower_right_point[1]), 10, (255, 0, 0), cv.FILLED)
+    cv.circle(
+        frame, (lower_left_point[0], lower_left_point[1]), 10, (0, 0, 0), cv.FILLED)
     # Output image size
     width, height = 640, 480
     # Desired points value in output images
@@ -125,7 +131,8 @@ def warpFrame(box, frame):
     converted_points = np.float32([converted_ul_pixel_value, converted_ur_pixel_value,
                                    converted_ll_pixel_value, converted_lr_pixel_value])
     # perspective transform
-    perspective_transform = cv.getPerspectiveTransform(point_matrix, converted_points)
+    perspective_transform = cv.getPerspectiveTransform(
+        point_matrix, converted_points)
     frame = cv.warpPerspective(frame, perspective_transform, (width, height))
     return frame
 
@@ -135,7 +142,8 @@ def findCircles(frame):
     grayFrame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     # Find ping pong balls
     circles = cv.HoughCircles(grayFrame, cv.HOUGH_GRADIENT, 1, 3,
-                              param1=80, param2=17, minRadius=3,  # param1 is sensitivity (smaller == more circles)
+                              # param1 is sensitivity (smaller == more circles)
+                              param1=80, param2=17, minRadius=3,
                               maxRadius=9)  # param2 is number of points in the circle (precision)
 
     # Convert circles to array
@@ -192,7 +200,8 @@ if media == 'VIDEO':
 
     while True:
         # If out of frames, reset the video
-        if frameCounter == videoCapture.get(7):  # propertyID 7 is the number of frames in the video
+        # propertyID 7 is the number of frames in the video
+        if frameCounter == videoCapture.get(7):
             frameCounter = 0
             videoCapture.set(1, 0)  # propertyID 1 is the current frame
 
@@ -246,5 +255,3 @@ if media == 'CAMERA':
     # Release the camera and close the window
     videoCapture.release()
     cv.destroyAllWindows()
-
-

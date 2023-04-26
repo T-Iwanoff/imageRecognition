@@ -4,12 +4,12 @@ from refactoring.calibration import *
 from constants import *
 
 
-def analyseFrame(frame, savedCircles=None, counter=None, prev_number_of_balls=None):
+def analyse_frame(frame, savedCircles=None, counter=None, prev_number_of_balls=None):
     # Calibrate the frame
-    frame = calibrateFrame(frame)
+    frame = calibrate_frame(frame)
 
     # Make a mask for the wall
-    wall_mask = frameToWallMask(frame)
+    wall_mask = frame_to_wall_mask(frame)
 
     # Find contours in the red wall mask
     wall_contours, _ = cv.findContours(
@@ -25,7 +25,7 @@ def analyseFrame(frame, savedCircles=None, counter=None, prev_number_of_balls=No
         if OUTER_WALL_AREA_MAX > wall_area > OUTER_WALL_AREA_MIN:
             # print(wall_area)  # for calibration
             # Draw an angled rectangle
-            wall_corners = findRectangle(wall_contour)
+            wall_corners = find_rectangle(wall_contour)
             cv.drawContours(frame, [wall_corners], 0, (0, 255, 255), 2)
 
             # Warp the frame to fit the outer wall
@@ -43,14 +43,14 @@ def analyseFrame(frame, savedCircles=None, counter=None, prev_number_of_balls=No
         if OBSTACLE_AREA_MAX > wall_area > OBSTACLE_AREA_MIN:
             # print(wall_area) # For calibration
             # Find the corners of the obstacle
-            obstacle = findRectangle(wall_contour)
+            obstacle = find_rectangle(wall_contour)
             # cv.drawContours(frame, [obstacle], 0, (0, 255, 255), 2)
             # Draw the points of the obstacle
             for coord in obstacle:
                 cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
 
     # Find the balls
-    circles = findCircles(frame)
+    circles = find_circles(frame)
     # circles = findWhiteCircles(frame)
     # if counter is not None:
     #     if counter < SAVED_FRAMES:
@@ -60,7 +60,7 @@ def analyseFrame(frame, savedCircles=None, counter=None, prev_number_of_balls=No
     #     circles = findRepeatedCoordinates(savedCircles, CUTOFF)
 
     # Draw the circles
-    drawCircles(frame, circles)
+    draw_circles(frame, circles)
 
     # Converting to meter
     if circles is not None and wall_corners is not None:
@@ -77,23 +77,23 @@ def analyseFrame(frame, savedCircles=None, counter=None, prev_number_of_balls=No
     return prev_number_of_balls
 
 
-def frameToWallMask(frame):
+def frame_to_wall_mask(frame):
     # Convert the frame to the HSV color space
-    invFrame = cv.bitwise_not(frame)
-    hsvFrame = cv.cvtColor(invFrame, cv.COLOR_BGR2HSV)
+    inv_frame = cv.bitwise_not(frame)
+    hsv_frame = cv.cvtColor(inv_frame, cv.COLOR_BGR2HSV)
     # Apply color mask to the frame to detect the red walls
-    wall_mask = cv.inRange(hsvFrame, LOWER_WALL_COLOR, UPPER_WALL_COLOR)
+    wall_mask = cv.inRange(hsv_frame, LOWER_WALL_COLOR, UPPER_WALL_COLOR)
     return wall_mask
 
 
-def findRectangle(wall):
+def find_rectangle(wall):
     rect = cv.minAreaRect(wall)
     box = cv.boxPoints(rect)
     box = np.intp(box)
     return box
 
 
-def warpFrame(box, frame):
+def warp_frame(box, frame):
     global converted_points
     # Warp image, code from https://thinkinfi.com/warp-perspective-opencv/
     # Pixel values in original image
@@ -130,14 +130,13 @@ def warpFrame(box, frame):
     return frame
 
 
-def findCircles(frame):
+def find_circles(frame):
     # Create a grayFrame
-    grayFrame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     # Find ping pong balls
-    circles = cv.HoughCircles(grayFrame, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
-                              # param1 is sensitivity (smaller == more circles)
+    circles = cv.HoughCircles(gray_frame, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
                               param1=CIRCLE_PARAM_1, param2=CIRCLE_PARAM_2, minRadius=CIRCLE_MIN_RADIUS,
-                              maxRadius=CIRCLE_MAX_RADIUS)  # param2 is number of points in the circle (precision)
+                              maxRadius=CIRCLE_MAX_RADIUS)
 
     # Convert circles to array
     if circles is not None:
@@ -145,9 +144,10 @@ def findCircles(frame):
         circles = circles[0, :]
     return circles
 
-def findWhiteCircles(frame):
+
+def find_white_circles(frame):
     # Create a grayFrame
-    grayFrame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     # Find white ping pong balls
     # Threshold for white color
     white_mask = cv.inRange(frame, (200, 200, 200), (255, 255, 255))
@@ -161,7 +161,7 @@ def findWhiteCircles(frame):
         white_circles = white_circles[0, :]
 
     # Find ping pong balls in the grayFrame
-    circles = cv.HoughCircles(grayFrame, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
+    circles = cv.HoughCircles(gray_frame, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
                               param1=CIRCLE_PARAM_1, param2=CIRCLE_PARAM_2, minRadius=CIRCLE_MIN_RADIUS,
                               maxRadius=CIRCLE_MAX_RADIUS)
 
@@ -186,7 +186,8 @@ def findWhiteCircles(frame):
 
     return circles
 
-def findRepeatedCoordinates(frames, cutoff):
+
+def find_repeated_coordinates(frames, cutoff):
     complete_list = []
     for frame in frames:
         for coordinate in frame:
@@ -199,7 +200,7 @@ def findRepeatedCoordinates(frames, cutoff):
     return repeated_list
 
 
-def drawCircles(frame, circles):
+def draw_circles(frame, circles):
     if circles is None:
         return
 
