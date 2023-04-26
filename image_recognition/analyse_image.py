@@ -1,6 +1,7 @@
 from image_recognition.calibration import *
-from image_recognition.analyse_frame import analyse_frame
+from image_recognition.analyse_frame import analyse_frame, analyse_walls, analyse_obstacles, analyse_balls
 from image_recognition.robotRecognition import robot_recognition
+from constants import STATIC_OUTER_WALLS
 
 
 def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_balls=None):
@@ -29,15 +30,17 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
 
         prev_number_of_balls = 0
 
-
         # Find static outer walls
-        for i in range(10):
-            # Get the current frame
-            ret, frame = video_capture.read()
-            if not ret:
-                print("Error: Frame not found")
-                exit()
-            analyse_frame(frame, saved_data, frame_counter)
+        if STATIC_OUTER_WALLS:
+            for i in range(10):
+                # Get the current frame
+                ret, frame = video_capture.read()
+                if not ret:
+                    print("Error: Frame not found")
+                    exit()
+                temp_walls = analyse_walls(frame)
+                if temp_walls is not None:
+                    static_wall_corners = temp_walls
 
         while True:
             # If out of frames, reset the video
@@ -52,7 +55,14 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
                 print("Error: Frame not found")
                 exit()
 
-            prev_number_of_balls = analyse_frame(frame, saved_data, frame_counter,
+            if STATIC_OUTER_WALLS:
+                analyse_frame(frame, static_wall_corners)
+            else:
+                analyse_frame(frame)
+
+
+
+            prev_number_of_balls = analyse_balls(frame, saved_data, frame_counter,
                                                  prev_number_of_balls)
             robot_recognition(frame)
 

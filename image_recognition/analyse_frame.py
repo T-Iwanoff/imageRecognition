@@ -5,9 +5,21 @@ from image_recognition.calibration import *
 from constants import *
 import cv2 as cv
 
-def analyse_walls(frame, wall_contours):
+def analyse_walls(frame, wall_contours=None):
     # Find the correct max area of the outer wall
     global wall_corners
+
+    if STATIC_OUTER_WALLS:
+        # Calibrate the frame
+        frame = calibrate_frame(frame)
+
+        # Make a mask for the wall
+        wall_mask = frame_to_wall_mask(frame)
+
+        # Find contours in the red wall mask
+        wall_contours, _ = cv.findContours(
+            wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+
     wall_area = []
     for wall_contour in wall_contours:
         wall_area.append(cv.contourArea(wall_contour))
@@ -27,7 +39,8 @@ def analyse_walls(frame, wall_contours):
         return wall_corners
 
 
-def analyse_obstacles(frame, wall_contours):
+def analyse_obstacles(frame, wall_contours=None):
+    obstacle_detected = False
     # Find the correct max area of the obstacle
     obstacle_area = []
     for wall_contour in wall_contours:
@@ -42,35 +55,17 @@ def analyse_obstacles(frame, wall_contours):
             # print(wall_area) # For calibration
             # Find the corners of the obstacle
             obstacle = find_rectangle(wall_contour)
+            obstacle_detected = True
             # cv.drawContours(frame, [obstacle], 0, (0, 255, 255), 2)
             # Draw the points of the obstacle
             for coord in obstacle:
                 cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
+    if not obstacle_detected:
+        return
+    else:
+        return obstacle
 
-def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=None):
-    # Calibrate the frame
-    frame = calibrate_frame(frame)
-
-    # Make a mask for the wall
-    wall_mask = frame_to_wall_mask(frame)
-
-    # Find contours in the red wall mask
-    wall_contours, _ = cv.findContours(
-        wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-
-    wall_corners = analyse_walls(frame, wall_contours)
-    analyse_obstacles(frame, wall_contours)
-
-            # Warp the frame to fit the outer wall
-            # frame = warpFrame(box, frame)
-
-    # print("---")  # For calibration
-    # Find contours in the frame again (in case the warp above is used)
-    # wall_mask = frameToWallMask(frame)
-    # wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-
-
-
+def analyse_balls(frame, saved_circles=None, counter=None, prev_number_of_balls=None):
     # Find the balls
     circles = find_circles(frame)
     # circles = find_white_circles(frame)
@@ -92,8 +87,40 @@ def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=
     if PRINT_NUMBER_OF_BALLS and circles is not None and prev_number_of_balls != len(circles):
         print(len(circles))
         prev_number_of_balls = len(circles)
+    return prev_number_of_balls
+
+def analyse_frame(frame, static_wall_corners=None):
+    # Calibrate the frame
+    frame = calibrate_frame(frame)
+
+    # Make a mask for the wall
+    wall_mask = frame_to_wall_mask(frame)
+
+    # Find contours in the red wall mask
+    wall_contours, _ = cv.findContours(
+        wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+
+    # Find the outer wall corners
+    if STATIC_OUTER_WALLS:
+        wall_corners = static_wall_corners
+        cv.drawContours(frame, [wall_corners], 0, (255, 0, 0), 2)
+    else:
+        wall_corners = analyse_walls(frame, wall_contours)
+
+    # Find the obstacle points
+    obstacle = analyse_obstacles(frame, wall_contours)
+
+            # Warp the frame to fit the outer wall
+            # frame = warpFrame(box, frame)
+
+    # print("---")  # For calibration
+    # Find contours in the frame again (in case the warp above is used)
+    # wall_mask = frameToWallMask(frame)
+    # wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+
+    circles = analyse_balls(frame, wall_corners)
+
+
 
     # Display the resulting frame
     cv.imshow('frame', frame)
-
-    return prev_number_of_balls
