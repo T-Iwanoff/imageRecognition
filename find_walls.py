@@ -1,0 +1,57 @@
+import cv2 as cv
+import numpy as np
+
+from constants import LOWER_WALL_COLOR, UPPER_WALL_COLOR
+
+
+def frameToWallMask(frame):
+    # Convert the frame to the HSV color space
+    invFrame = cv.bitwise_not(frame)
+    hsvFrame = cv.cvtColor(invFrame, cv.COLOR_BGR2HSV)
+    # Apply color mask to the frame to detect the red walls
+    wall_mask = cv.inRange(hsvFrame, LOWER_WALL_COLOR, UPPER_WALL_COLOR)
+    return wall_mask
+
+
+def findRectangle(wall):
+    rect = cv.minAreaRect(wall)
+    box = cv.boxPoints(rect)
+    box = np.intp(box)
+    return box
+
+
+def warpFrame(box, frame):
+    global converted_points
+    # Warp image, code from https://thinkinfi.com/warp-perspective-opencv/
+    # Pixel values in original image
+    lower_left_point = box[0]  # Black
+    upper_left_point = box[1]  # Red
+    upper_right_point = box[2]  # Green
+    lower_right_point = box[3]  # Blue
+    # Create point matrix
+    point_matrix = np.float32(
+        [upper_left_point, upper_right_point, lower_left_point, lower_right_point])
+    # Draw circle for each point
+    cv.circle(
+        frame, (upper_left_point[0], upper_left_point[1]), 10, (0, 0, 255), cv.FILLED)
+    cv.circle(
+        frame, (upper_right_point[0], upper_right_point[1]), 10, (0, 255, 0), cv.FILLED)
+    cv.circle(
+        frame, (lower_right_point[0], lower_right_point[1]), 10, (255, 0, 0), cv.FILLED)
+    cv.circle(
+        frame, (lower_left_point[0], lower_left_point[1]), 10, (0, 0, 0), cv.FILLED)
+    # Output image size
+    width, height = 640, 480
+    # Desired points value in output images
+    converted_ul_pixel_value = [0, 0]
+    converted_ur_pixel_value = [width, 0]
+    converted_ll_pixel_value = [0, height]
+    converted_lr_pixel_value = [width, height]
+    # Convert points
+    converted_points = np.float32([converted_ul_pixel_value, converted_ur_pixel_value,
+                                   converted_ll_pixel_value, converted_lr_pixel_value])
+    # perspective transform
+    perspective_transform = cv.getPerspectiveTransform(
+        point_matrix, converted_points)
+    frame = cv.warpPerspective(frame, perspective_transform, (width, height))
+    return frame
