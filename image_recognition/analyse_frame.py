@@ -21,11 +21,18 @@ def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=
     # To prevent runtime error in meter conversion
     wall_corners = None
 
+    # Find the correct max area of the outer wall
+    wall_area = []
+    for wall_contour in wall_contours:
+        wall_area.append(cv.contourArea(wall_contour))
+
+    max_wall_area = calibrate_wall_area(wall_area, False) + 100
+
     # Loop over the wall contours and draw walls
     for wall_contour in wall_contours:
         wall_area = cv.contourArea(wall_contour)
         # For the outer wall, draw a rectangle
-        if OUTER_WALL_AREA_MAX > wall_area > OUTER_WALL_AREA_MIN:
+        if (max_wall_area if AUTOMATED_AREA_DETECT else OUTER_WALL_AREA_MAX) > wall_area > OUTER_WALL_AREA_MIN:
             # print(wall_area)  # for calibration
             # Draw an angled rectangle
             wall_corners = find_rectangle(wall_contour)
@@ -39,14 +46,17 @@ def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=
     # wall_mask = frameToWallMask(frame)
     # wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
-    # To prevent runtime error in meter conversion
-    obstacle = None
+    # Find the correct max area of the obstacle
+    obstacle_area = []
+    for wall_contour in wall_contours:
+        obstacle_area.append(cv.contourArea(wall_contour))
+    max_obstacle_area = calibrate_wall_area(obstacle_area,True) + 100
 
     # Loop over the wall contours and draw obstacle
     for wall_contour in wall_contours:
         wall_area = cv.contourArea(wall_contour)
         # For the cross obstacle, mark the corners
-        if OBSTACLE_AREA_MAX > wall_area > OBSTACLE_AREA_MIN:
+        if (max_obstacle_area if AUTOMATED_AREA_DETECT else OUTER_WALL_AREA_MAX) > wall_area > OBSTACLE_AREA_MIN:
             # print(wall_area) # For calibration
             # Find the corners of the obstacle
             obstacle = find_rectangle(wall_contour)

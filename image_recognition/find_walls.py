@@ -3,6 +3,13 @@ import numpy as np
 
 from constants import LOWER_WALL_COLOR, UPPER_WALL_COLOR
 
+def calibrate_wall_area(wall_area, find_obstacle):
+    wall_area = sorted(wall_area, reverse=True)
+    if find_obstacle:
+        max_area = wall_area[1]
+    else:
+        max_area = wall_area[1]
+    return max_area
 
 def frame_to_wall_mask(frame):
     # Convert the frame to the HSV color space

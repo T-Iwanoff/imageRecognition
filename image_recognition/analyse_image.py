@@ -3,6 +3,7 @@ from image_recognition.calibration import *
 from image_recognition.analyse_frame import analyse_frame
 import path_finder.graph_setup1 as gt
 import robot_connection.socket_connection as robot
+from image_recognition.robotRecognition import robot_recognition
 
 
 def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_balls=None):
@@ -28,6 +29,8 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
         print(f"Wall coordinates: {wall_coords}")
         # create graph and show the fastest path
         gt.create_graph(course)
+
+        robot_recognition(frame)
 
         if cv.waitKey(0) == ord('q'):
             cv.destroyAllWindows()
@@ -71,6 +74,8 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
                                       for coords in course.wall_coordinates]
                 print(f"Wall coordinates: {wall_coords}")
                 gt.create_graph(course)
+                
+            robot_recognition(frame)
 
             frame_counter += 1
 
@@ -118,6 +123,8 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
                                for coords in course.wall_coordinates]
                 print(f"Wall coordinates: {wall_coords}")
                 gt.create_graph(course)
+
+            robot_recognition(frame)
 
             frame_counter += 1
 
