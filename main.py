@@ -7,7 +7,7 @@ from robotRecognition import robotRecognition
 # TODO Only map the border at the start, so the robot can't obscure it
 
 path = 'Media/Video/robo-video-test.mp4'
-media = 'CAMERA'  # 'CAMERA', 'VIDEO' or 'IMAGE'
+media = 'VIDEO'  # 'CAMERA', 'VIDEO' or 'IMAGE'
 
 # Define the frames sampled and minimum number of frames
 # that a circle has to be present to in to count as a ball
