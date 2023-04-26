@@ -162,3 +162,51 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
         # Release the camera and close the window
         video_capture.release()
         cv.destroyAllWindows()
+
+    #####
+
+    if media == 'MAC_CAMERA':
+        video_capture = cv.VideoCapture(0)
+        video_capture.set(3, 640)
+        video_capture.set(4, 480)
+
+        if not video_capture.isOpened():
+            print("Error: Camera not found")
+            exit()
+
+        frame_counter = 0
+        saved_data = []
+
+        while True:
+            # Get the current frame
+            ret, frame = video_capture.read()
+            if not ret:
+                print("Error: Frame not found")
+                exit()
+
+            course = analyse_frame(frame, saved_data, frame_counter)
+
+            # print the coordinates of the balls when g is pressed
+            if cv.waitKey(1) == ord('g'):
+                # print with 2 decimal places
+                ball_coords = [tuple(round(coord, 2) for coord in coords)
+                               for coords in course.ball_coordinates]
+                print(f"Ball coordinates: {ball_coords}")
+                obstacle_coords = [tuple(round(coord, 2) for coord in coords)
+                                   for coords in course.obstacle_coordinates]
+                print(f"Obstacle coordinates: {obstacle_coords}")
+                wall_coords = [tuple(round(coord, 2) for coord in coords)
+                               for coords in course.wall_coordinates]
+                print(f"Wall coordinates: {wall_coords}")
+                gt.create_graph(course)
+
+            frame_counter += 1
+
+            # If q is pressed, end the program
+            if cv.waitKey(1) == ord('q'):
+                break
+
+        # Release the camera and close the window
+        video_capture.release()
+        cv.destroyAllWindows()
+
