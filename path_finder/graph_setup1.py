@@ -108,8 +108,7 @@ def create_graph(course: Course):
 
     ### SHORTEST PATH ###
     start_time = time.time()
-    #
-
+    
     if nx.is_connected(G) and len(G.edges) > 0:
 
         tsp = solve_tsp(G)
