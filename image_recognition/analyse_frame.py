@@ -5,22 +5,9 @@ from image_recognition.calibration import *
 from constants import *
 import cv2 as cv
 
-
-def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=None):
-    # Calibrate the frame
-    frame = calibrate_frame(frame)
-
-    # Make a mask for the wall
-    wall_mask = frame_to_wall_mask(frame)
-
-    # Find contours in the red wall mask
-    wall_contours, _ = cv.findContours(
-        wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-
-    # To prevent runtime error in meter conversion
-    wall_corners = None
-
+def analyse_walls(frame, wall_contours):
     # Find the correct max area of the outer wall
+    global wall_corners
     wall_area = []
     for wall_contour in wall_contours:
         wall_area.append(cv.contourArea(wall_contour))
@@ -36,20 +23,16 @@ def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=
             # Draw an angled rectangle
             wall_corners = find_rectangle(wall_contour)
             cv.drawContours(frame, [wall_corners], 0, (0, 255, 255), 2)
+    if wall_corners is not None:
+        return wall_corners
 
-            # Warp the frame to fit the outer wall
-            # frame = warpFrame(box, frame)
 
-    # print("---")  # For calibration
-    # Find contours in the frame again (in case the warp above is used)
-    # wall_mask = frameToWallMask(frame)
-    # wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-
+def analyse_obstacles(frame, wall_contours):
     # Find the correct max area of the obstacle
     obstacle_area = []
     for wall_contour in wall_contours:
         obstacle_area.append(cv.contourArea(wall_contour))
-    max_obstacle_area = calibrate_wall_area(obstacle_area,True) + 100
+    max_obstacle_area = calibrate_wall_area(obstacle_area, True) + 100
 
     # Loop over the wall contours and draw obstacle
     for wall_contour in wall_contours:
@@ -63,6 +46,30 @@ def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=
             # Draw the points of the obstacle
             for coord in obstacle:
                 cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
+
+def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=None):
+    # Calibrate the frame
+    frame = calibrate_frame(frame)
+
+    # Make a mask for the wall
+    wall_mask = frame_to_wall_mask(frame)
+
+    # Find contours in the red wall mask
+    wall_contours, _ = cv.findContours(
+        wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+
+    wall_corners = analyse_walls(frame, wall_contours)
+    analyse_obstacles(frame, wall_contours)
+
+            # Warp the frame to fit the outer wall
+            # frame = warpFrame(box, frame)
+
+    # print("---")  # For calibration
+    # Find contours in the frame again (in case the warp above is used)
+    # wall_mask = frameToWallMask(frame)
+    # wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+
+
 
     # Find the balls
     circles = find_circles(frame)

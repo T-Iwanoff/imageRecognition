@@ -29,6 +29,16 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
 
         prev_number_of_balls = 0
 
+
+        # Find static outer walls
+        for i in range(10):
+            # Get the current frame
+            ret, frame = video_capture.read()
+            if not ret:
+                print("Error: Frame not found")
+                exit()
+            analyse_frame(frame, saved_data, frame_counter)
+
         while True:
             # If out of frames, reset the video
             # propertyID 7 is the number of frames in the video
@@ -69,6 +79,9 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
 
         frame_counter = 0
         saved_data = []
+
+        # Find static outer walls
+
 
         while True:
             # Get the current frame
