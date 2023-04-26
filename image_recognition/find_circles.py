@@ -1,5 +1,7 @@
 import cv2 as cv
+import numpy
 import numpy as np
+import array
 
 from constants import CIRCLE_MIN_DIST, CIRCLE_PARAM_1, CIRCLE_PARAM_2, CIRCLE_MIN_RADIUS, CIRCLE_MAX_RADIUS
 
@@ -64,16 +66,33 @@ def find_white_circles(frame):
 
 
 def find_repeated_coordinates(frames, cutoff):
-    complete_list = []
+    complete_list = []  # A list of all the balls
+    repeated_list = []  # A list of the unique balls that occur at least 'cutoff' times
     for frame in frames:
         for coordinate in frame:
-            complete_list.append(coordinate)
-    repeated_list = []
+            complete_list.append(coordinate)  # Puts the found balls from all the provided frames in the same list
     for coordinate in complete_list:
-        count = complete_list.count(coordinate)
-        if count >= cutoff and coordinate not in repeated_list:
+        # count = sum(all(x == coordinate) for x in complete_list)  # Counts the number of times a ball is in the list
+        count = sum((x[0] == coordinate[0] and x[1] == coordinate[1]) for x in complete_list)
+
+        circle_dist = 5
+        # listed = any(all(x == coordinate) for x in repeated_list)  # Checks whether a ball is on the repeat list
+        listed = is_close(coordinate, repeated_list, circle_dist)
+
+        if count >= cutoff and not listed:
             repeated_list.append(coordinate)
+    print("list: ", repeated_list)
     return repeated_list
+
+
+def is_close(a, b, distance):
+    close = False
+    for x in b:
+        if abs(a[0] - b[0]) <= distance:
+            close = True
+        if abs(a[1] - b[1]) <= distance:
+            close = True
+    return close
 
 
 def draw_circles(frame, circles):
