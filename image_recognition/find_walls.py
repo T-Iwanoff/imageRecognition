@@ -7,7 +7,6 @@ def calibrate_wall_area(wall_area, find_obstacle):
     wall_area = sorted(wall_area, reverse=True)
     if find_obstacle:
         max_area = wall_area[1]
-        print("area: ", wall_area)
     else:
         max_area = wall_area[1]
     return max_area
