@@ -20,6 +20,7 @@ def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=
     # To prevent runtime error in meter conversion
     wall_corners = None
 
+    # Find the correct max area of the outer wall
     wall_area = []
     for wall_contour in wall_contours:
         wall_area.append(cv.contourArea(wall_contour))
@@ -44,6 +45,7 @@ def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=
     # wall_mask = frameToWallMask(frame)
     # wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
+    # Find the correct max area of the obstacle
     obstacle_area = []
     for wall_contour in wall_contours:
         obstacle_area.append(cv.contourArea(wall_contour))
