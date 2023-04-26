@@ -1,11 +1,13 @@
+import cv2
 import cv2 as cv
 from coordinates import *
 from calibration import *
+from robotRecognition import robotRecognition
 
 # TODO Only map the border at the start, so the robot can't obscure it
 
-path = 'Media/Video/MovingBalls.mp4'
-media = 'VIDEO'    # 'CAMERA', 'VIDEO' or 'IMAGE'
+path = 'Media/Video/robo-video-test.mp4'
+media = 'VIDEO'  # 'CAMERA', 'VIDEO' or 'IMAGE'
 
 # Define the frames sampled and minimum number of frames
 # that a circle has to be present to in to count as a ball
@@ -197,11 +199,15 @@ if media == 'VIDEO':
 
         # Get the current frame
         ret, frame = videoCapture.read()
+        # resize image if the image is to big
+        frame = cv2.resize(frame, (540, 380), fx=0, fy=0,interpolation=cv2.INTER_CUBIC)
+
         if not ret:
             print("Error: Frame not found")
             exit()
 
         analyseFrame(frame, savedData, frameCounter)
+        robotRecognition(frame)
 
         frameCounter += 1
 
@@ -245,5 +251,3 @@ if media == 'CAMERA':
     # Release the camera and close the window
     videoCapture.release()
     cv.destroyAllWindows()
-
-

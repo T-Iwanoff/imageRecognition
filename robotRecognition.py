@@ -1,21 +1,12 @@
+import math
 
 import cv2
 import numpy as np
-import math
 
-# Creating a VideoCapture object to read the video
-cap = cv2.VideoCapture('Media/Video/robo-video-test.mp4')
+from calibration import calibrateFrame
 
-# Loop until the end of the video
-while (cap.isOpened()):
 
-    # Capture frame-by-frame
-    ret, frame = cap.read()
-    frame = cv2.resize(frame, (540, 380), fx=0, fy=0,
-                       interpolation=cv2.INTER_CUBIC)
-
-    # Display the resulting frame
-    cv2.imshow('Frame', frame)
+def robotRecognition(frame):
 
     # define kernel size
     kernel = np.ones((7, 7), np.uint8)
@@ -31,28 +22,23 @@ while (cap.isOpened()):
     lower_bound_center = np.array([80, 120, 20])
     upper_bound_center = np.array([100, 250, 255])
 
-    # find the colors within the boundaries
-    # mask_pointer = cv2.inRange(hsv, lower_bound_pointer, upper_bound_pointer)
+    # find the colors within the boundaries from center
     mask_center = cv2.inRange(hsv, lower_bound_center, upper_bound_center)
 
-    # Remove unnecessary noise from mask
-    # mask_pointer = cv2.morphologyEx(mask_pointer, cv2.MORPH_CLOSE, kernel)
-    # mask_pointer = cv2.morphologyEx(mask_pointer, cv2.MORPH_OPEN, kernel)
-
+    # Remove unnecessary noise from mask center
     mask_center = cv2.morphologyEx(mask_center, cv2.MORPH_CLOSE, kernel)
     mask_center = cv2.morphologyEx(mask_center, cv2.MORPH_OPEN, kernel)
 
-    # Segment only the detected region
-    # segmented_img_pointer = cv2.bitwise_and(frame, frame, mask=mask_pointer)
+    # Segment only the detected region from center
     segmented_img_center = cv2.bitwise_and(frame, frame, mask=mask_center)
 
-    # Find contours from the mask
-    # contours_pointers, hierarchy = cv2.findContours(mask_pointer.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # Find contours from the mask from center
     contours_center, hierarchy = cv2.findContours(mask_center.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     # output = cv2.drawContours(segmented_img_pointer, contours_pointers, -1, (0, 0, 255), 3)
     output = cv2.drawContours(segmented_img_center, contours_center, -1, (0, 0, 255), 3)
 
+    # instantiate the coordinates for later usage
     cY_center = 0
     cX_center = 0
     cY_pointer = 0
@@ -73,7 +59,7 @@ while (cap.isOpened()):
     # draw a circle around the center of the robot
     cv2.circle(img=frame, center=(cX_center, cY_center), radius=200, color=(255, 0, 0), thickness=5)
 
-    #find only pointers in a certain area
+    # find only pointers in a certain area
     # Circular ROI in original image; must be selected via an additional mask
     # link: https://stackoverflow.com/questions/59873870/crop-a-circle-area-roi-of-an-image-and-put-it-onto-a-white-mask
     roi = np.zeros(frame.shape[:2], np.uint8)
@@ -83,9 +69,8 @@ while (cap.isOpened()):
     mask = np.ones_like(frame) * 255
     # Copy ROI part from original image to target image
     mask = cv2.bitwise_and(mask, frame, mask=roi) + cv2.bitwise_and(mask, mask, mask=~roi)
-    cv2.imshow('mask after operation (ROI)', mask)
 
-    #pointer finding setup for region of interest ROI (won't find pointer outside of ROI)
+    # pointer finding setup for region of interest ROI (won't find pointer outside of ROI)
     # convert to hsv colorspace
     hsvP = cv2.cvtColor(mask, cv2.COLOR_BGR2HSV)
     # find the colors within the boundaries
@@ -121,12 +106,4 @@ while (cap.isOpened()):
     # Showing the output
     calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)
 
-    cv2.imshow('Thresh', frame)
-    # define q as the exit button
-    if cv2.waitKey(25) & 0xFF == ord('q'):
-        break
-
-# release the video capture object
-cap.release()
-# Closes all the windows currently opened.
-cv2.destroyAllWindows()
+    cv2.imshow('robot-recognition', frame)
