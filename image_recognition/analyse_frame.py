@@ -64,7 +64,7 @@ def analyse_obstacles(frame, wall_contours=None):
             # cv.drawContours(frame, [obstacle], 0, (0, 255, 255), 2)
             # Draw the points of the obstacle
             for coord in obstacle:
-                cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
+                cv.circle(frame, (coord[0], coord[1]), 2, (255, 255, 0), 2)
     if not obstacle_detected:
         return
     else:
@@ -72,8 +72,8 @@ def analyse_obstacles(frame, wall_contours=None):
 
 def analyse_balls(frame, wall_corners, saved_circles=None, counter=None, prev_number_of_balls=None):
     # Find the balls
-    circles = find_circles(frame)
-    # circles = find_white_circles(frame)
+    # circles = find_circles(frame)
+    circles = find_orange_circle(frame)
     # if counter is not None:
     #     if counter < SAVED_FRAMES:
     #         saved_circles.append(circles)

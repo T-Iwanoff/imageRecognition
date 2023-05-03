@@ -5,7 +5,7 @@
 # minDist is the minimum distance between circles. Meant to prevent overlapping circles
 # default ≈ param1=80, param2=17, minDist=3, minRadius=3, maxRadius=9
 CIRCLE_PARAM_1 = 200
-CIRCLE_PARAM_2 = 13
+CIRCLE_PARAM_2 = 5
 CIRCLE_MIN_DIST = 9
 CIRCLE_MIN_RADIUS = 5
 CIRCLE_MAX_RADIUS = 7
