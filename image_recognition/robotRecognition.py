@@ -13,14 +13,12 @@ def robot_recognition(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     # lower bound and upper bound for pointer color
-    # lower_bound_pointer = np.array([30, 60, 20]) # lego color
-    # upper_bound_pointer = np.array([55, 250, 255]) # lego color
-    lower_bound_pointer = np.array([0, 0, 0]) # black detection - test
-    upper_bound_pointer = np.array([179, 100, 130]) # black detection - test
+    lower_bound_pointer = np.array([25, 100, 20]) # lego color
+    upper_bound_pointer = np.array([35, 250, 255]) # lego color
 
     # lower bound and upper bound for center color
-    lower_bound_center = np.array([80, 120, 20])
-    upper_bound_center = np.array([100, 250, 255])
+    lower_bound_center = np.array([110, 120, 20])
+    upper_bound_center = np.array([130, 250, 255])
 
     # find the colors within the boundaries from center
     mask_center = cv2.inRange(hsv, lower_bound_center, upper_bound_center)

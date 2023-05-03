@@ -175,11 +175,15 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
                 print("Error: Frame not found")
                 exit()
 
-            course = analyse_frame(frame, saved_data, frame_counter)
+            if STATIC_OUTER_WALLS:
+                course = analyse_frame(frame, static_wall_corners)
+            else:
+                course = analyse_frame(frame)
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
                 display_graph(course)
+                # socket_connection.send_coords(course.ball_coords[0][0], course.ball_coords[0][1])
 
             robot_recognition(frame)
 
@@ -193,17 +197,20 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
         video_capture.release()
         cv.destroyAllWindows()
 
-def display_graph(course):
+def display_graph(course: Course):
     # print with 2 decimal places
-    ball_coords = [tuple(round(coord, 2) for coord in coords)
-                   for coords in course.ball_coordinates]
-    print(f"Ball coordinates: {ball_coords}")
-    obstacle_coords = [tuple(round(coord, 2) for coord in coords)
-                       for coords in course.obstacle_coordinates]
-    print(f"Obstacle coordinates: {obstacle_coords}")
-    wall_coords = [tuple(round(coord, 2) for coord in coords)
-                   for coords in course.wall_coordinates]
-    print(f"Wall coordinates: {wall_coords}")
+    if course.ball_coords is not None:
+        ball_coords = [tuple(round(coord, 2) for coord in coords)
+                       for coords in course.ball_coords]
+        print(f"Ball coordinates: {ball_coords}")
+    if course.obstacle_coords is not None:
+        obstacle_coords = [tuple(round(coord, 2) for coord in coords)
+                        for coords in course.obstacle_coords]
+        print(f"Obstacle coordinates: {obstacle_coords}")
+    if course.wall_coords is not None:
+        wall_coords = [tuple(round(coord, 2) for coord in coords)
+                    for coords in course.wall_coords]
+        print(f"Wall coordinates: {wall_coords}")
     # create graph
     gt.create_graph(course)
     # send coordinates
