@@ -3,6 +3,7 @@ import numpy as np
 
 from constants import LOWER_WALL_COLOR, UPPER_WALL_COLOR
 
+
 def calibrate_wall_area(wall_area, find_obstacle):
     wall_area = sorted(wall_area, reverse=True)
     if find_obstacle and len(wall_area) > 2:
@@ -10,6 +11,7 @@ def calibrate_wall_area(wall_area, find_obstacle):
     elif len(wall_area) > 1:
         max_area = wall_area[1]
     return max_area
+
 
 def frame_to_wall_mask(frame):
     # Convert the frame to the HSV color space
@@ -62,3 +64,17 @@ def warp_frame(box, frame):
         point_matrix, converted_points)
     frame = cv.warpPerspective(frame, perspective_transform, (width, height))
     return frame
+
+
+# Sorts the points of the wall so its always upper-left, upper-right, lower-right, lower-left
+def sort_walls(walls):
+    sorted_walls = []
+    for point in walls:
+        if (point[0] < 200) and (point[1] < 200):
+            sorted_walls[0] = point  # Upper right
+        if (point[0] < 200) and (point[1] > 200):
+            sorted_walls[1] = point  # Upper left
+        if (point[0] > 200) and (point[1] > 200):
+            sorted_walls[2] = point  # Lower right
+        if (point[0] > 200) and (point[1] < 200):
+            sorted_walls[3] = point  # Lower left
