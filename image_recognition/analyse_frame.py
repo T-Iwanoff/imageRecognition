@@ -53,9 +53,6 @@ def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=
 
     # Find the balls
     circles = find_circles(frame)
-    frame2 = frame.copy()  # temp
-    draw_circles(frame2, circles)  # temp
-    # circles = find_white_circles(frame)
     if counter is not None and circles is not None:
         if counter < SAVED_FRAMES:
             saved_circles.append(circles)
@@ -78,6 +75,5 @@ def analyse_frame(frame, saved_circles=None, counter=None, prev_number_of_balls=
 
     # Display the resulting frame
     cv.imshow('frame', frame)
-    cv.imshow('temp frame', frame2)  # temp
 
     return prev_number_of_balls
