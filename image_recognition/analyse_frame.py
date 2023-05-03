@@ -87,6 +87,7 @@ def analyse_balls(frame, wall_corners, saved_circles=None, counter=None, prev_nu
     return circles
 
 def analyse_frame(frame, static_wall_corners=None):
+
     # Calibrate the frame
     frame = calibrate_frame(frame)
 
@@ -118,35 +119,31 @@ def analyse_frame(frame, static_wall_corners=None):
 
     circles = analyse_balls(frame, wall_corners)
 
-    return ##TODO
-
-    ##TODO
     circles_in_meters = []
     obstacle_in_meters = []
     walls_in_meters = []
 
     if wall_corners is not None:
-    # Converting to meter
+        # Converting to meter
         if circles is not None:
             for circle in circles:
-                converted_coords = coordinate_conversion(wall_corners, circle[0], circle[1])
+                converted_coords = coordinate_conversion(
+                    wall_corners, circle[0], circle[1])
                 circles_in_meters.append(converted_coords)
 
         if obstacle is not None:
             for coord in obstacle:
-                converted_coords = coordinate_conversion(wall_corners, coord[0], coord[1])
+                converted_coords = coordinate_conversion(
+                    wall_corners, coord[0], coord[1])
                 obstacle_in_meters.append(converted_coords)
 
         if wall_corners is not None:
             for coord in wall_corners:
-                converted_coords = coordinate_conversion(wall_corners, coord[0], coord[1])
+                converted_coords = coordinate_conversion(
+                    wall_corners, coord[0], coord[1])
                 walls_in_meters.append(converted_coords)
 
-    # if PRINT_NUMBER_OF_BALLS and circles is not None and prev_number_of_balls != len(circles):
-    #     print(len(circles))
-    #     prev_number_of_balls = len(circles)
-
-    # Display the resulting frame
     cv.imshow('frame', frame)
 
     return Course(circles_in_meters, obstacle_in_meters, walls_in_meters)
+

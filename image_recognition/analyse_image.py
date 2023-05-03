@@ -76,14 +76,9 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
                 exit()
 
             if STATIC_OUTER_WALLS:
-                analyse_frame(frame, static_wall_corners)
+                course = analyse_frame(frame, static_wall_corners)
             else:
-                analyse_frame(frame)
-
-            prev_number_of_balls = analyse_balls(frame, saved_data, frame_counter,
-                                                 prev_number_of_balls)
-
-            course = analyse_frame(frame, saved_data, frame_counter)
+                course = analyse_frame(frame)
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
@@ -149,13 +144,9 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
                 exit()
 
             if STATIC_OUTER_WALLS:
-                analyse_frame(frame, static_wall_corners)
+                course = analyse_frame(frame, static_wall_corners)
             else:
-                analyse_frame(frame)
-
-            prev_number_of_balls = analyse_balls(frame, saved_data, frame_counter,
-                                                 prev_number_of_balls)
-            course = analyse_frame(frame, saved_data, frame_counter)
+                course = analyse_frame(frame)
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
