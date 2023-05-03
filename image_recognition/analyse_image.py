@@ -217,7 +217,8 @@ def display_graph(course: Course):
     # robot.send_coords(course.ball_coordinates[0][0], course.ball_coordinates[0][1])
 
 def get_static_outer_walls(video_capture):
-    for i in range(10):
+    walls_detected = False
+    while not walls_detected:
         # Get the current frame
         ret, frame = video_capture.read()
         if not ret:
@@ -225,6 +226,5 @@ def get_static_outer_walls(video_capture):
             exit()
         static_outer_walls = analyse_walls(frame)
         if static_outer_walls is not None:
-            return static_outer_walls
-        else:
-            return None
+            walls_detected = True
+    return static_outer_walls
