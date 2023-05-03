@@ -16,8 +16,8 @@ COURSE_WIDTH = 1.683
 
 # Define the frames sampled and minimum number of frames
 # that a circle has to be present to in to count as a ball
-SAVED_FRAMES = 10
-CUTOFF = 4
+SAVED_FRAMES = 5
+CUTOFF = 2
 
 # Define color ranges for red wall detection (inverted to cyan)
 LOWER_WALL_COLOR = (80, 70, 50)

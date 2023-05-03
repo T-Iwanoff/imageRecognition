@@ -85,12 +85,13 @@ def find_repeated_coordinates(frames, cutoff):
     return repeated_list
 
 
-def is_close(a, b, distance):
+# Checks whether a coordinate is close to or equal to any coordinates in a list
+def is_close(coord, coord_list, distance):
     close = False
-    for x in b:
-        if abs(a[0] - b[0]) <= distance:
+    for x in coord_list:
+        if abs(coord[0] - x[0]) <= distance:
             close = True
-        if abs(a[1] - b[1]) <= distance:
+        if abs(coord[1] - x[1]) <= distance:
             close = True
     return close
 
