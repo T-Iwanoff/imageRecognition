@@ -73,13 +73,13 @@ def analyse_obstacles(frame, wall_contours=None):
 def analyse_balls(frame, wall_corners, saved_circles=None, counter=None, prev_number_of_balls=None):
     # Find the balls
     circles = find_circles(frame)
-    # circles = find_white_circles(frame)
-    # if counter is not None:
-    #     if counter < SAVED_FRAMES:
-    #         saved_circles.append(circles)
-    #     else:
-    #         saved_circles[counter % SAVED_FRAMES] = circles
-    #     circles = find_repeated_coordinates(saved_circles, CUTOFF)
+    if counter is not None and circles is not None:
+        if counter < SAVED_FRAMES:
+            saved_circles.append(circles)
+            circles = find_repeated_coordinates(saved_circles, CUTOFF)
+        else:
+            saved_circles[counter % SAVED_FRAMES] = circles
+            circles = find_repeated_coordinates(saved_circles, CUTOFF)
 
     # Draw the circles
     draw_circles(frame, circles)
@@ -143,6 +143,7 @@ def analyse_frame(frame, static_wall_corners=None):
                     wall_corners, coord[0], coord[1])
                 walls_in_meters.append(converted_coords)
 
+    # Display the frame
     cv.imshow('frame', frame)
 
     return Course(circles_in_meters, obstacle_in_meters, walls_in_meters)
