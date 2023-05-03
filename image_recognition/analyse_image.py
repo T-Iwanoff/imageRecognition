@@ -1,13 +1,12 @@
 from course import Course
 from image_recognition.calibration import *
-from image_recognition.analyse_frame import analyse_frame, analyse_walls, analyse_obstacles, analyse_balls
-import path_finder.graph_setup1 as gt
+from image_recognition.analyse_frame import analyse_frame, analyse_walls
+import path_finder.graph_setup as gt
 from image_recognition.robotRecognition import robot_recognition
 from constants import STATIC_OUTER_WALLS
 
 
 def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_balls=None):
-    # TODO Only map the border at the start, so the robot can't obscure it
 
     course = Course()
 
@@ -17,18 +16,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
 
         course = analyse_frame(frame)
 
-        # print the coordinates of the balls
-        ball_coords = [tuple(round(coord, 2) for coord in coords)
-                       for coords in course.ball_coordinates]
-        print(f"Ball coordinates: {ball_coords}")
-        obstacle_coords = [tuple(round(coord, 2) for coord in coords)
-                           for coords in course.obstacle_coordinates]
-        print(f"Obstacle coordinates: {obstacle_coords}")
-        wall_coords = [tuple(round(coord, 2) for coord in coords)
-                       for coords in course.wall_coordinates]
-        print(f"Wall coordinates: {wall_coords}")
-        # create graph and show the fastest path
-        gt.create_graph(course)
+        display_graph(course)
 
         robot_recognition(frame)
 
@@ -45,8 +33,6 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
 
         frame_counter = 0
         saved_data = []
-
-        prev_number_of_balls = 0
 
         # Find static outer walls
         if STATIC_OUTER_WALLS:
@@ -82,17 +68,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
-                # print with 2 decimal places
-                ball_coords = [tuple(round(coord, 2) for coord in coords)
-                               for coords in course.ball_coordinates]
-                print(f"Ball coordinates: {ball_coords}")
-                obstacle_coords = [tuple(round(coord, 2) for coord in coords)
-                                   for coords in course.obstacle_coordinates]
-                print(f"Obstacle coordinates: {obstacle_coords}")
-                wall_coords = [tuple(round(coord, 2) for coord in coords)
-                               for coords in course.wall_coordinates]
-                print(f"Wall coordinates: {wall_coords}")
-                gt.create_graph(course)
+                display_graph(course)
 
             robot_recognition(frame)
 
@@ -109,7 +85,6 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
     ######
 
     if media == 'CAMERA':
-        prev_number_of_balls = 0
 
         video_capture = cv.VideoCapture(0, cv.CAP_DSHOW)
         video_capture.set(3, 640)
@@ -150,17 +125,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
-                # print with 2 decimal places
-                ball_coords = [tuple(round(coord, 2) for coord in coords)
-                               for coords in course.ball_coordinates]
-                print(f"Ball coordinates: {ball_coords}")
-                obstacle_coords = [tuple(round(coord, 2) for coord in coords)
-                                   for coords in course.obstacle_coordinates]
-                print(f"Obstacle coordinates: {obstacle_coords}")
-                wall_coords = [tuple(round(coord, 2) for coord in coords)
-                               for coords in course.wall_coordinates]
-                print(f"Wall coordinates: {wall_coords}")
-                gt.create_graph(course)
+                display_graph(course)
 
             robot_recognition(frame)
 
@@ -234,20 +199,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
-                # print with 2 decimal places
-                ball_coords = [tuple(round(coord, 2) for coord in coords)
-                               for coords in course.ball_coordinates]
-                print(f"Ball coordinates: {ball_coords}")
-                obstacle_coords = [tuple(round(coord, 2) for coord in coords)
-                                   for coords in course.obstacle_coordinates]
-                print(f"Obstacle coordinates: {obstacle_coords}")
-                wall_coords = [tuple(round(coord, 2) for coord in coords)
-                               for coords in course.wall_coordinates]
-                print(f"Wall coordinates: {wall_coords}")
-                # create graph
-                gt.create_graph(course)
-                # send coordinates
-                # robot.send_coords(course.ball_coordinates[0][0], course.ball_coordinates[0][1])
+                display_graph(course)
 
             robot_recognition(frame)
 
@@ -261,3 +213,18 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
         video_capture.release()
         cv.destroyAllWindows()
 
+def display_graph(course):
+    # print with 2 decimal places
+    ball_coords = [tuple(round(coord, 2) for coord in coords)
+                   for coords in course.ball_coordinates]
+    print(f"Ball coordinates: {ball_coords}")
+    obstacle_coords = [tuple(round(coord, 2) for coord in coords)
+                       for coords in course.obstacle_coordinates]
+    print(f"Obstacle coordinates: {obstacle_coords}")
+    wall_coords = [tuple(round(coord, 2) for coord in coords)
+                   for coords in course.wall_coordinates]
+    print(f"Wall coordinates: {wall_coords}")
+    # create graph
+    gt.create_graph(course)
+    # send coordinates
+    # robot.send_coords(course.ball_coordinates[0][0], course.ball_coordinates[0][1])
