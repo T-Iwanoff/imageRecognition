@@ -3,7 +3,8 @@ import numpy
 import numpy as np
 import array
 
-from constants import CIRCLE_MIN_DIST, CIRCLE_PARAM_1, CIRCLE_PARAM_2, CIRCLE_MIN_RADIUS, CIRCLE_MAX_RADIUS
+from constants import CIRCLE_MIN_DIST, CIRCLE_PARAM_1, CIRCLE_PARAM_2, CIRCLE_MIN_RADIUS, CIRCLE_MAX_RADIUS, \
+    SAVED_CIRCLE_DIFF
 
 
 def find_circles(frame):
@@ -72,28 +73,23 @@ def find_repeated_coordinates(frames, cutoff):
         for coordinate in frame:
             complete_list.append(coordinate)  # Puts the found balls from all the provided frames in the same list
     for coordinate in complete_list:
-        # count = sum(all(x == coordinate) for x in complete_list)  # Counts the number of times a ball is in the list
+        # Counts the number of times a ball is in the list (checks coordinates, but not size of ball)
         count = sum((x[0] == coordinate[0] and x[1] == coordinate[1]) for x in complete_list)
 
-        circle_dist = 5
-        # listed = any(all(x == coordinate) for x in repeated_list)  # Checks whether a ball is on the repeat list
-        listed = is_close(coordinate, repeated_list, circle_dist)
+        # Checks whether a ball is on the repeat list
+        listed = is_close(coordinate, repeated_list, SAVED_CIRCLE_DIFF)
 
         if count >= cutoff and not listed:
             repeated_list.append(coordinate)
-    print("list: ", repeated_list)
     return repeated_list
 
 
 # Checks whether a coordinate is close to or equal to any coordinates in a list
 def is_close(coord, coord_list, distance):
-    close = False
     for x in coord_list:
-        if abs(coord[0] - x[0]) <= distance:
-            close = True
-        if abs(coord[1] - x[1]) <= distance:
-            close = True
-    return close
+        if (abs(int(coord[0]) - int(x[0])) <= distance) and (abs(int(coord[1]) - int(x[1])) <= distance):
+            return True
+    return False
 
 
 def draw_circles(frame, circles):
