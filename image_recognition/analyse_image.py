@@ -36,17 +36,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
 
         # Find static outer walls
         if STATIC_OUTER_WALLS:
-            for i in range(10):
-                # Get the current frame
-                ret, frame = video_capture.read()
-                if not ret:
-                    print("Error: Frame not found")
-                    exit()
-                temp_walls = analyse_walls(frame)
-                if temp_walls is not None:
-                    static_wall_corners = temp_walls
-                else:
-                    static_wall_corners = None
+            static_wall_corners = get_static_outer_walls(video_capture)
 
         while True:
             # If out of frames, reset the video
@@ -99,17 +89,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
 
         # Find static outer walls
         if STATIC_OUTER_WALLS:
-            for i in range(10):
-                # Get the current frame
-                ret, frame = video_capture.read()
-                if not ret:
-                    print("Error: Frame not found")
-                    exit()
-                temp_walls = analyse_walls(frame)
-                if temp_walls is not None:
-                    static_wall_corners = temp_walls
-                else:
-                    static_wall_corners = None
+            static_wall_corners = get_static_outer_walls(video_capture)
 
         while True:
             # Get the current frame
@@ -228,3 +208,16 @@ def display_graph(course):
     gt.create_graph(course)
     # send coordinates
     # robot.send_coords(course.ball_coordinates[0][0], course.ball_coordinates[0][1])
+
+def get_static_outer_walls(video_capture):
+    for i in range(10):
+        # Get the current frame
+        ret, frame = video_capture.read()
+        if not ret:
+            print("Error: Frame not found")
+            exit()
+        static_outer_walls = analyse_walls(frame)
+        if static_outer_walls is not None:
+            return static_outer_walls
+        else:
+            return None
