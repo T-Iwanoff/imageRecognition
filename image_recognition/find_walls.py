@@ -5,9 +5,9 @@ from constants import LOWER_WALL_COLOR, UPPER_WALL_COLOR
 
 def calibrate_wall_area(wall_area, find_obstacle):
     wall_area = sorted(wall_area, reverse=True)
-    if find_obstacle:
+    if find_obstacle and len(wall_area) > 2:
         max_area = wall_area[2]
-    else:
+    elif len(wall_area) > 1:
         max_area = wall_area[1]
     return max_area
 

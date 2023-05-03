@@ -3,6 +3,7 @@ from image_recognition.calibration import *
 from image_recognition.analyse_frame import analyse_frame, analyse_walls
 import path_finder.graph_setup as gt
 from image_recognition.robotRecognition import robot_recognition
+# import robot_connection.socket_connection as socket_connection
 from constants import STATIC_OUTER_WALLS
 
 
@@ -84,60 +85,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
 
     ######
 
-    if media == 'CAMERA':
-
-        video_capture = cv.VideoCapture(0, cv.CAP_DSHOW)
-        video_capture.set(3, 640)
-        video_capture.set(4, 480)
-
-        if not video_capture.isOpened():
-            print("Error: Camera not found")
-            exit()
-
-        frame_counter = 0
-        saved_data = []
-
-        # Find static outer walls
-        if STATIC_OUTER_WALLS:
-            for i in range(10):
-                # Get the current frame
-                ret, frame = video_capture.read()
-                if not ret:
-                    print("Error: Frame not found")
-                    exit()
-                temp_walls = analyse_walls(frame)
-                if temp_walls is not None:
-                    static_wall_corners = temp_walls
-                else:
-                    static_wall_corners = None
-
-        while True:
-            # Get the current frame
-            ret, frame = video_capture.read()
-            if not ret:
-                print("Error: Frame not found")
-                exit()
-
-            if STATIC_OUTER_WALLS:
-                course = analyse_frame(frame, static_wall_corners)
-            else:
-                course = analyse_frame(frame)
-
-            # print the coordinates of the balls when g is pressed
-            if cv.waitKey(1) == ord('g'):
-                display_graph(course)
-
-            robot_recognition(frame)
-
-            frame_counter += 1
-
-            # If q is pressed, end the program
-            if cv.waitKey(1) == ord('q'):
-                break
-
-        # Release the camera and close the window
-        video_capture.release()
-        cv.destroyAllWindows()
+    
 
     #####
 
@@ -188,6 +136,20 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
         frame_counter = 0
         saved_data = []
 
+        # Find static outer walls
+        if STATIC_OUTER_WALLS:
+            for i in range(10):
+                # Get the current frame
+                ret, frame = video_capture.read()
+                if not ret:
+                    print("Error: Frame not found")
+                    exit()
+                temp_walls = analyse_walls(frame)
+                if temp_walls is not None:
+                    static_wall_corners = temp_walls
+                else:
+                    static_wall_corners = None
+
         while True:
             # Get the current frame
             ret, frame = video_capture.read()
@@ -195,11 +157,15 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
                 print("Error: Frame not found")
                 exit()
 
-            course = analyse_frame(frame, saved_data, frame_counter)
+            if STATIC_OUTER_WALLS:
+                course = analyse_frame(frame, static_wall_corners)
+            else:
+                course = analyse_frame(frame)
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
                 display_graph(course)
+                # socket_connection.send_coords(course.ball_coords[0][0], course.ball_coords[0][1])
 
             robot_recognition(frame)
 
@@ -213,18 +179,21 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
         video_capture.release()
         cv.destroyAllWindows()
 
-def display_graph(course):
+def display_graph(course: Course):
     # print with 2 decimal places
-    ball_coords = [tuple(round(coord, 2) for coord in coords)
-                   for coords in course.ball_coordinates]
-    print(f"Ball coordinates: {ball_coords}")
-    obstacle_coords = [tuple(round(coord, 2) for coord in coords)
-                       for coords in course.obstacle_coordinates]
-    print(f"Obstacle coordinates: {obstacle_coords}")
-    wall_coords = [tuple(round(coord, 2) for coord in coords)
-                   for coords in course.wall_coordinates]
-    print(f"Wall coordinates: {wall_coords}")
+    if course.ball_coords is not None:
+        ball_coords = [tuple(round(coord, 2) for coord in coords)
+                       for coords in course.ball_coords]
+        print(f"Ball coordinates: {ball_coords}")
+    if course.obstacle_coords is not None:
+        obstacle_coords = [tuple(round(coord, 2) for coord in coords)
+                        for coords in course.obstacle_coords]
+        print(f"Obstacle coordinates: {obstacle_coords}")
+    if course.wall_coords is not None:
+        wall_coords = [tuple(round(coord, 2) for coord in coords)
+                    for coords in course.wall_coords]
+        print(f"Wall coordinates: {wall_coords}")
     # create graph
     gt.create_graph(course)
     # send coordinates
-    # robot.send_coords(course.ball_coordinates[0][0], course.ball_coordinates[0][1])
+    # robot.send_coords(course.ball_coords[0][0], course.ball_coords[0][1])
