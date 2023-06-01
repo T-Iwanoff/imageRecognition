@@ -141,10 +141,8 @@ def analyse_frame(frame, static_wall_corners=None):
             cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
     if circles is not None:
         for i in circles:
-            # Center of the circle
-            cv.circle(frame, (i[0], i[1]), 1, (0, 0, 0), 2)
-            # Outer circle
-            cv.circle(frame, (i[0], i[1]), i[2], (255, 0, 255), 2)
+            cv.circle(frame, (i[0], i[1]), 1, (0, 0, 0), 2)  # Center of the circle
+            cv.circle(frame, (i[0], i[1]), i[2], (255, 0, 255), 2)  # Outer circle
 
 
     # Display the frame
