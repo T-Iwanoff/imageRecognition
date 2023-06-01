@@ -91,14 +91,3 @@ def is_close(coord, coord_list, distance):
             return True
     return False
 
-
-def draw_circles(frame, circles):
-    if circles is None:
-        return
-
-    for i in circles:
-        # Center of the circle
-        cv.circle(frame, (i[0], i[1]), 1, (0, 0, 0), 2)
-
-        # Outer circle
-        cv.circle(frame, (i[0], i[1]), i[2], (255, 0, 255), 2)
