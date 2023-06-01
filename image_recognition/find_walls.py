@@ -26,7 +26,9 @@ def find_rectangle(wall):
     rect = cv.minAreaRect(wall)
     box = cv.boxPoints(rect)
     box = np.intp(box)
-    box = sort_walls(box)
+    # print("box 1: ", box)
+    # box = sort_walls(box)
+    # print("box 2: ", box)
     return box
 
 
@@ -72,11 +74,11 @@ def sort_walls(walls):
     sorted_walls = []
     for point in walls:
         if (point[0] < 200) and (point[1] < 200):
-            sorted_walls[0] = point  # Upper right
+            sorted_walls.insert(0, point)  # Upper right
         if (point[0] < 200) and (point[1] > 200):
-            sorted_walls[1] = point  # Upper left
+            sorted_walls.insert(1, point)  # Upper left
         if (point[0] > 200) and (point[1] > 200):
-            sorted_walls[2] = point  # Lower right
+            sorted_walls.insert(2, point)  # Lower right
         if (point[0] > 200) and (point[1] < 200):
-            sorted_walls[3] = point  # Lower left
+            sorted_walls.insert(3, point)  # Lower left
     return sorted_walls
