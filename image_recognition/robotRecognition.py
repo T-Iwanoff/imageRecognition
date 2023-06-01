@@ -52,7 +52,7 @@ def robot_recognition(frame):
         cv2.circle(frame, (cX_center, cY_center), 7, (255, 255, 255), -1)
 
         # check the coordinates found
-        print("center: x = " + str(cX_center) + " and " "y = " + str(cY_center))
+        # print("center: x = " + str(cX_center) + " and " "y = " + str(cY_center))
 
     # draw a circle around the center of the robot
     cv2.circle(img=frame, center=(cX_center, cY_center), radius=25, color=(255, 0, 0), thickness=2)
