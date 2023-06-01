@@ -72,8 +72,8 @@ def analyse_obstacles(frame, wall_contours=None):
 
 def analyse_balls(frame, wall_corners, saved_circles=None, counter=None, prev_number_of_balls=None):
     # Find the balls
-    # circles = find_circles(frame)
-    circles = find_orange_circle(frame)
+    circles = find_circles(frame)
+    # circles = find_orange_circle(frame)
     # if counter is not None:
     #     if counter < SAVED_FRAMES:
     #         saved_circles.append(circles)
