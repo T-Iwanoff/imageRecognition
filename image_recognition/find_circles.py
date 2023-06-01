@@ -65,13 +65,13 @@ def find_circles(frame):
 def find_orange_circle(frame):
     hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
 
-    whiteLower = (10, 50, 50)
-    whiteUpper = (30, 255, 255)
+    low_orange = np.array([0, 20, 248])
+    high_orange = np.array([45, 255, 255])
 
-    mask = cv.inRange(hsv, whiteLower, whiteUpper)
+    mask = cv.inRange(hsv, low_orange, high_orange)
 
     circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
-                              param1=CIRCLE_PARAM_1, param2=CIRCLE_PARAM_2, minRadius=CIRCLE_MIN_RADIUS,
+                              param1=CIRCLE_PARAM_1, param2=7, minRadius=CIRCLE_MIN_RADIUS,
                               maxRadius=CIRCLE_MAX_RADIUS)
 
     cv.imshow('balls', mask)
