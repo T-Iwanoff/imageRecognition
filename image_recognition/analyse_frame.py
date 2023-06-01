@@ -109,6 +109,8 @@ def analyse_frame(frame, static_wall_corners=None):
     # wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
     circles = analyse_balls(frame, wall_corners)
+    orange_circle = find_orange_circle(frame)
+    circles = remove_circle_from_list(orange_circle, circles)
 
     # Converting to meter
     circles_in_meters = []
@@ -144,7 +146,9 @@ def analyse_frame(frame, static_wall_corners=None):
         for i in circles:
             cv.circle(frame, (i[0], i[1]), 1, (0, 0, 0), 2)  # Center of the circle
             cv.circle(frame, (i[0], i[1]), i[2], (255, 0, 255), 2)  # Outer circle
-
+    if orange_circle is not None:
+        cv.circle(frame, (orange_circle[0], orange_circle[1]), 1, (0, 0, 0), 2)  # Center of the circle
+        cv.circle(frame, (orange_circle[0], orange_circle[1]), orange_circle[2], (100, 100, 255), 2)  # Outer circle
 
     # Display the frame
     cv.imshow('frame', frame)

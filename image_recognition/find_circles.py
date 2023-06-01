@@ -4,7 +4,7 @@ import numpy as np
 import array
 
 from constants import CIRCLE_MIN_DIST, CIRCLE_PARAM_1, CIRCLE_PARAM_2, CIRCLE_MIN_RADIUS, CIRCLE_MAX_RADIUS, \
-    SAVED_CIRCLE_DIFF
+    SAVED_CIRCLE_DIST
 
 
 def find_circles(frame):
@@ -83,9 +83,21 @@ def find_orange_circle(frame):
     if circles is not None:
         circles = np.uint16(np.around(circles))
         circles = circles[0, :]
+        circles = circles[0, :]
     return circles
 
 
+def remove_circle_from_list(circle, list_of_circles):
+    if circle is None:
+        return list_of_circles
+
+    dist = SAVED_CIRCLE_DIST
+    circles = []
+    for i in list_of_circles:
+        if not (abs(int(circle[0]) - int(i[0])) <= dist) or not (abs(int(circle[1]) - int(i[1])) <= dist):
+            circles.append(i)
+    circles = numpy.array(circles)
+    return circles
 
 
 def find_repeated_coordinates(frames, cutoff):
@@ -99,7 +111,7 @@ def find_repeated_coordinates(frames, cutoff):
         count = sum((x[0] == coordinate[0] and x[1] == coordinate[1]) for x in complete_list)
 
         # Checks whether a ball is on the repeat list
-        listed = is_close(coordinate, repeated_list, SAVED_CIRCLE_DIFF)
+        listed = is_close(coordinate, repeated_list, SAVED_CIRCLE_DIST)
 
         if count >= cutoff and not listed:
             repeated_list.append(coordinate)
