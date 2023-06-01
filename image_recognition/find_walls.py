@@ -1,3 +1,5 @@
+import copy
+
 import cv2 as cv
 import numpy as np
 
@@ -22,13 +24,12 @@ def frame_to_wall_mask(frame):
     return wall_mask
 
 
-def find_rectangle(wall):
+def find_rectangle(wall, sort):
     rect = cv.minAreaRect(wall)
     box = cv.boxPoints(rect)
     box = np.intp(box)
-    # print("box 1: ", box)
-    # box = sort_walls(box)
-    # print("box 2: ", box)
+    if sort:
+        box = sort_walls(box)
     return box
 
 
@@ -71,14 +72,14 @@ def warp_frame(box, frame):
 
 # Sorts the points of the wall so its always upper-left, upper-right, lower-right, lower-left
 def sort_walls(walls):
-    sorted_walls = []
+    sorted_walls = copy.deepcopy(walls)
     for point in walls:
         if (point[0] < 200) and (point[1] < 200):
-            sorted_walls.insert(0, point)  # Upper right
+            sorted_walls[0] = point  # Upper left
         if (point[0] < 200) and (point[1] > 200):
-            sorted_walls.insert(1, point)  # Upper left
+            sorted_walls[1] = point  # Upper right
         if (point[0] > 200) and (point[1] > 200):
-            sorted_walls.insert(2, point)  # Lower right
+            sorted_walls[2] = point  # Lower right
         if (point[0] > 200) and (point[1] < 200):
-            sorted_walls.insert(3, point)  # Lower left
+            sorted_walls[3] = point  # Lower left
     return sorted_walls

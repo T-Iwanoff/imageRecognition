@@ -35,7 +35,7 @@ def analyse_walls(frame, wall_contours=None):
         if (max_wall_area if AUTOMATED_AREA_DETECT else OUTER_WALL_AREA_MAX) > wall_area > OUTER_WALL_AREA_MIN:
             # print(wall_area)  # for calibration
             # Draw an angled rectangle
-            wall_corners = find_rectangle(wall_contour)
+            wall_corners = find_rectangle(wall_contour, True)
             wall_corners_detected = True
             cv.drawContours(frame, [wall_corners], 0, (0, 255, 255), 2)
     if not wall_corners_detected:
@@ -59,7 +59,7 @@ def analyse_obstacles(frame, wall_contours=None):
         if (max_obstacle_area if AUTOMATED_AREA_DETECT else OUTER_WALL_AREA_MAX) > wall_area > OBSTACLE_AREA_MIN:
             # print(wall_area) # For calibration
             # Find the corners of the obstacle
-            obstacle = find_rectangle(wall_contour)
+            obstacle = find_rectangle(wall_contour, False)
             obstacle_detected = True
             # cv.drawContours(frame, [obstacle], 0, (0, 255, 255), 2)
             # Draw the points of the obstacle
