@@ -2,9 +2,10 @@ import math
 
 import cv2
 import numpy as np
+from image_recognition.coordinates import coordinate_conversion
 
 
-def robot_recognition(frame):
+def robot_recognition(frame, wall_corners):
 
     # define kernel size
     kernel = np.ones((7, 7), np.uint8)
@@ -93,15 +94,19 @@ def robot_recognition(frame):
         cv2.circle(frame, (cX_pointer, cY_pointer), 7, (255, 255, 255), -1)
 
         # check the coordinates found
-        print("pointer: x = " + str(cX_pointer) + " and " "y = " + str(cY_pointer))
+        # print("pointer: x = " + str(cX_pointer) + " and " "y = " + str(cY_pointer))
 
     # calculate angle
     def calculate_angle(x0, y0, x, y):
         # x0,y0 = the center of the robot : x,y = is the coordinate of the oriantation point
         angle = math.degrees(math.atan2(y0 - y, x0 - x)) % 360
         # print(f'The angle is = {angle}')
+        return angle
 
     # Showing the output
-    calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)
+    robot_pos = coordinate_conversion(wall_corners, cX_center, cY_center)
+    robot_angle = calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)
 
     cv2.imshow('robot-recognition', frame)
+
+    return robot_pos, robot_angle
