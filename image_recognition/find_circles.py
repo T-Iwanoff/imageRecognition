@@ -68,7 +68,6 @@ def find_circles(frame):
 def find_orange_circle(frame):
     hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
 
-
     low_orange = np.array([10, 80, 245])
     high_orange = np.array([45, 255, 255])
 
@@ -104,17 +103,19 @@ def find_repeated_coordinates(frames, cutoff):
     complete_list = []  # A list of all the balls
     repeated_list = []  # A list of the unique balls that occur at least 'cutoff' times
     for frame in frames:
+        if type(frame[0]) is numpy.uint16:
+            frame = [frame[:]]
         for coordinate in frame:
             complete_list.append(coordinate)  # Puts the found balls from all the provided frames in the same list
-    for coordinate in complete_list:
-        # Counts the number of times a ball is in the list (checks coordinates, but not size of ball)
-        count = sum((x[0] == coordinate[0] and x[1] == coordinate[1]) for x in complete_list)
+    if complete_list:
+        for coordinate in complete_list:
+            # Counts the number of times a ball is in the list (checks coordinates, but not size of ball)
+            count = sum((x[0] == coordinate[0] and x[1] == coordinate[1]) for x in complete_list)
 
-        # Checks whether a ball is on the repeat list
-        listed = is_close(coordinate, repeated_list, SAVED_CIRCLE_DIST)
-
-        if count >= cutoff and not listed:
-            repeated_list.append(coordinate)
+            # Checks whether a ball is on the repeat list and adds it
+            listed = is_close(coordinate, repeated_list, SAVED_CIRCLE_DIST)
+            if count >= cutoff and not listed:
+                repeated_list.append(coordinate)
     return repeated_list
 
 

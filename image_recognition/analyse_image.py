@@ -33,6 +33,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
 
         frame_counter = 0
         saved_data = []
+        orange_balls = []
 
         # Find static outer walls
         if STATIC_OUTER_WALLS:
@@ -52,9 +53,9 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
                 exit()
 
             if STATIC_OUTER_WALLS:
-                course = analyse_frame(frame, static_wall_corners)
+                course = analyse_frame(frame, static_wall_corners, saved_data, orange_balls, frame_counter)
             else:
-                course = analyse_frame(frame)
+                course = analyse_frame(frame, saved_circles=saved_data, saved_orange=orange_balls, counter=frame_counter)
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
