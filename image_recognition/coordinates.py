@@ -26,8 +26,6 @@ def coordinate_conversion(walls, frame_x, frame_y):
 def determine_order_and_type(walls, obstacle, balls, orange_ball):
     ball_list = []
 
-    print(walls)
-
     if len(walls) == 0:
         return
     if walls[1][0] - walls[0][0] == 0:  # If the walls are detected upside down, return nothing
@@ -35,20 +33,17 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
 
     for i in range(len(balls)):
         # Checking for corner ball
-        # if (ball[0] < DETERMINATION_THRESHOLD and
-        #     ball[1] < DETERMINATION_THRESHOLD) or \
-        #     (ball[0] < DETERMINATION_THRESHOLD and
-        #     ball[1] < walls[0][1] - DETERMINATION_THRESHOLD):
-        #     ball_list = np.append(ball_list, ball)
-        if i % 2 == 0:
-            ball_list.append([balls[i], "even"])
-        else:
-            ball_list.append([balls[i], "odd"])
+        if (balls[i][0] < DETERMINATION_THRESHOLD and # left lower corner
+            balls[i][1] < DETERMINATION_THRESHOLD) or \
+            (balls[i][0] < DETERMINATION_THRESHOLD and # left upper corner
+            balls[i][1] > walls[0][1] - DETERMINATION_THRESHOLD) or \
+            (balls[i][0] > walls[2][0] - DETERMINATION_THRESHOLD and # right lower corner
+            balls[i][1] < DETERMINATION_THRESHOLD) or \
+            (balls[i][0] > walls[1][0] - DETERMINATION_THRESHOLD and # right upper corner
+            balls[i][1] > walls[1][1] - DETERMINATION_THRESHOLD):
+            ball_list.append([balls[i],"corner"])
 
-    # print(ball_list)
-
-
-    # Checking for middle ball
+        # Checking for middle ball
 
         # Checking for edge ball
 
