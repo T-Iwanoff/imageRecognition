@@ -1,5 +1,6 @@
 
 
+import time
 import socket
 from next_move import NextMove
 
@@ -10,9 +11,54 @@ ev3_host = '192.168.187.107'  # Replace with the IP address of your EV3 robot
 port = 10000  # Choose the same port number as in the Java program
 
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect((ev3_host, port))
+class SocketConnection:
 
+    def __init__(self, host = ev3_host, port = port, retries=3, delay=5):
+        self.host = host
+        self.port = port
+        self.retries = retries
+        self.delay = delay
+        self.sock = None
+
+    def connect(self):
+        for x in range(self.retries):
+            try:
+                self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.sock.connect((self.host, self.port))
+                return True
+            except socket.error as e:
+                print(f"Attempt {x+1} failed. Error: {e}")
+                time.sleep(self.delay)  # Wait for a while before retrying
+        return False
+
+    def close(self):
+        if self.sock:
+            self.sock.close()
+
+    def send(self, msg):
+        if not self.sock:
+            raise RuntimeError("Socket connection is not established")
+        self.sock.sendall(msg.encode())
+
+    def receive(self, bufsize=1024):
+        if not self.sock:
+            raise RuntimeError("Socket connection is not established")
+        return self.sock.recv(bufsize).decode()
+
+    def send_coords(self, x, y):
+        self.sock.sendall(x.encode())
+        self.sock.sendall(y.encode())
+
+    def send_next_move(self, next_move: NextMove):
+        self.sock.sendall(next_move.robot_coords[0].encode())
+        self.sock.sendall(next_move.robot_coords[1].encode())
+        self.sock.sendall(next_move.robot_angle.encode())
+        self.sock.sendall(next_move.next_ball[0].encode())
+        self.sock.sendall(next_move.next_ball[1].encode())
+
+
+# with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+#     s.connect((ev3_host, port))
 
 # def socket_connection():
 #     ev3_host = '192.168.48.107'  # Replace with the IP address of your EV3 robot
@@ -33,14 +79,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 #             # if message == "quit":
 #             #     break
 
-def send_coords(x, y):
-    s.sendall(x.encode())
-    s.sendall(y.encode())
 
-def send_next_move(next_move: NextMove):
-    s.sendall(next_move.robot_coords[0].encode())
-    s.sendall(next_move.robot_coords[1].encode())
-    s.sendall(next_move.robot_angle.encode())
-    s.sendall(next_move.next_ball[0].encode())
-    s.sendall(next_move.next_ball[1].encode())
+
 
