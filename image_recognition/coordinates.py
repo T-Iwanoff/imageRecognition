@@ -26,6 +26,10 @@ def coordinate_conversion(walls, frame_x, frame_y):
 def determine_order_and_type(walls, obstacle, balls, orange_ball):
     ball_list = []
 
+    # Convert balls from numpy array to list to prevent error
+    balls = np.array(balls)
+    balls = balls.tolist()
+
     if len(walls) == 0:
         return
     if walls[1][0] - walls[0][0] == 0:  # If the walls are detected upside down, return nothing
@@ -45,7 +49,6 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
 
         # Checking for middle ball
 
-
         # Checking for edge ball
         if balls[i][0] < DETERMINATION_THRESHOLD or \
             balls[i][0] > walls[2][1] - DETERMINATION_THRESHOLD or \
@@ -63,7 +66,6 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
 
 
     # Determine type of orange ball and putting the orange ball in the end of the list
-
 
     return ball_list
 
