@@ -26,6 +26,8 @@ def coordinate_conversion(walls, frame_x, frame_y):
 def determine_order_and_type(walls, obstacle, balls, orange_ball):
     ball_list = []
 
+    print(walls)
+
     if len(walls) == 0:
         return
     if walls[1][0] - walls[0][0] == 0:  # If the walls are detected upside down, return nothing
@@ -43,7 +45,7 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
         else:
             ball_list.append([balls[i], "odd"])
 
-    print(ball_list)
+    # print(ball_list)
 
 
     # Checking for middle ball
@@ -55,6 +57,5 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
     return ball_list
 
 def round_coordinates(object, amount):
-    for element in object:
-        round(object,amount)
+    object = [[round(element, amount) for element in sublist] for sublist in object]
     return object

@@ -141,6 +141,12 @@ def analyse_frame(frame, static_wall_corners=None):
                     wall_corners, coord[0], coord[1])
                 walls_in_meters.append(converted_coords)
 
+    # Round objects to 3 decimals
+    circles_in_meters = round_coordinates(circles_in_meters, ROUNDING_AMOUNT)
+    orange_circle_in_meters = round_coordinates(orange_circle_in_meters, ROUNDING_AMOUNT)
+    walls_in_meters = round_coordinates(walls_in_meters, ROUNDING_AMOUNT)
+    obstacle_in_meters = round_coordinates(walls_in_meters, ROUNDING_AMOUNT)
+
     # Determine order and type of the balls
     ball_list = determine_order_and_type(walls_in_meters,obstacle_in_meters,circles_in_meters,orange_circle_in_meters)
 
