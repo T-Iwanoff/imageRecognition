@@ -114,6 +114,7 @@ def analyse_frame(frame, static_wall_corners=None):
 
     # Converting to meter
     circles_in_meters = []
+    orange_circle_in_meters = []
     obstacle_in_meters = []
     walls_in_meters = []
 
@@ -123,6 +124,10 @@ def analyse_frame(frame, static_wall_corners=None):
                 converted_coords = coordinate_conversion(
                     wall_corners, circle[0], circle[1])
                 circles_in_meters.append(converted_coords)
+
+        if orange_circle is not None:
+            orange_circle_in_meters = coordinate_conversion(
+                wall_corners, orange_circle[0], orange_circle[1])
 
         if obstacle is not None:
             for coord in obstacle:
@@ -135,6 +140,9 @@ def analyse_frame(frame, static_wall_corners=None):
                 converted_coords = coordinate_conversion(
                     wall_corners, coord[0], coord[1])
                 walls_in_meters.append(converted_coords)
+
+    # Determine order and type of the balls
+    ball_list = determine_order_and_type(walls_in_meters,obstacle_in_meters,circles_in_meters,orange_circle_in_meters)
 
     # Draw on the frame
     if wall_corners is not None:
@@ -153,5 +161,5 @@ def analyse_frame(frame, static_wall_corners=None):
     # Display the frame
     cv.imshow('frame', frame)
 
-    return Course(circles_in_meters, obstacle_in_meters, walls_in_meters)
+    return Course(ball_list, obstacle_in_meters, walls_in_meters)
 

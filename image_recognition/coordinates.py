@@ -22,3 +22,39 @@ def coordinate_conversion(walls, frame_x, frame_y):
         print("x: ", meter_x)
         print("y: ", meter_y)
     return [meter_x, meter_y]
+
+def determine_order_and_type(walls, obstacle, balls, orange_ball):
+    ball_list = []
+
+    if len(walls) == 0:
+        return
+    if walls[1][0] - walls[0][0] == 0:  # If the walls are detected upside down, return nothing
+        return
+
+    for i in range(len(balls)):
+        # Checking for corner ball
+        # if (ball[0] < DETERMINATION_THRESHOLD and
+        #     ball[1] < DETERMINATION_THRESHOLD) or \
+        #     (ball[0] < DETERMINATION_THRESHOLD and
+        #     ball[1] < walls[0][1] - DETERMINATION_THRESHOLD):
+        #     ball_list = np.append(ball_list, ball)
+        if i % 2 == 0:
+            ball_list.append([balls[i], "even"])
+        else:
+            ball_list.append([balls[i], "odd"])
+
+    print(ball_list)
+
+
+    # Checking for middle ball
+
+        # Checking for edge ball
+
+        # Putting the orange ball in the end of the list
+
+    return ball_list
+
+def round_coordinates(object, amount):
+    for element in object:
+        round(object,amount)
+    return object
