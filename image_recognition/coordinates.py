@@ -7,8 +7,11 @@ from constants import *
 # the meter-coordinates for (distance to the lower left corner on the x- and y-axis)
 def coordinate_conversion(walls, frame_x, frame_y):
     if len(walls) == 0:
+        print("No walls detected")
         return
     if walls[1][0] - walls[0][0] == 0:  # If the walls are detected upside down, return nothing
+        print(walls)
+        print("Wall are upside down")
         return
 
     inside_walls_x = frame_x - (walls[0][0] + walls[3][0]) / 2
