@@ -48,7 +48,10 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
             ball_list.append([balls[i], "corner"])
 
         # Checking for middle ball
-        print(obstacle)
+        if (balls[i][0] > obstacle[0][0] and balls[i][0] < obstacle[2][0]) and \
+            (balls[i][1] > obstacle[3][1] and balls[i][1] < obstacle[1][1]):
+            ball_list.append([balls[i], "middle"])
+
         # Checking for edge ball
         if balls[i][0] < DETERMINATION_THRESHOLD or \
             balls[i][0] > walls[2][1] - DETERMINATION_THRESHOLD or \
@@ -63,7 +66,6 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
                         break
                 if not in_list:
                     ball_list.append([balls[i], "edge"])
-
 
     # Determine type of orange ball and putting the orange ball in the end of the list
 
