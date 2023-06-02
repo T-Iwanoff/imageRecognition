@@ -56,13 +56,13 @@ def robot_recognition(frame, wall_corners):
         # print("center: x = " + str(cX_center) + " and " "y = " + str(cY_center))
 
     # draw a circle around the center of the robot
-    cv2.circle(img=frame, center=(cX_center, cY_center), radius=25, color=(255, 0, 0), thickness=2)
+    cv2.circle(img=frame, center=(cX_center, cY_center), radius=35, color=(255, 0, 0), thickness=2)
 
     # find only pointers in a certain area
     # Circular ROI in original image; must be selected via an additional mask
     # link: https://stackoverflow.com/questions/59873870/crop-a-circle-area-roi-of-an-image-and-put-it-onto-a-white-mask
     roi = np.zeros(frame.shape[:2], np.uint8)
-    roi = cv2.circle(roi, (cX_center, cY_center), 25, 255, cv2.FILLED)
+    roi = cv2.circle(roi, (cX_center, cY_center), 35, 255, cv2.FILLED)
 
     # Target image; white background
     mask = np.ones_like(frame) * 255

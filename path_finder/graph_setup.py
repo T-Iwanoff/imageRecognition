@@ -47,6 +47,7 @@ def create_graph(course: Course):
     # add nodes at ball coords
 
     if course.robot_coords is not None:
+        print("adding robot node")
         G.add_node(0)
         pos[0] = (course.robot_coords[0], course.robot_coords[1])
 
@@ -238,35 +239,36 @@ def solve_tsp(G):
     else:
         new_tsp = (tsp[0], tsp[1] + 20000)
 
-    print(new_tsp)
+    print("Fastest path: " + str(new_tsp[0]))
+    print("Fastest path length in meters: " + str(new_tsp[1]))
 
     # print(tsp)
 
     return new_tsp
 
 
-def calculateTSP(G):
+# def calculateTSP(G):
 
-    # create dummy node
-    # G.add_node("dummy")
-    # G.add_edge("dummy", 0, weight=0)
-    # G.add_edge("dummy", G.number_of_nodes()-2, weight=0)
+#     # create dummy node
+#     # G.add_node("dummy")
+#     # G.add_edge("dummy", 0, weight=0)
+#     # G.add_edge("dummy", G.number_of_nodes()-2, weight=0)
 
-    # Calculate the TSP
-    temp_tsp = nx.algorithms.approximation.traveling_salesman_problem(
-        G, weight="weight", cycle=False)
+#     # Calculate the TSP
+#     temp_tsp = nx.algorithms.approximation.traveling_salesman_problem(
+#         G, weight="weight", cycle=False)
 
-    tsp_weight = 0
+#     tsp_weight = 0
 
-    # Calculate the total weight of the TSP path
-    for i in range(len(temp_tsp) - 1):
-        tsp_weight += G[temp_tsp[i]][temp_tsp[i+1]]["weight"]
+#     # Calculate the total weight of the TSP path
+#     for i in range(len(temp_tsp) - 1):
+#         tsp_weight += G[temp_tsp[i]][temp_tsp[i+1]]["weight"]
 
-    # Print the TSP and its weight
-    print("TSP path:", temp_tsp)
-    print("TSP weight:", tsp_weight)
+#     # Print the TSP and its weight
+#     print("TSP path:", temp_tsp)
+#     print("TSP weight:", tsp_weight)
 
-    return temp_tsp
+#     return temp_tsp
 
 
 def print_graph_matrix(G):

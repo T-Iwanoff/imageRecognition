@@ -71,16 +71,13 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
             course = analyse_frame(
                 frame, static_wall_corners) if STATIC_OUTER_WALLS else analyse_frame(frame)
 
-            course.set_robot_pos = robot_recognition(frame)
+            course.robot_coords, course.robot_angle = robot_recognition(frame)
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
                 next_move = NextMove(display_graph(course))
-                next_move.set_robot_pos(
-                    course.robot_coords, course.robot_angle)
-                print(next_move.next_ball)
-                print(next_move.robot_coords)
-                print(next_move.robot_angle)
+                next_move.robot_coords = course.robot_coords
+                next_move.robot_angle = course.robot_angle
                 print(next_move.encode())
                 
 
