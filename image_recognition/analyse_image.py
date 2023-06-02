@@ -3,7 +3,7 @@ from image_recognition.calibration import *
 from image_recognition.analyse_frame import analyse_frame, analyse_walls
 import path_finder.graph_setup as gt
 from image_recognition.robotRecognition import robot_recognition
-from constants import STATIC_OUTER_WALLS
+from constants import STATIC_OUTER_WALLS, ENABLE_MULTI_FRAME_BALL_DETECTION
 
 
 def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_balls=None):
@@ -32,8 +32,12 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
             exit()
 
         frame_counter = 0
-        saved_data = []
-        orange_balls = []
+        if ENABLE_MULTI_FRAME_BALL_DETECTION:
+            saved_data = []
+            orange_balls = []
+        else:
+            saved_data = None
+            orange_balls = None
 
         # Find static outer walls
         if STATIC_OUTER_WALLS:
