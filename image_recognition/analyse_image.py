@@ -56,10 +56,12 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
                 print("Error: Frame not found")
                 exit()
 
+            # Analyse the frame
             if STATIC_OUTER_WALLS:
                 course = analyse_frame(frame, static_wall_corners, saved_data, orange_balls, frame_counter)
             else:
-                course = analyse_frame(frame, saved_circles=saved_data, saved_orange=orange_balls, counter=frame_counter)
+                course = analyse_frame(frame, saved_circles=saved_data, saved_orange=orange_balls,
+                                       counter=frame_counter)
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
@@ -90,7 +92,12 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
             exit()
 
         frame_counter = 0
-        saved_data = []
+        if ENABLE_MULTI_FRAME_BALL_DETECTION:
+            saved_data = []
+            orange_balls = []
+        else:
+            saved_data = None
+            orange_balls = None
 
         # Find static outer walls
         if STATIC_OUTER_WALLS:
@@ -103,10 +110,12 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
                 print("Error: Frame not found")
                 exit()
 
+            # Analyse the frame
             if STATIC_OUTER_WALLS:
-                course = analyse_frame(frame, static_wall_corners)
+                course = analyse_frame(frame, static_wall_corners, saved_data, orange_balls, frame_counter)
             else:
-                course = analyse_frame(frame)
+                course = analyse_frame(frame, saved_circles=saved_data, saved_orange=orange_balls,
+                                       counter=frame_counter)
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
@@ -136,7 +145,12 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
             exit()
 
         frame_counter = 0
-        saved_data = []
+        if ENABLE_MULTI_FRAME_BALL_DETECTION:
+            saved_data = []
+            orange_balls = []
+        else:
+            saved_data = None
+            orange_balls = None
 
         course = Course()
 
@@ -147,7 +161,11 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
                 print("Error: Frame not found")
                 exit()
 
-            course = analyse_frame(frame, saved_data, frame_counter)
+            if STATIC_OUTER_WALLS:
+                course = analyse_frame(frame, static_wall_corners, saved_data, orange_balls, frame_counter)
+            else:
+                course = analyse_frame(frame, saved_circles=saved_data, saved_orange=orange_balls,
+                                       counter=frame_counter)
 
             frame_counter += 1
 
@@ -171,7 +189,12 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
             exit()
 
         frame_counter = 0
-        saved_data = []
+        if ENABLE_MULTI_FRAME_BALL_DETECTION:
+            saved_data = []
+            orange_balls = []
+        else:
+            saved_data = None
+            orange_balls = None
 
         while True:
             # Get the current frame
@@ -181,9 +204,10 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', nmbr_of_bal
                 exit()
 
             if STATIC_OUTER_WALLS:
-                course = analyse_frame(frame, static_wall_corners)
+                course = analyse_frame(frame, static_wall_corners, saved_data, orange_balls, frame_counter)
             else:
-                course = analyse_frame(frame)
+                course = analyse_frame(frame, saved_circles=saved_data, saved_orange=orange_balls,
+                                       counter=frame_counter)
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
