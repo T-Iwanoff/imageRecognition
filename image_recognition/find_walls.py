@@ -76,10 +76,10 @@ def sort_walls(walls):
     for point in walls:
         if (point[0] < 200) and (point[1] < 200):
             sorted_walls[0] = point  # Upper left
-        if (point[0] < 200) and (point[1] > 200):
+        if (point[0] > 200) and (point[1] < 200):
             sorted_walls[1] = point  # Upper right
         if (point[0] > 200) and (point[1] > 200):
             sorted_walls[2] = point  # Lower right
-        if (point[0] > 200) and (point[1] < 200):
+        if (point[0] < 200) and (point[1] > 200):
             sorted_walls[3] = point  # Lower left
     return sorted_walls
