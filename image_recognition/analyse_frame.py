@@ -142,18 +142,15 @@ def analyse_frame(frame, static_wall_corners=None):
                     wall_corners, coord[0], coord[1])
                 walls_in_meters.append(converted_coords)
 
-    # Round objects to 3 decimals
-    # if len(circles_in_meters) != 0 and len(orange_circle_in_meters) != 0 and \
-    #     len(walls_in_meters) != 0 and len(obstacle_in_meters) != 0:
-    #     circles_in_meters = round_coordinates(circles_in_meters, ROUNDING_AMOUNT)
-    #     orange_circle_in_meters = round_coordinates(orange_circle_in_meters, ROUNDING_AMOUNT)
-    #     walls_in_meters = round_coordinates(walls_in_meters, ROUNDING_AMOUNT)
-    #     obstacle_in_meters = round_coordinates(obstacle_in_meters, ROUNDING_AMOUNT)
+    # Round balls to 3 decimals
+    if len(circles_in_meters) != 0:
+        circles_in_meters = np.round(circles_in_meters, 3)
+    if len(orange_circle_in_meters) != 0:
+        orange_circle_in_meters = np.round(orange_circle_in_meters, 3)
 
     # Determine order and type of the balls
     if len(obstacle_in_meters) != 0:
         ball_list = determine_order_and_type(walls_in_meters, obstacle_in_meters, circles_in_meters, orange_circle_in_meters)
-        print(ball_list)
 
     # Draw on the frame
     if wall_corners is not None:

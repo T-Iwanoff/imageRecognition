@@ -30,6 +30,10 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
     balls = np.array(balls)
     balls = balls.tolist()
 
+    # Convert orange ball from numpy array to list for formatting
+    orange_ball = np.array(orange_ball)
+    orange_ball = orange_ball.tolist()
+
     if len(walls) == 0:
         return
     if walls[1][0] - walls[0][0] == 0:  # If the walls are detected upside down, return nothing
@@ -61,7 +65,14 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
     return ball_list
 
 def round_coordinates(object, amount):
-    object = [[round(element, amount) for element in sublist] for sublist in object]
+    # object_list = np.array(object)
+    # print(object)
+    #
+    # if type(object) is not np.ndarray:
+    #     return
+    # else:
+    #     object_list = [np.round(x, amount) for x in object]
+
     return object
 
 def check_type(ball, walls, obstacle):
