@@ -5,10 +5,16 @@ import path_finder.graph_setup as gt
 from image_recognition.robotRecognition import robot_recognition
 from constants import STATIC_OUTER_WALLS
 from next_move import NextMove
-# import robot_connection.socket_connection as socket_connection
+import robot_connection.socket_connection as sc
 
 
 def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=False, nmbr_of_balls=None):
+
+    # socket_connection = sc.SocketConnection()
+    connected = False
+    # if (socket_connection.connect()):
+    #     print("Connected!")
+    #     connected = True
 
     course = Course()
 
@@ -58,10 +64,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 print("Error: Frame not found")
                 exit()
 
-            if STATIC_OUTER_WALLS:
-                course = analyse_frame(frame, static_wall_corners)
-            else:
-                course = analyse_frame(frame)
+            
 
             # print the coordinates of the balls when g is pressed
             course = analyse_frame(
@@ -76,7 +79,8 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 next_move.robot_coords = course.robot_coords
                 next_move.robot_angle = course.robot_angle
                 print(next_move.to_json())
-                # socket_connection.send_next_move(next_move)
+                if connected:
+                    socket_connection.send_next_move(next_move)
 
             frame_counter += 1
 

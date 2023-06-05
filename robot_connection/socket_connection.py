@@ -21,8 +21,8 @@ class SocketConnection:
         self.delay = delay
         self.sock = None
 
-    def to_json(self):
-        return json.dumps(self.__dict__)
+    # def to_json(self):
+    #     return json.dumps(self.__dict__)
 
     def connect(self):
         for x in range(self.retries):

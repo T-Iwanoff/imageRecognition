@@ -11,7 +11,7 @@ def connection_test():
         print("Connected!")
 
         next_move = NextMove(next_ball=[1, 1], robot_coords=[
-            10, 10], robot_angle=10)
+            0.8, 0.8], robot_angle=0)
         conn.send_next_move(next_move)
         conn.close()
     else:
