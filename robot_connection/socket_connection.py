@@ -1,5 +1,6 @@
 
 
+import json
 import time
 import socket
 from next_move import NextMove
@@ -13,12 +14,15 @@ port = 10000  # Choose the same port number as in the Java program
 
 class SocketConnection:
 
-    def __init__(self, host = ev3_host, port = port, retries=3, delay=5):
+    def __init__(self, host=ev3_host, port=port, retries=3, delay=5):
         self.host = host
         self.port = port
         self.retries = retries
         self.delay = delay
         self.sock = None
+
+    def to_json(self):
+        return json.dumps(self.__dict__)
 
     def connect(self):
         for x in range(self.retries):
@@ -45,16 +49,15 @@ class SocketConnection:
             raise RuntimeError("Socket connection is not established")
         return self.sock.recv(bufsize).decode()
 
-    def send_coords(self, x, y):
-        self.sock.sendall(x.encode())
-        self.sock.sendall(y.encode())
+    # def send_coords(self, x, y):
+    #     self.sock.sendall(x.encode())
+    #     self.sock.sendall(y.encode())
 
     def send_next_move(self, next_move: NextMove):
-        self.sock.sendall(next_move.robot_coords[0].encode())
-        self.sock.sendall(next_move.robot_coords[1].encode())
-        self.sock.sendall(next_move.robot_angle.encode())
-        self.sock.sendall(next_move.next_ball[0].encode())
-        self.sock.sendall(next_move.next_ball[1].encode())
+        print(next_move.to_json())
+        if not self.sock:
+            raise RuntimeError("Socket connection is not established")
+        self.sock.sendall(next_move.to_json().encode())
 
 
 # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -78,7 +81,3 @@ class SocketConnection:
 
 #             # if message == "quit":
 #             #     break
-
-
-
-
