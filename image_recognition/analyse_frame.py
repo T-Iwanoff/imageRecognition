@@ -177,8 +177,5 @@ def analyse_frame(frame, static_wall_corners=None):
     # Display the frame
     cv.imshow('frame', frame)
 
-    if len(ball_list) != 0:
-        return Course(ball_list, obstacle_in_meters, walls_in_meters)
-    else:
-        return
+    return Course(circles_in_meters, obstacle_in_meters, walls_in_meters)
 

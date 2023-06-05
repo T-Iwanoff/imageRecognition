@@ -58,10 +58,6 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 print("Error: Frame not found")
                 exit()
 
-            if STATIC_OUTER_WALLS:
-                course = analyse_frame(frame, static_wall_corners)
-            else:
-                course = analyse_frame(frame)
 
             # print the coordinates of the balls when g is pressed
             course = analyse_frame(
