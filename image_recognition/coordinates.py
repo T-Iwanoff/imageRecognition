@@ -62,18 +62,9 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
         orange_ball_type = check_type(orange_ball, walls, obstacle)
         ball_list.append([orange_ball, orange_ball_type])
 
+    print(ball_list)
+
     return ball_list
-
-def round_coordinates(object, amount):
-    # object_list = np.array(object)
-    # print(object)
-    #
-    # if type(object) is not np.ndarray:
-    #     return
-    # else:
-    #     object_list = [np.round(x, amount) for x in object]
-
-    return object
 
 def check_type(ball, walls, obstacle):
     ball_type = "none"
