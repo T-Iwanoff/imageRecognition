@@ -9,4 +9,6 @@ class Course:
         self.wall_coords = wall_coords if wall_coords is not None else []
         self.robot_coords = robot_coords if robot_coords is not None else []
         self.robot_angle = robot_angle if robot_angle is not None else []
+        
+
 

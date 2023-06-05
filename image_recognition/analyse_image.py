@@ -71,7 +71,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 next_move = NextMove(display_graph(course))
                 next_move.robot_coords = course.robot_coords
                 next_move.robot_angle = course.robot_angle
-                print(next_move.encode())
+                print(next_move.to_json())
                 # socket_connection.send_next_move(next_move)
 
             frame_counter += 1
