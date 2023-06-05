@@ -19,7 +19,8 @@ COURSE_WIDTH = 1.683
 # SAVED_CIRCLE_DIFF dictates the minimum distance between two detected circles,
 # before they count as distinct balls. Is smaller than the one distance specified in Houghcircles
 SAVED_FRAMES = 10
-CUTOFF = 1
+CUTOFF = 2
+ORANGE_CUTOFF = 1
 SAVED_CIRCLE_DIST = 5
 
 # Define color ranges for red wall detection (inverted to cyan)
@@ -35,9 +36,16 @@ OUTER_WALL_AREA_MAX = 195000
 OBSTACLE_AREA_MIN = 900
 OBSTACLE_AREA_MAX = 1600
 
+# Determination constant for ball type detection
+DETERMINATION_THRESHOLD = 0.05
+
+# Used for rounding numbers of objects
+ROUNDING_AMOUNT = 3
+
 AUTOMATED_AREA_DETECT = True
 
 PRINT_COORDINATES = False
 PRINT_NUMBER_OF_BALLS = False
 STATIC_OUTER_WALLS = True
+ENABLE_MULTI_FRAME_BALL_DETECTION = True
 
