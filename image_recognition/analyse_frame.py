@@ -65,7 +65,7 @@ def analyse_obstacles(frame, wall_contours=None):
     else:
         return obstacle
 
-def analyse_balls(frame, wall_corners, saved_circles=None, counter=None, prev_number_of_balls=None):
+def analyse_balls(frame, saved_circles=None, counter=None):
     # Find the balls
     circles = find_circles(frame)
     # circles = find_orange_circle(frame)
@@ -76,8 +76,8 @@ def analyse_balls(frame, wall_corners, saved_circles=None, counter=None, prev_nu
     #         saved_circles[counter % SAVED_FRAMES] = circles
     #     circles = find_repeated_coordinates(saved_circles, CUTOFF)
 
-    if counter is not None and circles is not None:
-        if counter < SAVED_FRAMES:
+    if counter is not None and circles is not None and saved_circles is not None:
+        if len(saved_circles) < SAVED_FRAMES:
             saved_circles.append(circles)
             circles = find_repeated_coordinates(saved_circles, CUTOFF)
         else:
@@ -86,7 +86,26 @@ def analyse_balls(frame, wall_corners, saved_circles=None, counter=None, prev_nu
 
     return circles
 
-def analyse_frame(frame, static_wall_corners=None):
+
+def analyse_orange_ball(frame, saved_circle=None, counter=None):
+    # Find the balls
+    circle = find_orange_circle(frame)
+
+    if counter is not None and circle is not None and saved_circle is not None:
+        if len(saved_circle) < SAVED_FRAMES:
+            saved_circle.append(circle)
+            circle = find_repeated_coordinates(saved_circle, CUTOFF)
+        else:
+            saved_circle[counter % SAVED_FRAMES] = circle
+            circle = find_repeated_coordinates(saved_circle, CUTOFF)
+
+        if circle is not None and bool(circle):
+            circle = circle[0]
+
+    return circle
+
+
+def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_orange=None, counter=None):
 
     # Calibrate the frame
     frame = calibrate_frame(frame)
@@ -115,8 +134,8 @@ def analyse_frame(frame, static_wall_corners=None):
     # wall_mask = frameToWallMask(frame)
     # wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
-    circles = analyse_balls(frame, wall_corners)
-    orange_circle = find_orange_circle(frame)
+    circles = analyse_balls(frame, saved_circles, counter)
+    orange_circle = analyse_orange_ball(frame, saved_orange, counter)
     circles = remove_circle_from_list(orange_circle, circles)
 
     # Converting to meter
@@ -170,7 +189,7 @@ def analyse_frame(frame, static_wall_corners=None):
         for i in circles:
             cv.circle(frame, (i[0], i[1]), 1, (0, 0, 0), 2)  # Center of the circle
             cv.circle(frame, (i[0], i[1]), i[2], (255, 0, 255), 2)  # Outer circle
-    if orange_circle is not None:
+    if orange_circle is not None and len(orange_circle):
         cv.circle(frame, (orange_circle[0], orange_circle[1]), 1, (0, 0, 0), 2)  # Center of the circle
         cv.circle(frame, (orange_circle[0], orange_circle[1]), orange_circle[2], (100, 100, 255), 2)  # Outer circle
 

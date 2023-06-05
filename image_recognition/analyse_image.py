@@ -3,7 +3,7 @@ from image_recognition.calibration import *
 from image_recognition.analyse_frame import analyse_frame, analyse_walls
 import path_finder.graph_setup as gt
 from image_recognition.robotRecognition import robot_recognition
-from constants import STATIC_OUTER_WALLS
+from constants import STATIC_OUTER_WALLS, ENABLE_MULTI_FRAME_BALL_DETECTION
 from next_move import NextMove
 # import robot_connection.socket_connection as socket_connection
 
@@ -45,11 +45,17 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 print("Error: Camera not found")
             exit()
 
+        # Find static outer walls
         static_wall_corners = get_static_outer_walls(
             video_capture) if STATIC_OUTER_WALLS else None
 
         frame_counter = 0
-        saved_data = []
+        if ENABLE_MULTI_FRAME_BALL_DETECTION:
+            saved_data = []
+            orange_balls = []
+        else:
+            saved_data = None
+            orange_balls = None
 
         while True:
             # Get the current frame
@@ -58,10 +64,13 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 print("Error: Frame not found")
                 exit()
 
+            # Analyse the frame
+            if STATIC_OUTER_WALLS:
+                course = analyse_frame(frame, static_wall_corners, saved_data, orange_balls, frame_counter)
+            else:
+                course = analyse_frame(frame, saved_circles=saved_data, saved_orange=orange_balls,
+                                       counter=frame_counter)
 
-            # print the coordinates of the balls when g is pressed
-            course = analyse_frame(
-                frame, static_wall_corners) if STATIC_OUTER_WALLS else analyse_frame(frame)
 
             course.robot_coords, course.robot_angle = robot_recognition(
                 frame, static_wall_corners)
