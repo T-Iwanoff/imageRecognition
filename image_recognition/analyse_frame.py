@@ -95,10 +95,10 @@ def analyse_orange_ball(frame, saved_circle=None, counter=None):
     if counter is not None and circle is not None and saved_circle is not None:
         if len(saved_circle) < SAVED_FRAMES:
             saved_circle.append(circle)
-            circle = find_repeated_coordinates(saved_circle, CUTOFF)
+            circle = find_repeated_coordinates(saved_circle, ORANGE_CUTOFF)
         else:
             saved_circle[counter % SAVED_FRAMES] = circle
-            circle = find_repeated_coordinates(saved_circle, CUTOFF)
+            circle = find_repeated_coordinates(saved_circle, ORANGE_CUTOFF)
 
         if circle is not None and bool(circle):
             circle = circle[0]

@@ -20,6 +20,7 @@ COURSE_WIDTH = 1.683
 # before they count as distinct balls. Is smaller than the one distance specified in Houghcircles
 SAVED_FRAMES = 10
 CUTOFF = 2
+ORANGE_CUTOFF = 1
 SAVED_CIRCLE_DIST = 5
 
 # Define color ranges for red wall detection (inverted to cyan)
