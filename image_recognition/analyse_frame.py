@@ -121,8 +121,10 @@ def analyse_frame(frame, static_wall_corners=None):
 
     # Converting to meter
     circles_in_meters = []
+    orange_circle_in_meters = []
     obstacle_in_meters = []
     walls_in_meters = []
+    ball_list = []
 
     if wall_corners is not None:
         if circles is not None:
@@ -130,6 +132,10 @@ def analyse_frame(frame, static_wall_corners=None):
                 converted_coords = coordinate_conversion(
                     wall_corners, circle[0], circle[1])
                 circles_in_meters.append(converted_coords)
+
+        if orange_circle is not None:
+            orange_circle_in_meters = coordinate_conversion(
+                wall_corners, orange_circle[0], orange_circle[1])
 
         if obstacle is not None:
             for coord in obstacle:
@@ -142,6 +148,17 @@ def analyse_frame(frame, static_wall_corners=None):
                 converted_coords = coordinate_conversion(
                     wall_corners, coord[0], coord[1])
                 walls_in_meters.append(converted_coords)
+
+    # Round balls to 3 decimals
+    # if len(circles_in_meters) != 0:
+    #     circles_in_meters = np.round(circles_in_meters, 3)
+    # if len(orange_circle_in_meters) != 0:
+    #     orange_circle_in_meters = np.round(orange_circle_in_meters, 3)
+
+    # Determine order and type of the balls
+    if len(obstacle_in_meters) != 0:
+        # contains an array with a coordinate array and a string in each element
+        ball_list = determine_order_and_type(walls_in_meters, obstacle_in_meters, circles_in_meters, orange_circle_in_meters)
 
     # Draw on the frame
     if wall_corners is not None:
@@ -160,5 +177,8 @@ def analyse_frame(frame, static_wall_corners=None):
     # Display the frame
     cv.imshow('frame', frame)
 
-    return Course(circles_in_meters, obstacle_in_meters, walls_in_meters)
+    if len(ball_list) != 0:
+        return Course(ball_list, obstacle_in_meters, walls_in_meters)
+    else:
+        return
 

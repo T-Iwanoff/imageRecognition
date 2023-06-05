@@ -35,6 +35,12 @@ OUTER_WALL_AREA_MAX = 195000
 OBSTACLE_AREA_MIN = 900
 OBSTACLE_AREA_MAX = 1600
 
+# Determination constant for ball type detection
+DETERMINATION_THRESHOLD = 0.05
+
+# Used for rounding numbers of objects
+ROUNDING_AMOUNT = 3
+
 AUTOMATED_AREA_DETECT = True
 
 PRINT_COORDINATES = False
