@@ -72,7 +72,6 @@ def warp_frame(box, frame):
 
 # Sorts the points of the wall so its always upper-left, upper-right, lower-right, lower-left
 def sort_walls(walls):
-    print("Sorting walls")
     sorted_walls = copy.deepcopy(walls)
     for point in walls:
         if (point[0] < 200) and (point[1] < 200):

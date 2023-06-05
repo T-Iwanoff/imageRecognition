@@ -6,6 +6,7 @@ from image_recognition.calibration import *
 from constants import *
 import cv2 as cv
 
+
 def analyse_walls(frame, wall_contours=None):
     # Find the correct max area of the outer wall
     global wall_corners
@@ -152,7 +153,7 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
                     wall_corners, circle[0], circle[1])
                 circles_in_meters.append(converted_coords)
 
-        if orange_circle is not None:
+        if orange_circle is not None and len(orange_circle):
             orange_circle_in_meters = coordinate_conversion(
                 wall_corners, orange_circle[0], orange_circle[1])
 
