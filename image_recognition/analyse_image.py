@@ -1,3 +1,4 @@
+import asyncio
 from course import Course
 from image_recognition.calibration import *
 from image_recognition.analyse_frame import analyse_frame, analyse_walls
@@ -8,13 +9,15 @@ from next_move import NextMove
 import robot_connection.socket_connection as sc
 
 
-def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=False, nmbr_of_balls=None):
+def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=False, connect=False):
 
-    # socket_connection = sc.SocketConnection()
     connected = False
-    # if (socket_connection.connect()):
-    #     print("Connected!")
-    #     connected = True
+    if connect:
+        socket_connection = sc.SocketConnection()
+        
+        if (socket_connection.connect()):
+            print("Connected!")
+            connected = True
 
     course = Course()
 
@@ -89,7 +92,8 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 next_move.robot_angle = course.robot_angle
                 print(next_move.to_json())
                 if connected:
-                    socket_connection.send_next_move(next_move)
+                    print("Sending next move to robot")
+                    asyncio.run(socket_connection.async_send_next_move(next_move))
 
             frame_counter += 1
 
