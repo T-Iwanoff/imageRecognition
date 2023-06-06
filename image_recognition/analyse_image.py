@@ -14,7 +14,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
     connected = False
     if connect:
         socket_connection = sc.SocketConnection()
-        
+
         if (socket_connection.connect()):
             print("Connected!")
             connected = True
@@ -73,14 +73,13 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 print("Error: Frame not found")
                 exit()
 
-            
             # Analyse the frame
             if STATIC_OUTER_WALLS:
-                course = analyse_frame(frame, static_wall_corners, saved_data, orange_balls, frame_counter)
+                course = analyse_frame(
+                    frame, static_wall_corners, saved_data, orange_balls, frame_counter)
             else:
                 course = analyse_frame(frame, saved_circles=saved_data, saved_orange=orange_balls,
                                        counter=frame_counter)
-
 
             course.robot_coords, course.robot_angle = robot_recognition(
                 frame, static_wall_corners)
@@ -93,7 +92,8 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 print(next_move.to_json())
                 if connected:
                     print("Sending next move to robot")
-                    asyncio.run(socket_connection.async_send_next_move(next_move))
+                    asyncio.run(
+                        socket_connection.async_send_next_move(next_move))
 
             frame_counter += 1
 
