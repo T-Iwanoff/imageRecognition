@@ -42,6 +42,22 @@ DETERMINATION_THRESHOLD = 0.05
 # Used for rounding numbers of objects
 ROUNDING_AMOUNT = 3
 
+# Camera constants
+# Distance from camera to floor
+CAMERA_HEIGHT = 1.68 # Measure with each setup
+
+# Frame height in meter
+FRAME_HEIGHT_METER = 1.49
+
+# Pixel to meter
+PIXEL_IN_METER = FRAME_HEIGHT_METER / 480
+
+# Height of objects
+BALL_HEIGHT = 0.04
+WALL_HEIGHT = 0.071
+ROBOT_HEIGHT = 1 # placeholder
+
+
 AUTOMATED_AREA_DETECT = True
 
 PRINT_COORDINATES = False
