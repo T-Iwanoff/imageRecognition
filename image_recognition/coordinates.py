@@ -19,12 +19,10 @@ def coordinate_conversion(walls, frame_x, frame_y):
     inside_walls_x = frame_x - (walls[0][0] + walls[3][0]) / 2
     x_scale = COURSE_WIDTH / (walls[1][0] - walls[0][0])
     meter_x = inside_walls_x * x_scale
-    # meter_x = inside_walls_x
 
     inside_walls_y = frame_y - (walls[0][1] + walls[1][1]) / 2
     y_scale = COURSE_HEIGHT / (walls[3][1] - walls[0][1])
     meter_y = (walls[2][1] - frame_y) * y_scale
-    # meter_y = (walls[2][1] - frame_y)
     if PRINT_COORDINATES:
         print("x: ", meter_x)
         print("y: ", meter_y)
@@ -103,33 +101,29 @@ def improve_coordinate_precision(walls, pixel_coordinates, obj):
     hos_2 = None
     camera_point_meter = [find_length_in_meter(walls, 320), find_length_in_meter(walls, 240)]
 
-    print(pixel_coordinates)
     # Calculate point relative to the walls
-    pixel_coordinates = [
-        (pixel_coordinates[0] - ((walls[0][0] + walls[3][0]) / 2)),
-        (walls[2][1] - pixel_coordinates[1])]
-
     pixel_coordinates_meter = [find_length_in_meter(walls, pixel_coordinates[0]),
-                               find_length_in_meter(walls, pixel_coordinates[1])]
+                               find_length_in_meter(walls, 480) - find_length_in_meter(walls, pixel_coordinates[1])]
 
-    print("pixel_coordinates_meter: ", pixel_coordinates_meter)
+    hos_1 = math.dist(pixel_coordinates_meter, camera_point_meter)
 
-    hos_1 = math.dist(camera_point_meter, pixel_coordinates_meter)
     mod_1 = CAMERA_HEIGHT
-    v = math.atan(mod_1 / hos_1)
+    v = math.degrees(math.atan(mod_1 / hos_1))
 
     if obj == "ball":
-        hos_2 = BALL_HEIGHT / math.tan(v)
+        hos_2 = -BALL_HEIGHT / math.tan(v)
     elif obj == "wall":
-        hos_2 = WALL_HEIGHT / math.tan(v)
+        hos_2 = -WALL_HEIGHT / math.tan(v)
     elif obj == "robot":
-        hos_2 = ROBOT_HEIGHT / math.tan(v)
+        hos_2 = -ROBOT_HEIGHT / math.tan(v)
 
     # Distance from camera point to object point
     d = hos_1 - hos_2
 
     ab_vector = np.array([[pixel_coordinates_meter[0] - camera_point_meter[0]], [pixel_coordinates_meter[1] - camera_point_meter[1]]])
     e_vector = (1 / magnitude(ab_vector)) * ab_vector
+
+    orego = [walls[3][0], walls[3][1]]
 
     improved_coordinates = np.array(e_vector) * d
     improved_coordinates = improved_coordinates.tolist()
@@ -143,7 +137,6 @@ def find_length_in_meter(walls, pixel_length):
         print("No walls detected")
         return
     if walls[1][0] - walls[0][0] == 0:  # If the walls are detected upside down, return nothing
-        print(walls)
         print("Wall are upside down")
         return
 
