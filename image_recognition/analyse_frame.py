@@ -149,7 +149,7 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
     if wall_corners is not None:
         if circles is not None:
             for circle in circles:
-                improved_coords = improve_coordinate_precision(circle, "ball")
+                improved_coords = improve_coordinate_precision(wall_corners, circle, "ball")
                 converted_coords = coordinate_conversion(
                     wall_corners, improved_coords[0], improved_coords[1])
                 circles_in_meters.append(converted_coords)
@@ -166,9 +166,9 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
 
         if wall_corners is not None:
             for coord in wall_corners:
-                improved_coords = improve_coordinate_precision(coord, "wall")
+                # improved_coords = improve_coordinate_precision(coord, "wall")
                 converted_coords = coordinate_conversion(
-                    wall_corners, improved_coords[0], improved_coords[1])
+                    wall_corners, coord[0], coord[1])
                 walls_in_meters.append(converted_coords)
     # print(circles_in_meters)
 
