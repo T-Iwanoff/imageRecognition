@@ -123,7 +123,8 @@ def improve_coordinate_precision(walls, pixel_coordinates, obj):
     ab_vector = np.array([[pixel_coordinates_meter[0] - camera_point_meter[0]], [pixel_coordinates_meter[1] - camera_point_meter[1]]])
     e_vector = (1 / magnitude(ab_vector)) * ab_vector
 
-    orego = [walls[3][0], walls[3][1]]
+    orego = [find_length_in_meter(walls, walls[3][0]),
+             find_length_in_meter(walls, 480) - find_length_in_meter(walls, walls[3][1])]
 
     improved_coordinates = np.array(e_vector) * d
     improved_coordinates = improved_coordinates.tolist()
