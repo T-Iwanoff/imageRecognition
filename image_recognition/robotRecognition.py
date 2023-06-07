@@ -2,10 +2,14 @@ import math
 
 import cv2
 import numpy as np
+from image_recognition.calibration import calibrate_frame
 from image_recognition.coordinates import coordinate_conversion
 
 
 def robot_recognition(frame, wall_corners):
+
+    # Calibrate the frame
+    # frame = calibrate_frame(frame)
 
     # define kernel size
     kernel = np.ones((7, 7), np.uint8)
@@ -14,8 +18,8 @@ def robot_recognition(frame, wall_corners):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     # lower bound and upper bound for pointer color
-    lower_bound_pointer = np.array([25, 100, 20]) # lego color
-    upper_bound_pointer = np.array([35, 250, 255]) # lego color
+    lower_bound_pointer = np.array([25, 100, 20])  # lego color
+    upper_bound_pointer = np.array([35, 250, 255])  # lego color
 
     # lower bound and upper bound for center color
     lower_bound_center = np.array([110, 120, 20])
@@ -32,10 +36,12 @@ def robot_recognition(frame, wall_corners):
     segmented_img_center = cv2.bitwise_and(frame, frame, mask=mask_center)
 
     # Find contours from the mask from center
-    contours_center, hierarchy = cv2.findContours(mask_center.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours_center, hierarchy = cv2.findContours(
+        mask_center.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     # output = cv2.drawContours(segmented_img_pointer, contours_pointers, -1, (0, 0, 255), 3)
-    output = cv2.drawContours(segmented_img_center, contours_center, -1, (0, 0, 255), 3)
+    output = cv2.drawContours(segmented_img_center,
+                              contours_center, -1, (0, 0, 255), 3)
 
     # instantiate the coordinates for later usage
     cY_center = 0
@@ -56,7 +62,8 @@ def robot_recognition(frame, wall_corners):
         # print("center: x = " + str(cX_center) + " and " "y = " + str(cY_center))
 
     # draw a circle around the center of the robot
-    cv2.circle(img=frame, center=(cX_center, cY_center), radius=45, color=(255, 0, 0), thickness=2)
+    cv2.circle(img=frame, center=(cX_center, cY_center),
+               radius=45, color=(255, 0, 0), thickness=2)
 
     # find only pointers in a certain area
     # Circular ROI in original image; must be selected via an additional mask
@@ -67,7 +74,8 @@ def robot_recognition(frame, wall_corners):
     # Target image; white background
     mask = np.ones_like(frame) * 255
     # Copy ROI part from original image to target image
-    mask = cv2.bitwise_and(mask, frame, mask=roi) + cv2.bitwise_and(mask, mask, mask=~roi)
+    mask = cv2.bitwise_and(mask, frame, mask=roi) + \
+        cv2.bitwise_and(mask, mask, mask=~roi)
 
     # pointer finding setup for region of interest ROI (won't find pointer outside of ROI)
     # convert to hsv colorspace
@@ -80,8 +88,10 @@ def robot_recognition(frame, wall_corners):
     # Segment only the detected region
     segmented_img_pointer = cv2.bitwise_and(frame, frame, mask=mask_pointer)
     # Find contours from the mask
-    contours_pointers, hierarchy = cv2.findContours(mask_pointer.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    output = cv2.drawContours(segmented_img_pointer, contours_pointers, -1, (0, 0, 255), 3)
+    contours_pointers, hierarchy = cv2.findContours(
+        mask_pointer.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    output = cv2.drawContours(segmented_img_pointer,
+                              contours_pointers, -1, (0, 0, 255), 3)
 
     # loop over the contours
     for c in contours_pointers:
@@ -107,6 +117,8 @@ def robot_recognition(frame, wall_corners):
     robot_pos = coordinate_conversion(wall_corners, cX_center, cY_center)
     robot_angle = calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)
 
-    cv2.imshow('robot-recognition', frame)
+    #cv2.imshow('robot-recognition', frame)
 
-    return robot_pos, robot_angle
+    
+
+    return robot_pos, robot_angle, frame

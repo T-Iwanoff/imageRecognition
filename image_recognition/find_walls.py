@@ -12,6 +12,8 @@ def calibrate_wall_area(wall_area, find_obstacle):
         max_area = wall_area[2]
     elif len(wall_area) > 1:
         max_area = wall_area[1]
+    else:
+        max_area = 100000
     return max_area
 
 

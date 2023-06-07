@@ -5,6 +5,8 @@ import numpy as np
 from constants import *
 
 
+
+
 # Takes the walls of the course and the x and y coordinates of a point inside the course that you want to find
 # the meter-coordinates for (distance to the lower left corner on the x- and y-axis)
 def coordinate_conversion(walls, frame_x, frame_y):
@@ -18,13 +20,17 @@ def coordinate_conversion(walls, frame_x, frame_y):
 
     inside_walls_x = frame_x - (walls[0][0] + walls[3][0]) / 2
     x_scale = COURSE_WIDTH / (walls[1][0] - walls[0][0])
-    # meter_x = inside_walls_x * x_scale
-    meter_x = inside_walls_x
+    #print("x scale: " , x_scale)
+    meter_x = inside_walls_x * x_scale
+    #meter_x = inside_walls_x
+
+    #print("pixel in meter" , PIXEL_IN_METER)
 
     inside_walls_y = frame_y - (walls[0][1] + walls[1][1]) / 2
     y_scale = COURSE_HEIGHT / (walls[3][1] - walls[0][1])
-    # meter_y = (walls[2][1] - frame_y) * y_scale
-    meter_y = (walls[2][1] - frame_y)
+    #print("y scale: " , y_scale)
+    meter_y = (walls[2][1] - frame_y) * y_scale
+    #meter_y = (walls[2][1] - frame_y)
     if PRINT_COORDINATES:
         print("x: ", meter_x)
         print("y: ", meter_y)
@@ -99,9 +105,9 @@ def check_type(ball, walls, obstacle):
 
     return ball_type
 
-def improve_coordinate_precision(pixel_coordinates, obj):
-    camera_point_meter = [find_length_in_meter(320), find_length_in_meter(240)]
-    pixel_coordinates_meter = [find_length_in_meter(pixel_coordinates[0]), find_length_in_meter(pixel_coordinates[1])]
+def improve_coordinate_precision(pixel_coordinates, obj, walls):
+    camera_point_meter = [find_length_in_meter(320, walls), find_length_in_meter(240, walls)]
+    pixel_coordinates_meter = [find_length_in_meter(pixel_coordinates[0], walls), find_length_in_meter(pixel_coordinates[1], walls)]
     print("camera point: ", camera_point_meter)
     print("pixel_coordinates_meter: ", pixel_coordinates_meter)
     hos_1 = math.dist(camera_point_meter, pixel_coordinates_meter)
@@ -125,9 +131,18 @@ def improve_coordinate_precision(pixel_coordinates, obj):
 
     return improved_coordinates
 
-def find_length_in_meter(pixel_length):
-    meter_length = pixel_length * PIXEL_IN_METER
+def find_length_in_meter(pixel_length, walls):
+    meter_length = pixel_length * scale_pixel_to_meter(walls)
     return meter_length
 
 def magnitude(vector):
     return math.sqrt(sum(pow(element, 2) for element in vector))
+
+def scale_pixel_to_meter(walls): 
+
+     x_scale = COURSE_WIDTH / (walls[1][0] - walls[0][0])
+
+#     # y_scale = COURSE_HEIGHT / (walls[3][1] - walls[0][1])
+
+     return x_scale
+

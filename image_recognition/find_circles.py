@@ -87,7 +87,7 @@ def find_orange_circle(frame):
 
 
 def remove_circle_from_list(circle, list_of_circles):
-    if circle is None or not len(circle):
+    if circle is None or not len(circle) or list_of_circles is None or not len(list_of_circles):
         return list_of_circles
 
     dist = SAVED_CIRCLE_DIST
