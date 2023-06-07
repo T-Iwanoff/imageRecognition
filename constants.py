@@ -65,3 +65,8 @@ PRINT_NUMBER_OF_BALLS = False
 STATIC_OUTER_WALLS = True
 ENABLE_MULTI_FRAME_BALL_DETECTION = True
 
+LIST_OF_ANCHOR_POINTS = [[COURSE_WIDTH*(1/4), COURSE_HEIGHT*(3/4)],
+                         [COURSE_WIDTH*(3/4), COURSE_HEIGHT*(3/4)],
+                         [COURSE_WIDTH*(3/4), COURSE_HEIGHT*(1/4)],
+                         [COURSE_WIDTH*(1/4), COURSE_HEIGHT*(1/4)]]
+
