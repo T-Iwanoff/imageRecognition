@@ -98,7 +98,54 @@ def check_type(ball, walls, obstacle):
 
     return ball_type
 
-def improve_coordinate_precision(walls, pixel_coordinates, obj):
+def improve_coordinate_precision_Jackie(walls, pixel_coordinates, obj):
+    camera_point_meter = [find_length_in_meter(walls, 320), find_length_in_meter(walls, 240)]
+
+    # Calculate point relative to the walls
+    pixel_coordinates_meter = [find_length_in_meter(walls, pixel_coordinates[0]),
+                               find_length_in_meter(walls, 480) - find_length_in_meter(walls, pixel_coordinates[1])]
+
+    # triangulate the location with the help of basic trigonometry (look discord image recognition blackboard picture)
+    # find angle of the point between the camera and the robot (tan(V)=mod/hos).
+    # first remove robot height from the equation, so the camera and the found point is on the same level.
+    temp_height = 0
+
+    if obj == "ball":
+        temp_height = CAMERA_HEIGHT - -BALL_HEIGHT
+    elif obj == "wall":
+        temp_height = CAMERA_HEIGHT - -WALL_HEIGHT
+    elif obj == "robot":
+        temp_height = CAMERA_HEIGHT - -ROBOT_HEIGHT
+
+    # now find the length between the robot and the camera point.
+    x_obj_cam = pixel_coordinates_meter[0] - camera_point_meter[0]
+    y_obj_cam = pixel_coordinates_meter[1] - camera_point_meter[1]
+    dist_obj_cam = math.dist(pixel_coordinates_meter, camera_point_meter) # hypotenuse
+
+    length_obj_cam = math.sqrt((x_obj_cam ** 2) * (y_obj_cam ** 2))
+    length_obj_cam = math.dist([x_obj_cam], [y_obj_cam])
+
+    # get the angle from the ground camera point to the robot point for later use (tan(V)=mod/hos).
+    angle_obj_cam_ground = math.tan(y_obj_cam / x_obj_cam)
+
+    # get the angle on near robot point (from camera top down to robot found point).
+    angle_obj_cam = math.tan(CAMERA_HEIGHT / dist_obj_cam)
+
+    # then find the length between the true point and the center of the bottom of the robot with (hos=mod/tan(V)).
+    length_obj_cam_truth = temp_height / math.tan(angle_obj_cam)
+
+    # now with the found knowledge find the true position of the robot.
+    x_robot_truth = length_obj_cam_truth * math.cos(angle_obj_cam_ground)  # x = length * cos(angle)
+    y_robot_truth = length_obj_cam_truth * math.sin(angle_obj_cam_ground)  # y = length * sin(angle)
+
+    obj_coordinate_truth = [x_robot_truth, y_robot_truth]
+
+    print("object found: ", obj_coordinate_truth)
+
+    return obj_coordinate_truth
+
+
+def improve_coordinate_precision_Mark(walls, pixel_coordinates, obj):
     hos_2 = None
     camera_point_meter = [find_length_in_meter(walls, 320), find_length_in_meter(walls, 240)]
 
@@ -118,6 +165,7 @@ def improve_coordinate_precision(walls, pixel_coordinates, obj):
     elif obj == "robot":
         hos_2 = -ROBOT_HEIGHT / math.tan(v)
 
+    #VECTOR VERSION OF THE CODE
     # Distance from camera point to object point
     d = hos_1 - hos_2
 
@@ -125,11 +173,11 @@ def improve_coordinate_precision(walls, pixel_coordinates, obj):
     e_vector = (1 / magnitude(ab_vector)) * ab_vector
 
     orego = [find_length_in_meter(walls, walls[3][0]) - 0.045,
-             find_length_in_meter(walls, 480) - find_length_in_meter(walls, walls[3][1]) - 0.027]
+            find_length_in_meter(walls, 480) - find_length_in_meter(walls, walls[3][1]) - 0.027]
 
     orego_camera_point_vector = np.array([camera_point_meter[0] - orego[0], camera_point_meter[1] - orego[1]])
 
-    # print("orego: ", orego_camera_point_vector)
+    print("orego: ", orego_camera_point_vector)
 
     improved_coordinates = np.array(e_vector) * d
     improved_coordinates = improved_coordinates.tolist()
@@ -169,3 +217,17 @@ def find_length_in_meter(walls, pixel_length):
 
 def magnitude(vector):
     return math.sqrt(sum(pow(element, 2) for element in vector))
+
+
+def find_goal_coordinates():
+    goal_coordinates = None
+    if GOAL_SIDE_RELATIVE_TO_CAMERA == "left":
+        goal_coordinates = [0.14,
+                            (COURSE_HEIGHT / 2)]
+        print("goal left: ", goal_coordinates)
+    if GOAL_SIDE_RELATIVE_TO_CAMERA == "right":
+        goal_coordinates = [COURSE_WIDTH - 0.14,
+                            (COURSE_HEIGHT / 2)]
+        print("goal right: ", goal_coordinates)
+
+    return goal_coordinates
