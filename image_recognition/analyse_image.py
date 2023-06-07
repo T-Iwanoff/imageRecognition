@@ -24,7 +24,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
 
     # Static picture
     if media == 'IMAGE':
-        ## TODO: Make robot part of graph
+        # TODO: Make robot part of graph
         # Get the current frame
         frame = cv.imread(path)
 
@@ -81,20 +81,24 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 print("Error: Frame not found")
                 exit()
 
+            
+
             # Analyse the frame
             if STATIC_OUTER_WALLS:
                 course, ball_frame = analyse_frame(
                     frame, static_wall_corners, saved_data, orange_balls, frame_counter)
             else:
                 course, ball_frame = analyse_frame(frame, saved_circles=saved_data, saved_orange=orange_balls,
-                                       counter=frame_counter)
+                                                   counter=frame_counter)
 
             course.robot_coords, course.robot_angle, frame_overlay = robot_recognition(
                 ball_frame, static_wall_corners)
-            
+
             # Display the frames
             # frame_overlay = overlay_frames(ball_frame, robot_frame)
             cv.imshow('Frame', frame_overlay)
+
+            
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
@@ -140,7 +144,7 @@ def display_graph(course: Course):
         print("No wall coordinates found")
     # create graph
     return gt.create_graph(course)
-    
+
 
 def get_static_outer_walls(video_capture):
     walls_detected = False

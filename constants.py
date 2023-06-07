@@ -37,7 +37,7 @@ OBSTACLE_AREA_MIN = 900
 OBSTACLE_AREA_MAX = 1600
 
 # Determination constant for ball type detection
-DETERMINATION_THRESHOLD = 0.05
+DETERMINATION_THRESHOLD = 0.15
 
 # Used for rounding numbers of objects
 ROUNDING_AMOUNT = 3

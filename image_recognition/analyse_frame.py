@@ -136,8 +136,13 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
     # wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
     circles = analyse_balls(frame, saved_circles, counter)
+    # for showing the coords on frame
+    # old_circles = circles
+
     orange_circle = analyse_orange_ball(frame, saved_orange, counter)
     circles = remove_circle_from_list(orange_circle, circles)
+
+    
 
     # Converting to meter
     circles_in_meters = []
@@ -198,8 +203,21 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
         cv.circle(frame, (orange_circle[0], orange_circle[1]), 1, (0, 0, 0), 2)  # Center of the circle
         cv.circle(frame, (orange_circle[0], orange_circle[1]), orange_circle[2], (100, 100, 255), 2)  # Outer circle
 
+    #TODO: Not working delete?
+    # showing coords on top of balls on frame
+    # if circles is not None:
+    #     for i in old_circles:
+    #         cv.putText(frame, str((circle[0], circle[1])), (i[0], i[1]), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+
     # Display the frame
     # cv.imshow('frame', frame)
 
-    return Course(circles_in_meters, obstacle_in_meters, walls_in_meters), frame
+    # ball_list=determine_order_and_type(walls_in_meters, obstacle_in_meters, circles_in_meters, orange_circle_in_meters)
+    # ball_coords_in_order = [[]]
+    # ball_types_in_order = []
+    # for i in ball_list:
+    #     ball_coords_in_order.append(i[0])
+    #     ball_types_in_order.append(i[1])
+
+    return Course(ball_coords=circles_in_meters, obstacle_coords=obstacle_in_meters, wall_coords=walls_in_meters), frame
 

@@ -8,13 +8,11 @@ import pandas as pd
 from python_tsp.exact import solve_tsp_dynamic_programming
 from shapely.geometry import LineString, box
 from course import Course
+from constants import *
 
 
 ### GRAPH SETTINGS ###
 # display settings
-GRAPH_HEIGHT = 1.235
-GRAPH_WIDTH = 1.683
-
 NODE_SIZE = 200
 EDGE_WIDTH = 1
 DISPLAY_HEIGHT = 3.5
@@ -68,8 +66,8 @@ def create_graph(course: Course):
 
     ### OBSTACLES ###
     # calculate the center of the plot
-    center_x = GRAPH_WIDTH/2
-    center_y = GRAPH_HEIGHT/2
+    center_x = COURSE_WIDTH/2
+    center_y = COURSE_HEIGHT/2
     # create the obstacles
     # obstacle_1 = box(center_x - 10, center_y - 1.5,
     #                  center_x + 10, center_y + 1.5)
@@ -117,18 +115,27 @@ def create_graph(course: Course):
     edge_weights = {}
     # Add edges not intersecting with obstacles
     if left_obstacle is not None:
-        for i in range(nmbr_of_nodes):
-            for j in range(i + 1, nmbr_of_nodes):
-                if G.has_node(i) and G.has_node(j):
-                    edge_coords = LineString([pos[i], pos[j]])
-                    if not edge_coords.intersects(obstacle_1) and not edge_coords.intersects(obstacle_2):
-                        dist = math.sqrt((pos[i][0] - pos[j][0])
-                                         ** 2 + (pos[i][1] - pos[j][1]) ** 2)
-                        G.add_edge(i, j, weight=dist)
-                        edge_weights[(i, j)] = dist
-                    else:
-                        # fake edge weight for algorithm
-                        G.add_edge(i, j, weight=math.inf)
+        # If not last ball left
+        # if nmbr_of_nodes > 1:
+            for i in range(nmbr_of_nodes):
+                for j in range(i + 1, nmbr_of_nodes):
+                    if G.has_node(i) and G.has_node(j):
+                        edge_coords = LineString([pos[i], pos[j]])
+                        if not edge_coords.intersects(obstacle_1) and not edge_coords.intersects(obstacle_2):
+                            dist = math.sqrt((pos[i][0] - pos[j][0])
+                                            ** 2 + (pos[i][1] - pos[j][1]) ** 2)
+                            G.add_edge(i, j, weight=dist)
+                            edge_weights[(i, j)] = dist
+                        else:
+                            # fake edge weight for algorithm
+                            G.add_edge(i, j, weight=math.inf)
+        # elif nmbr_of_nodes == 2:
+        #     edge_coords = LineString([pos[0], pos[1]])
+        #     if not edge_coords.intersects(obstacle_1) and not edge_coords.intersects(obstacle_2):
+        #         dist = math.sqrt((pos[0][0] - pos[1][0])
+        #                          ** 2 + (pos[0][1] - pos[1][1]) ** 2)
+        #         G.add_edge(0, 1, weight=dist)
+        #         edge_weights[(0, 1)] = dist
 
     # calculate edge weights based on distance between nodes
 
@@ -139,8 +146,10 @@ def create_graph(course: Course):
     start_time = time.time()
 
     if nmbr_of_nodes > 0:
-        if nx.is_connected(G) and len(G.edges) > 0:
+        if nx.is_connected(G) and len(G.edges) > 0 and nmbr_of_nodes > 2:
             tsp = solve_tsp(G)
+        elif nmbr_of_nodes == 2 and len(G.edges) > 0:
+            tsp = [[0, 1], math.dist(pos[0], pos[1])]
         else:
             print("Graph is not connected")
 
@@ -165,6 +174,9 @@ def create_graph(course: Course):
         if nx.is_connected(G) and len(G.edges) > 0:
             nx.draw_networkx_edges(G, pos, edgelist=list(
                 zip(tsp[0], tsp[0][1:])), width=EDGE_WIDTH, edge_color='r')
+        elif len(G.edges) == 1 and len(G.nodes) == 2:
+            ##TODO: Add visual edge?
+            print("Graph has 1 ball left and is connected")
 
     # node labels
     nx.draw_networkx_labels(G, pos, font_size=12, font_family="sans-serif")
@@ -179,8 +191,8 @@ def create_graph(course: Course):
     ax = plt.gca()
 
     # set the axis limits
-    ax.set_xlim(0, GRAPH_WIDTH)
-    ax.set_ylim(0, GRAPH_HEIGHT)
+    ax.set_xlim(0, COURSE_WIDTH)
+    ax.set_ylim(0, COURSE_HEIGHT)
 
     # display the obstacles
     if left_obstacle is not None:
@@ -230,7 +242,7 @@ def solve_tsp(G):
     # remove dummy node
     G.remove_node("dummy")
 
-    # remove last node from tsp
+    # remove the last node "dummy" from the path
     tsp[0].remove(G.number_of_nodes())
 
     if (tsp[0][0] == 0 and tsp[0][1] == 11):
