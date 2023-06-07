@@ -129,11 +129,13 @@ def improve_coordinate_precision(walls, pixel_coordinates, obj):
 
     orego_camera_point_vector = np.array([camera_point_meter[0] - orego[0], camera_point_meter[1] - orego[1]])
 
-    print("orego: ", orego_camera_point_vector)
+    # print("orego: ", orego_camera_point_vector)
 
     improved_coordinates = np.array(e_vector) * d
     improved_coordinates = improved_coordinates.tolist()
 
+    print("improved coords: ", improved_coordinates)
+    print("camera point vector: ", orego_camera_point_vector)
     orego_object_vector = np.array([orego_camera_point_vector[0] + improved_coordinates[0], orego_camera_point_vector[1] + improved_coordinates[1]])
 
     improved_coordinates = orego_object_vector.tolist()
@@ -144,6 +146,7 @@ def improve_coordinate_precision(walls, pixel_coordinates, obj):
 
     return improved_coordinates
 
+    # TODO: improve this function
 def find_length_in_meter(walls, pixel_length):
     if len(walls) == 0:
         print("No walls detected")
@@ -151,9 +154,13 @@ def find_length_in_meter(walls, pixel_length):
     if walls[1][0] - walls[0][0] == 0:  # If the walls are detected upside down, return nothing
         print("Wall are upside down")
         return
+    wall_width = math.dist(walls[1], walls[0])
+    wall_height = math.dist(walls[3], walls[0])
 
-    x_scale = COURSE_WIDTH / (walls[1][0] - walls[0][0])
-    y_scale = COURSE_HEIGHT / (walls[3][1] - walls[0][1])
+    x_scale = COURSE_WIDTH / wall_width
+    y_scale = COURSE_HEIGHT / wall_height
+    # print("x: ", x_scale)
+    # print("y: ", y_scale)
 
     # Take the avg of the two scales and calculate a single scale
     meter_length = pixel_length * ((x_scale + y_scale) / 2)
