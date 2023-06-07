@@ -1,6 +1,7 @@
 import math
 
 import cv2 as cv
+import numpy
 import numpy as np
 from constants import *
 
@@ -123,13 +124,23 @@ def improve_coordinate_precision(walls, pixel_coordinates, obj):
     ab_vector = np.array([[pixel_coordinates_meter[0] - camera_point_meter[0]], [pixel_coordinates_meter[1] - camera_point_meter[1]]])
     e_vector = (1 / magnitude(ab_vector)) * ab_vector
 
-    orego = [find_length_in_meter(walls, walls[3][0]),
-             find_length_in_meter(walls, 480) - find_length_in_meter(walls, walls[3][1])]
+    orego = [find_length_in_meter(walls, walls[3][0]) - 0.045,
+             find_length_in_meter(walls, 480) - find_length_in_meter(walls, walls[3][1]) - 0.027]
+
+    orego_camera_point_vector = np.array([camera_point_meter[0] - orego[0], camera_point_meter[1] - orego[1]])
+
+    print("orego: ", orego_camera_point_vector)
 
     improved_coordinates = np.array(e_vector) * d
     improved_coordinates = improved_coordinates.tolist()
 
-    print("improved coords: ", improved_coordinates)
+    orego_object_vector = np.array([orego_camera_point_vector[0] + improved_coordinates[0], orego_camera_point_vector[1] + improved_coordinates[1]])
+
+    improved_coordinates = orego_object_vector.tolist()
+
+    improved_coordinates = numpy.concatenate(improved_coordinates).ravel().tolist()
+
+    print("improved coordinates: ", improved_coordinates)
 
     return improved_coordinates
 

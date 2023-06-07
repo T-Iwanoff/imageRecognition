@@ -150,9 +150,9 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
         if circles is not None:
             for circle in circles:
                 improved_coords = improve_coordinate_precision(wall_corners, circle, "ball")
-                converted_coords = coordinate_conversion(
-                    wall_corners, improved_coords[0], improved_coords[1])
-                circles_in_meters.append(converted_coords)
+                #converted_coords = coordinate_conversion(
+                #   wall_corners, improved_coords[0], improved_coords[1])
+                circles_in_meters.append(improved_coords)
 
         if orange_circle is not None and len(orange_circle):
             orange_circle_in_meters = coordinate_conversion(
