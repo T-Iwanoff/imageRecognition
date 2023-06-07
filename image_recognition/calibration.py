@@ -47,7 +47,7 @@ def triangulate_coordinates(coordinates):
     length_robot_cam = math.sqrt((x_robot_cam ** 2) * (y_robot_cam ** 2))
 
     # get the angle from the ground camera point to the robot point for later use (tan(V)=mod/hos).
-    angle_robot_cam_ground = math.tan(y_robot_cam / x_robot_cam)
+    angle_robot_cam_ground = math.atan(math.tan(y_robot_cam / x_robot_cam))
 
     # get the angle on near robot point (from camera top down to robot found point).
     angle_robot_cam = math.tan(camera_h / length_robot_cam)
