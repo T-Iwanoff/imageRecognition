@@ -47,17 +47,17 @@ def triangulate_coordinates(coordinates):
     length_robot_cam = math.sqrt((x_robot_cam ** 2) * (y_robot_cam ** 2))
 
     # get the angle from the ground camera point to the robot point for later use (tan(V)=mod/hos).
-    angle_robot_cam_ground = math.atan(y_robot_cam / x_robot_cam)
+    angle_robot_cam_ground = math.tan(y_robot_cam / x_robot_cam)
 
     # get the angle on near robot point (from camera top down to robot found point).
-    angle_robot_cam = math.atan(temp_height / length_robot_cam)
+    angle_robot_cam = math.tan(camera_h / length_robot_cam)
 
     # then find the length between the actual point and the center of the bottom of the robot with (hos=mod/tan(V)).
-    length_robot_cam_truth = camera_h / angle_robot_cam
+    length_robot_cam_truth = temp_height / angle_robot_cam
 
     # now with the found knowledge find the true position of the robot.
-    x_robot_truth = length_robot_cam_truth * math.acos(angle_robot_cam_ground)  # x = length * cos(angle)
-    y_robot_truth = length_robot_cam_truth * math.asin(angle_robot_cam_ground)  # y = length * sin(angle)
+    x_robot_truth = length_robot_cam_truth * math.cos(angle_robot_cam_ground)  # x = length * cos(angle)
+    y_robot_truth = length_robot_cam_truth * math.sin(angle_robot_cam_ground)  # y = length * sin(angle)
 
     robot_coordinate_truth = [x_robot_truth, y_robot_truth]
 
