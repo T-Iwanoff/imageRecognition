@@ -28,7 +28,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
         # Get the current frame
         frame = cv.imread(path)
 
-        # # Find walls
+        # Find walls
         walls = analyse_walls(frame)
 
         # Make course
