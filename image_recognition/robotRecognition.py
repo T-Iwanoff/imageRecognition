@@ -2,7 +2,7 @@ import math
 
 import cv2
 import numpy as np
-from image_recognition.coordinates import coordinate_conversion, improve_coordinate_precision_Jackie
+from image_recognition.coordinates import coordinate_conversion, improve_coordinate_precision
 from image_recognition.calibration import calibrate_frame
 from image_recognition.coordinates import coordinate_conversion
 
@@ -120,7 +120,7 @@ def robot_recognition(frame, wall_corners):
     robot_coords = [cX_center, cY_center]
     print("robot xy: ", robot_coords)
     # Showing the output
-    robot_pos = improve_coordinate_precision_Jackie(wall_corners, robot_coords, "robot")
+    robot_pos = improve_coordinate_precision(wall_corners, robot_coords, "robot")
     print("Robot coords: ", robot_pos)
     robot_angle = calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)
     print("Robot angle: ", robot_angle)

@@ -153,35 +153,22 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
     if wall_corners is not None:
         if circles is not None:
             for circle in circles:
-                improved_coords = improve_coordinate_precision_Jackie(wall_corners, circle, "ball")
-                find_goal_coordinates()
-                #converted_coords = coordinate_conversion(
-                #   wall_corners, improved_coords[0], improved_coords[1])
+                improved_coords = improve_coordinate_precision(wall_corners, circle, "ball")
                 circles_in_meters.append(improved_coords)
 
         if orange_circle is not None and len(orange_circle):
-            orange_circle_in_meters = coordinate_conversion(
-                wall_corners, orange_circle[0], orange_circle[1])
+            improved_coords = improve_coordinate_precision(wall_corners, orange_circle, "ball")
+            orange_circle_in_meters.append(improved_coords)
 
         if obstacle is not None:
             for coord in obstacle:
-                converted_coords = coordinate_conversion(
-                    wall_corners, coord[0], coord[1])
-                obstacle_in_meters.append(converted_coords)
+                improved_coords = improve_coordinate_precision(wall_corners, coord, "ball")
+                obstacle_in_meters.append(improved_coords)
 
         if wall_corners is not None:
             for coord in wall_corners:
-                # improved_coords = improve_coordinate_precision(coord, "wall")
-                converted_coords = coordinate_conversion(
-                    wall_corners, coord[0], coord[1])
-                walls_in_meters.append(converted_coords)
-    # print(circles_in_meters)
-
-    # Round balls to 3 decimals
-    # if len(circles_in_meters) != 0:
-    #     circles_in_meters = np.round(circles_in_meters, 3)
-    # if len(orange_circle_in_meters) != 0:
-    #     orange_circle_in_meters = np.round(orange_circle_in_meters, 3)
+                improved_coords = improve_coordinate_precision(wall_corners, coord, "ball")
+                walls_in_meters.append(improved_coords)
 
     # Determine order and type of the balls
     # if len(obstacle_in_meters) != 0:

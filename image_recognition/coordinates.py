@@ -100,7 +100,7 @@ def check_type(ball, walls, obstacle):
 
     return ball_type
 
-def improve_coordinate_precision_Jackie(walls, pixel_coordinates, obj):
+def improve_coordinate_precision(walls, pixel_coordinates, obj):
     camera_point_meter = [find_length_in_meter(walls, 320, "x"), find_length_in_meter(walls, 240, "y")]
 
     # Calculate point relative to the walls
@@ -176,57 +176,7 @@ def improve_coordinate_precision_Jackie(walls, pixel_coordinates, obj):
     return obj_coordinate_truth
 
 
-def improve_coordinate_precision_Mark(walls, pixel_coordinates, obj):
-    hos_2 = None
-    camera_point_meter = [find_length_in_meter(walls, 320), find_length_in_meter(walls, 240)]
-
-    # Calculate point relative to the walls
-    pixel_coordinates_meter = [find_length_in_meter(walls, pixel_coordinates[0]),
-                               find_length_in_meter(walls, 480) - find_length_in_meter(walls, pixel_coordinates[1])]
-
-    hos_1 = math.dist(pixel_coordinates_meter, camera_point_meter)
-
-    mod_1 = CAMERA_HEIGHT
-    v = math.degrees(math.atan(mod_1 / hos_1))
-
-    if obj == "ball":
-        hos_2 = -BALL_HEIGHT / math.tan(v)
-    elif obj == "wall":
-        hos_2 = -WALL_HEIGHT / math.tan(v)
-    elif obj == "robot":
-        hos_2 = -ROBOT_HEIGHT / math.tan(v)
-
-    #VECTOR VERSION OF THE CODE
-    # Distance from camera point to object point
-    d = hos_1 - hos_2
-
-    ab_vector = np.array([[pixel_coordinates_meter[0] - camera_point_meter[0]], [pixel_coordinates_meter[1] - camera_point_meter[1]]])
-    e_vector = (1 / magnitude(ab_vector)) * ab_vector
-
-    orego = [find_length_in_meter(walls, walls[3][0]) - 0.045,
-            find_length_in_meter(walls, 480) - find_length_in_meter(walls, walls[3][1]) - 0.027]
-
-    orego_camera_point_vector = np.array([camera_point_meter[0] - orego[0], camera_point_meter[1] - orego[1]])
-
-    print("orego: ", orego_camera_point_vector)
-
-    improved_coordinates = np.array(e_vector) * d
-    improved_coordinates = improved_coordinates.tolist()
-
-    print("improved coords: ", improved_coordinates)
-    print("camera point vector: ", orego_camera_point_vector)
-    orego_object_vector = np.array([orego_camera_point_vector[0] + improved_coordinates[0], orego_camera_point_vector[1] + improved_coordinates[1]])
-
-    improved_coordinates = orego_object_vector.tolist()
-
-    improved_coordinates = numpy.concatenate(improved_coordinates).ravel().tolist()
-
-    print("improved coordinates: ", improved_coordinates)
-
-    return improved_coordinates
-
-    # TODO: improve this function
-def find_length_in_meter(walls, pixel_coordinate, axis):  # TODO: improve this function
+def find_length_in_meter(walls, pixel_coordinate, axis):
     if len(walls) == 0:
         print("No walls detected")
         return
