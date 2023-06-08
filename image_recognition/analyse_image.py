@@ -10,11 +10,11 @@ import robot_connection.socket_connection as sc
 
 def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=False, nmbr_of_balls=None):
 
-    # socket_connection = sc.SocketConnection()
+    socket_connection = sc.SocketConnection()
     connected = False
-    # if (socket_connection.connect()):
-    #     print("Connected!")
-    #     connected = True
+    if socket_connection.connect():
+        print("Connected!")
+        connected = True
 
     course = Course()
 

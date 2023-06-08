@@ -72,10 +72,10 @@ def find_orange_circle(frame):
     high_orange = np.array([45, 255, 255])
 
     mask = cv.inRange(hsv, low_orange, high_orange)
-    blur_mask = cv.GaussianBlur(mask, (17,17), 0)
+    blur_mask = cv.GaussianBlur(mask, (17, 17), 0)
 
     circles = cv.HoughCircles(blur_mask, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
-                              param1=100, param2=5, minRadius=CIRCLE_MIN_RADIUS,
+                              param1=100, param2=3, minRadius=CIRCLE_MIN_RADIUS,
                               maxRadius=CIRCLE_MAX_RADIUS)
     # For testing - show mask
     # cv.imshow('balls', blur_mask)
@@ -87,7 +87,7 @@ def find_orange_circle(frame):
 
 
 def remove_circle_from_list(circle, list_of_circles):
-    if circle is None or not len(circle):
+    if circle is None or not len(circle) or list_of_circles is None:
         return list_of_circles
 
     dist = SAVED_CIRCLE_DIST

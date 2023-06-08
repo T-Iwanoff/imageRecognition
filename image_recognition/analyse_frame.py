@@ -189,7 +189,7 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
     if circles is not None:
         for i in circles:
             cv.circle(frame, (i[0], i[1]), 1, (0, 0, 0), 2)  # Center of the circle
-            cv.circle(frame, (i[0], i[1]), i[2], (255, 0, 255), 2)  # Outer circle
+            cv.circle(frame, (i[0], i[1]), i[2], (34, 139, 34), 2)  # Outer circle
     if orange_circle is not None and len(orange_circle):
         cv.circle(frame, (orange_circle[0], orange_circle[1]), 1, (0, 0, 0), 2)  # Center of the circle
         cv.circle(frame, (orange_circle[0], orange_circle[1]), orange_circle[2], (100, 100, 255), 2)  # Outer circle
