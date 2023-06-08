@@ -153,7 +153,7 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
     if wall_corners is not None:
         if circles is not None:
             for circle in circles:
-                improved_coords = improve_coordinate_precision_Jackie(wall_corners, circle, "ball")
+                improved_coords = improve_coordinate_precision(wall_corners, circle, "ball")
                 find_goal_coordinates()
                 #converted_coords = coordinate_conversion(
                 #   wall_corners, improved_coords[0], improved_coords[1])
