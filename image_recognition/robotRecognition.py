@@ -2,7 +2,7 @@ import math
 
 import cv2
 import numpy as np
-from image_recognition.coordinates import coordinate_conversion
+from image_recognition.coordinates import coordinate_conversion, improve_coordinate_precision_Jackie
 
 
 def robot_recognition(frame, wall_corners):
@@ -14,12 +14,12 @@ def robot_recognition(frame, wall_corners):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     # lower bound and upper bound for pointer color
-    lower_bound_pointer = np.array([25, 100, 20]) # lego color
-    upper_bound_pointer = np.array([35, 250, 255]) # lego color
+    lower_bound_pointer = np.array([50, 20, 20]) # lego color
+    upper_bound_pointer = np.array([80, 100, 255]) # lego color
 
     # lower bound and upper bound for center color
-    lower_bound_center = np.array([110, 120, 20])
-    upper_bound_center = np.array([130, 250, 255])
+    lower_bound_center = np.array([110,50,50])
+    upper_bound_center = np.array([140,255,255])
 
     # find the colors within the boundaries from center
     mask_center = cv2.inRange(hsv, lower_bound_center, upper_bound_center)
@@ -50,7 +50,7 @@ def robot_recognition(frame, wall_corners):
         cY_center = int(M["m01"] / M["m00"])
         # draw the contour and center of the shape on the image
         cv2.drawContours(frame, [c], -1, (0, 255, 0), 2)
-        cv2.circle(frame, (cX_center, cY_center), 7, (255, 255, 255), -1)
+        cv2.circle(frame, (cX_center, cY_center), 2, (255, 255, 255), -1)
 
         # check the coordinates found
         # print("center: x = " + str(cX_center) + " and " "y = " + str(cY_center))
@@ -77,6 +77,7 @@ def robot_recognition(frame, wall_corners):
     # Remove unnecessary noise from mask
     mask_pointer = cv2.morphologyEx(mask_pointer, cv2.MORPH_CLOSE, kernel)
     mask_pointer = cv2.morphologyEx(mask_pointer, cv2.MORPH_OPEN, kernel)
+
     # Segment only the detected region
     segmented_img_pointer = cv2.bitwise_and(frame, frame, mask=mask_pointer)
     # Find contours from the mask
@@ -91,7 +92,7 @@ def robot_recognition(frame, wall_corners):
         cY_pointer = int(M["m01"] / M["m00"])
         # draw the contour and center of the shape on the image
         cv2.drawContours(frame, [c], -1, (0, 255, 0), 2)
-        cv2.circle(frame, (cX_pointer, cY_pointer), 7, (255, 255, 255), -1)
+        cv2.circle(frame, (cX_pointer, cY_pointer), 2, (255, 255, 255), -1)
 
         # check the coordinates found
         # print("pointer: x = " + str(cX_pointer) + " and " "y = " + str(cY_pointer))
@@ -103,8 +104,11 @@ def robot_recognition(frame, wall_corners):
         # print(f'The angle is = {angle}')
         return angle
 
+    robot_coords = [cX_center, cY_center]
+    print("robot xy: ", robot_coords)
     # Showing the output
-    robot_pos = coordinate_conversion(wall_corners, cX_center, cY_center)
+    robot_pos = improve_coordinate_precision_Jackie(wall_corners, robot_coords, "robot")
+    print("Robot coords: ", robot_pos)
     robot_angle = calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)
 
     cv2.imshow('robot-recognition', frame)

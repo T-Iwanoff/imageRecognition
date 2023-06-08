@@ -113,9 +113,9 @@ def improve_coordinate_precision_Jackie(walls, pixel_coordinates, obj):
     if obj == "ball":
         temp_height = CAMERA_HEIGHT - -BALL_HEIGHT
     elif obj == "wall":
-        temp_height = CAMERA_HEIGHT - -WALL_HEIGHT
+        temp_height = CAMERA_HEIGHT - WALL_HEIGHT
     elif obj == "robot":
-        temp_height = CAMERA_HEIGHT - -ROBOT_HEIGHT
+        temp_height = CAMERA_HEIGHT - ROBOT_HEIGHT
 
     # now find the length between the robot and the camera point.
     x_obj_cam = pixel_coordinates_meter[0] - camera_point_meter[0]
