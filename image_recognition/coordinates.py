@@ -37,8 +37,9 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
     balls = balls.tolist()
 
     # Convert orange ball from numpy array to list for formatting
-    orange_ball = np.array(orange_ball)
-    orange_ball = orange_ball.tolist()
+    # orange_ball = np.array(orange_ball)
+    # orange_ball = orange_ball.tolist()
+    print(orange_ball)
 
     if len(walls) == 0:
         return
@@ -65,8 +66,8 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
 
     # Determine type of orange ball and putting the orange ball in the end of the list
     if len(orange_ball) != 0:
-        orange_ball_type = check_type(orange_ball, walls, obstacle)
-        ball_list.append([orange_ball, orange_ball_type])
+        orange_ball_type = check_type(orange_ball[0], walls, obstacle)
+        ball_list.append([orange_ball[0], orange_ball_type])
 
     return ball_list
 
