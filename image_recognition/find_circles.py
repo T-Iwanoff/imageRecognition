@@ -10,8 +10,15 @@ from constants import CIRCLE_MIN_DIST, CIRCLE_PARAM_1, CIRCLE_PARAM_2, CIRCLE_MI
 def find_circles(frame):
     # Create a grayFrame
     gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    # white_mask = cv.inRange(frame, (200, 200, 200), (255, 255, 255))
-    # cv.imshow('white',white_mask)
+
+    # THIS WORKS POORLY AND SHOULD BE DELETED
+    # white_mask = cv.inRange(frame, (180, 100, 200), (255, 255, 255))
+    # blurred_frame = cv.GaussianBlur(white_mask, (7,7), 0)
+    #
+    # cv.imshow('white',blurred_frame)
+    # circles = cv.HoughCircles(blurred_frame, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
+    #                           param1=100, param2=4, minRadius=2,
+    #                           maxRadius=CIRCLE_MAX_RADIUS)
 
     # Find ping pong balls
     circles = cv.HoughCircles(gray_frame, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,

@@ -38,6 +38,9 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
         # Display the graph
         display_graph(course)
 
+        # Show frame
+        cv.imshow('frame', ball_frame)
+
         # Find the robot
         robot_recognition(frame, course.wall_coords)
 
@@ -96,8 +99,6 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
 
             course.robot_coords, course.robot_angle, frame_overlay = robot_recognition(
                 ball_frame, static_wall_corners)
-
-            print("course ", course.ball_coords)
 
             # Display the frames
             # frame_overlay = overlay_frames(ball_frame, robot_frame)
