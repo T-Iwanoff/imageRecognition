@@ -230,7 +230,7 @@ def create_graph(course: Course):
     # if nmbr_of_nodes > 0: return coords of first node in tsp
     if nmbr_of_nodes > 0:
         if nx.is_connected(G) and len(G.edges) > 0:
-            return pos[tsp[0][1]]
+            return pos[tsp[0][1]], new_types_in_order
         else:
             return None
 
@@ -267,30 +267,6 @@ def solve_tsp(G):
     # print(tsp)
 
     return new_tsp
-
-
-# def calculateTSP(G):
-
-#     # create dummy node
-#     # G.add_node("dummy")
-#     # G.add_edge("dummy", 0, weight=0)
-#     # G.add_edge("dummy", G.number_of_nodes()-2, weight=0)
-
-#     # Calculate the TSP
-#     temp_tsp = nx.algorithms.approximation.traveling_salesman_problem(
-#         G, weight="weight", cycle=False)
-
-#     tsp_weight = 0
-
-#     # Calculate the total weight of the TSP path
-#     for i in range(len(temp_tsp) - 1):
-#         tsp_weight += G[temp_tsp[i]][temp_tsp[i+1]]["weight"]
-
-#     # Print the TSP and its weight
-#     print("TSP path:", temp_tsp)
-#     print("TSP weight:", tsp_weight)
-
-#     return temp_tsp
 
 
 def print_graph_matrix(G):
