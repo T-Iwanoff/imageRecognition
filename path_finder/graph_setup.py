@@ -217,6 +217,16 @@ def create_graph(course: Course):
     plt.tight_layout()
     plt.show()
 
+    new_types_in_order = []
+
+    if len(tsp[0]) > 0:
+        for i in range(len(tsp[0])):
+            for j in range(len(course.ball_coords)):
+                if pos[tsp[0][i]] == course.ball_coords[j]:
+                    new_types_in_order.append(course.ball_types[j])
+                
+    print(new_types_in_order)
+
     # if nmbr_of_nodes > 0: return coords of first node in tsp
     if nmbr_of_nodes > 0:
         if nx.is_connected(G) and len(G.edges) > 0:

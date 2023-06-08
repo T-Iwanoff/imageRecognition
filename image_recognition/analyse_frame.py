@@ -66,6 +66,7 @@ def analyse_obstacles(frame, wall_contours=None):
     else:
         return obstacle
 
+
 def analyse_balls(frame, saved_circles=None, counter=None):
     # Find the balls
     circles = find_circles(frame)
@@ -142,8 +143,6 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
     orange_circle = analyse_orange_ball(frame, saved_orange, counter)
     circles = remove_circle_from_list(orange_circle, circles)
 
-    
-
     # Converting to meter
     circles_in_meters = []
     orange_circle_in_meters = []
@@ -197,13 +196,17 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
             cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
     if circles is not None:
         for i in circles:
-            cv.circle(frame, (i[0], i[1]), 1, (0, 0, 0), 2)  # Center of the circle
-            cv.circle(frame, (i[0], i[1]), i[2], (255, 0, 255), 2)  # Outer circle
+            # Center of the circle
+            cv.circle(frame, (i[0], i[1]), 1, (0, 0, 0), 2)
+            cv.circle(frame, (i[0], i[1]), i[2],
+                      (255, 0, 255), 2)  # Outer circle
     if orange_circle is not None and len(orange_circle):
-        cv.circle(frame, (orange_circle[0], orange_circle[1]), 1, (0, 0, 0), 2)  # Center of the circle
-        cv.circle(frame, (orange_circle[0], orange_circle[1]), orange_circle[2], (100, 100, 255), 2)  # Outer circle
+        # Center of the circle
+        cv.circle(frame, (orange_circle[0], orange_circle[1]), 1, (0, 0, 0), 2)
+        cv.circle(frame, (orange_circle[0], orange_circle[1]),
+                  orange_circle[2], (100, 100, 255), 2)  # Outer circle
 
-    #TODO: Not working delete?
+    # TODO: Not working delete?
     # showing coords on top of balls on frame
     # if circles is not None:
     #     for i in old_circles:
@@ -212,12 +215,15 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
     # Display the frame
     # cv.imshow('frame', frame)
 
-    # ball_list=determine_order_and_type(walls_in_meters, obstacle_in_meters, circles_in_meters, orange_circle_in_meters)
-    # ball_coords_in_order = [[]]
-    # ball_types_in_order = []
-    # for i in ball_list:
-    #     ball_coords_in_order.append(i[0])
-    #     ball_types_in_order.append(i[1])
+    ball_list = determine_order_and_type(
+        walls_in_meters, obstacle_in_meters, circles_in_meters, orange_circle_in_meters)
+    ball_coords_in_order = []
+    ball_types_in_order = []
+    for i in ball_list:
+        ball_coords_in_order.append(i[0])
+        ball_types_in_order.append(i[1])
 
-    return Course(ball_coords=circles_in_meters, obstacle_coords=obstacle_in_meters, wall_coords=walls_in_meters), frame
-
+    return Course(ball_coords = ball_coords_in_order, 
+                  obstacle_coords = obstacle_in_meters, 
+                  wall_coords = walls_in_meters, 
+                  ball_types = ball_types_in_order), frame

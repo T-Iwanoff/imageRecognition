@@ -142,6 +142,10 @@ def display_graph(course: Course):
         print(f"Wall coordinates: {wall_coords}")
     else:
         print("No wall coordinates found")
+    if course.ball_types is not None:
+        print(f"Ball types: {course.ball_types}")
+    else:
+        print("No ball types found")
     # create graph
     return gt.create_graph(course)
 

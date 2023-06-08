@@ -75,8 +75,6 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
         orange_ball_type = check_type(orange_ball, walls, obstacle)
         ball_list.append([orange_ball, orange_ball_type])
 
-    print("ball list: ", ball_list)
-
     return ball_list
 
 def check_type(ball, walls, obstacle):
