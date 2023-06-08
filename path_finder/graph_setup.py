@@ -9,7 +9,7 @@ from python_tsp.exact import solve_tsp_dynamic_programming
 from shapely.geometry import LineString, box
 from course import Course
 from constants import *
-
+from next_move import NextMove
 
 ### GRAPH SETTINGS ###
 # display settings
@@ -231,7 +231,7 @@ def create_graph(course: Course):
     # if nmbr_of_nodes > 0: return coords of first node in tsp
     if nmbr_of_nodes > 0:
         if nx.is_connected(G) and len(G.edges) > 0:
-            return pos[tsp[0][1]], new_types_in_order
+            return NextMove(next_ball=pos[tsp[0][1]], move_type="none")
         else:
             return None
 

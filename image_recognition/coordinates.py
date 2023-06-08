@@ -140,6 +140,8 @@ def improve_coordinate_precision_Jackie(walls, pixel_coordinates, obj):
     # length_obj_cam = math.dist([x_obj_cam], [y_obj_cam])
 
     # get the angle from the ground camera point to the robot point for later use (tan(V)=mod/hos).
+    if x_obj_cam == 0:
+        return
     angle_obj_cam_ground = math.degrees(math.atan(y_obj_cam / x_obj_cam))
     angle_obj_cam_ground = round(angle_obj_cam_ground, 2)
 

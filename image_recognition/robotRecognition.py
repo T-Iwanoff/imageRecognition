@@ -18,13 +18,17 @@ def robot_recognition(frame, wall_corners):
     # convert to hsv colorspace
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    # lower bound and upper bound for pointer color
-    lower_bound_pointer = np.array([50, 20, 20]) # lego color
+    # lower bound and upper bound for pointer color (light green)
+    lower_bound_pointer = np.array([50, 50, 20]) # lego color
     upper_bound_pointer = np.array([80, 100, 255]) # lego color
 
-    # lower bound and upper bound for center color
-    lower_bound_center = np.array([110,50,50])
-    upper_bound_center = np.array([140,255,255])
+    # lower bound and upper bound for center color (dark blue)
+    # lower_bound_center = np.array([110,60,50])
+    # upper_bound_center = np.array([140,255,255])
+
+    # lower bound and upper bound for center color (dark blue)
+    lower_bound_center = np.array([80,43,50])
+    upper_bound_center = np.array([105,250,255])
 
     # find the colors within the boundaries from center
     mask_center = cv2.inRange(hsv, lower_bound_center, upper_bound_center)
@@ -109,12 +113,17 @@ def robot_recognition(frame, wall_corners):
         # print(f'The angle is = {angle}')
         return angle
 
+    # show mask for the center and pointer
+    # cv2.imshow("center mask", mask_center)
+    # cv2.imshow("pointer mask", mask_pointer)
+
     robot_coords = [cX_center, cY_center]
     print("robot xy: ", robot_coords)
     # Showing the output
     robot_pos = improve_coordinate_precision_Jackie(wall_corners, robot_coords, "robot")
     print("Robot coords: ", robot_pos)
     robot_angle = calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)
+    print("Robot angle: ", robot_angle)
 
     #cv2.imshow('robot-recognition', frame)
 

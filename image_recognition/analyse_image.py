@@ -34,6 +34,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
         # Make course
         course = analyse_frame(frame)
 
+
         # Display the graph
         display_graph(course)
 
@@ -96,6 +97,8 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
             course.robot_coords, course.robot_angle, frame_overlay = robot_recognition(
                 ball_frame, static_wall_corners)
 
+            print("course ", course.ball_coords)
+
             # Display the frames
             # frame_overlay = overlay_frames(ball_frame, robot_frame)
             cv.imshow('Frame', frame_overlay)
@@ -104,7 +107,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
-                next_move = NextMove(display_graph(course))
+                next_move = display_graph(course)
                 next_move.robot_coords = course.robot_coords
                 next_move.robot_angle = course.robot_angle
                 print(next_move.to_json())
