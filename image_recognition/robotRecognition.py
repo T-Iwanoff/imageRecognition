@@ -31,7 +31,7 @@ def robot_recognition(frame, wall_corners):
     # upper_bound_center = np.array([105,250,255])
 
     # lower bound and upper bound for center color (lego blue)
-    lower_bound_center = np.array([110, 120, 20])
+    lower_bound_center = np.array([110, 75, 20])
     upper_bound_center = np.array([130, 250, 255])
 
     # find the colors within the boundaries from center
