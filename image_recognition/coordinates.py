@@ -122,23 +122,47 @@ def improve_coordinate_precision_Jackie(walls, pixel_coordinates, obj):
     y_obj_cam = pixel_coordinates_meter[1] - camera_point_meter[1]
     dist_obj_cam = math.dist(pixel_coordinates_meter, camera_point_meter) # hypotenuse
 
-    length_obj_cam = math.sqrt((x_obj_cam ** 2) * (y_obj_cam ** 2))
-    length_obj_cam = math.dist([x_obj_cam], [y_obj_cam])
+    # truth or false if x or y is negative.
+    x_negative = False
+    y_negative = False
+
+    if x_obj_cam < 0:
+        x_negative = True
+        x_obj_cam = x_obj_cam * (-1)
+
+    if y_obj_cam < 0:
+        y_negative = True
+        y_obj_cam = y_obj_cam * (-1)
+
+    # length_obj_cam = math.sqrt((x_obj_cam ** 2) * (y_obj_cam ** 2))
+    # length_obj_cam = math.dist([x_obj_cam], [y_obj_cam])
 
     # get the angle from the ground camera point to the robot point for later use (tan(V)=mod/hos).
-    angle_obj_cam_ground = math.tan(y_obj_cam / x_obj_cam)
+    angle_obj_cam_ground = math.degrees(math.atan(y_obj_cam / x_obj_cam))
+    angle_obj_cam_ground = round(angle_obj_cam_ground, 2)
 
     # get the angle on near robot point (from camera top down to robot found point).
-    angle_obj_cam = math.tan(CAMERA_HEIGHT / dist_obj_cam)
+    angle_obj_cam = math.degrees(math.atan(CAMERA_HEIGHT / dist_obj_cam))
+    angle_obj_cam = round(angle_obj_cam, 2)
 
-    # then find the length between the true point and the center of the bottom of the robot with (hos=mod/tan(V)).
-    length_obj_cam_truth = temp_height / math.tan(angle_obj_cam)
+    # then find the length between the camera ground point and the center of the bottom truth
+    # of the robot with (hos=mod/tan(V)).
+    length_obj_cam_truth = temp_height / math.tan(math.radians(angle_obj_cam))
 
     # now with the found knowledge find the true position of the robot.
-    x_robot_truth = length_obj_cam_truth * math.cos(angle_obj_cam_ground)  # x = length * cos(angle)
-    y_robot_truth = length_obj_cam_truth * math.sin(angle_obj_cam_ground)  # y = length * sin(angle)
+    x_robot_truth = length_obj_cam_truth * math.cos(math.radians(angle_obj_cam_ground))  # x = length * cos(angle)
+    y_robot_truth = length_obj_cam_truth * math.sin(math.radians(angle_obj_cam_ground))  # y = length * sin(angle)
 
-    obj_coordinate_truth = [x_robot_truth, y_robot_truth]
+    if x_negative:
+        x_robot_truth = x_robot_truth * (-1)
+
+    if y_negative:
+        y_robot_truth = y_robot_truth * (-1)
+
+    # robot_truth = true position of the object
+    # camera_point_meter = the center point on the ground for the camera
+    # camera_constant = the camera angle distortion constant(varies depending on the angle of the camera for true point)
+    obj_coordinate_truth = [x_robot_truth + camera_point_meter[0] - 0.22, y_robot_truth + camera_point_meter[1] - 0.195]
 
     print("object found: ", obj_coordinate_truth)
 
