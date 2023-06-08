@@ -162,7 +162,7 @@ def improve_coordinate_precision_Jackie(walls, pixel_coordinates, obj):
     # robot_truth = true position of the object
     # camera_point_meter = the center point on the ground for the camera
     # camera_constant = the camera angle distortion constant(varies depending on the angle of the camera for true point)
-    obj_coordinate_truth = [x_robot_truth + camera_point_meter[0] - 0.22, y_robot_truth + camera_point_meter[1] - 0.195]
+    obj_coordinate_truth = [x_robot_truth + camera_point_meter[0] - CAMERA_DISTORT_X, y_robot_truth + camera_point_meter[1] - CAMERA_DISTORT_Y]
 
     print("object found: ", obj_coordinate_truth)
 

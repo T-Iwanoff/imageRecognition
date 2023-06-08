@@ -45,6 +45,8 @@ ROUNDING_AMOUNT = 3
 # Camera constants
 # Distance from camera to floor
 CAMERA_HEIGHT = 1.69 # Measure with each setup
+CAMERA_DISTORT_X = 0.22 # Measure with each setup by testing for 3 ball positions.
+CAMERA_DISTORT_Y = 0.195 # Measure with each setup by testing for 3 ball positions.
 
 # Frame height in meter
 FRAME_HEIGHT_METER = 1.49
