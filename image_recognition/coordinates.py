@@ -99,11 +99,11 @@ def check_type(ball, walls, obstacle):
     return ball_type
 
 def improve_coordinate_precision_Jackie(walls, pixel_coordinates, obj):
-    camera_point_meter = [find_length_in_meter(walls, 320), find_length_in_meter(walls, 240)]
+    camera_point_meter = [find_length_in_meter(walls, 320, "x"), find_length_in_meter(walls, 240, "y")]
 
     # Calculate point relative to the walls
-    pixel_coordinates_meter = [find_length_in_meter(walls, pixel_coordinates[0]),
-                               find_length_in_meter(walls, 480) - find_length_in_meter(walls, pixel_coordinates[1])]
+    pixel_coordinates_meter = [find_length_in_meter(walls, pixel_coordinates[0], "x"),
+                               find_length_in_meter(walls, 480, "y") - find_length_in_meter(walls, pixel_coordinates[1], "y")]
 
     # triangulate the location with the help of basic trigonometry (look discord image recognition blackboard picture)
     # find angle of the point between the camera and the robot (tan(V)=mod/hos).
@@ -162,7 +162,10 @@ def improve_coordinate_precision_Jackie(walls, pixel_coordinates, obj):
     # robot_truth = true position of the object
     # camera_point_meter = the center point on the ground for the camera
     # camera_constant = the camera angle distortion constant(varies depending on the angle of the camera for true point)
-    obj_coordinate_truth = [x_robot_truth + camera_point_meter[0] - CAMERA_DISTORT_X, y_robot_truth + camera_point_meter[1] - CAMERA_DISTORT_Y]
+    orego = [find_length_in_meter(walls, walls[3][0], "x"),
+            find_length_in_meter(walls, 480, "y") - find_length_in_meter(walls, walls[3][1], "y")]
+
+    obj_coordinate_truth = [x_robot_truth + camera_point_meter[0] - orego[0], y_robot_truth + camera_point_meter[1] - orego[1]]
 
     print("object found: ", obj_coordinate_truth)
 
@@ -219,25 +222,22 @@ def improve_coordinate_precision_Mark(walls, pixel_coordinates, obj):
     return improved_coordinates
 
     # TODO: improve this function
-def find_length_in_meter(walls, pixel_length):
+def find_length_in_meter(walls, pixel_coordinate, axis):  # TODO: improve this function
     if len(walls) == 0:
         print("No walls detected")
         return
     if walls[1][0] - walls[0][0] == 0:  # If the walls are detected upside down, return nothing
         print("Wall are upside down")
         return
-    wall_width = math.dist(walls[1], walls[0])
-    wall_height = math.dist(walls[3], walls[0])
-
-    x_scale = COURSE_WIDTH / wall_width
-    y_scale = COURSE_HEIGHT / wall_height
-    # print("x: ", x_scale)
-    # print("y: ", y_scale)
-
-    # Take the avg of the two scales and calculate a single scale
-    meter_length = pixel_length * ((x_scale + y_scale) / 2)
-
-    return meter_length
+    if axis == "x":
+        wall_width = math.dist(walls[1], walls[0])
+        x_scale = COURSE_WIDTH / wall_width
+        return pixel_coordinate * x_scale
+    if axis == "y":
+        wall_height = math.dist(walls[3], walls[0])
+        y_scale = COURSE_HEIGHT / wall_height
+        return pixel_coordinate * y_scale
+    return
 
 def magnitude(vector):
     return math.sqrt(sum(pow(element, 2) for element in vector))
