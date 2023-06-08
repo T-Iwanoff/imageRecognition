@@ -206,9 +206,10 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
         walls_in_meters, obstacle_in_meters, circles_in_meters, orange_circle_in_meters)
     ball_coords_in_order = []
     ball_types_in_order = []
-    for i in ball_list:
-        ball_coords_in_order.append(i[0])
-        ball_types_in_order.append(i[1])
+    if ball_list is not None:
+        for i in ball_list:
+            ball_coords_in_order.append(i[0])
+            ball_types_in_order.append(i[1])
 
     print(ball_coords_in_order)
     print(circles_in_meters)

@@ -10,6 +10,9 @@ from constants import CIRCLE_MIN_DIST, CIRCLE_PARAM_1, CIRCLE_PARAM_2, CIRCLE_MI
 def find_circles(frame):
     # Create a grayFrame
     gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    # white_mask = cv.inRange(frame, (200, 200, 200), (255, 255, 255))
+    # cv.imshow('white',white_mask)
+
     # Find ping pong balls
     circles = cv.HoughCircles(gray_frame, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
                               param1=CIRCLE_PARAM_1, param2=CIRCLE_PARAM_2, minRadius=CIRCLE_MIN_RADIUS,

@@ -28,11 +28,11 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
         # Get the current frame
         frame = cv.imread(path)
 
-        # Find walls
+        # # Find walls
         walls = analyse_walls(frame)
 
         # Make course
-        course = analyse_frame(frame)
+        course, ball_frame = analyse_frame(frame, walls)
 
 
         # Display the graph
@@ -129,6 +129,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
 
 def display_graph(course: Course):
     # print coords with 2 decimal places
+
     if course.ball_coords is not None:
         ball_coords = [tuple(round(coord, 2) for coord in coords)
                        for coords in course.ball_coords]
