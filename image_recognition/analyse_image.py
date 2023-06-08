@@ -81,7 +81,6 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 print("Error: Frame not found")
                 exit()
 
-            
 
             # Analyse the frame
             if STATIC_OUTER_WALLS:
@@ -98,7 +97,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
             # frame_overlay = overlay_frames(ball_frame, robot_frame)
             cv.imshow('Frame', frame_overlay)
 
-            
+
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
