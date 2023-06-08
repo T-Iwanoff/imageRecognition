@@ -21,7 +21,7 @@ COURSE_WIDTH = 1.683
 SAVED_FRAMES = 10
 CUTOFF = 2
 ORANGE_CUTOFF = 1
-SAVED_CIRCLE_DIST = 5
+SAVED_CIRCLE_DIST = 6
 
 # Define color ranges for red wall detection (inverted to cyan)
 LOWER_WALL_COLOR = (80, 70, 50)
@@ -69,4 +69,7 @@ LIST_OF_ANCHOR_POINTS = [[COURSE_WIDTH*(1/4), COURSE_HEIGHT*(3/4)],
                          [COURSE_WIDTH*(3/4), COURSE_HEIGHT*(3/4)],
                          [COURSE_WIDTH*(3/4), COURSE_HEIGHT*(1/4)],
                          [COURSE_WIDTH*(1/4), COURSE_HEIGHT*(1/4)]]
+
+# Select video capture device
+VIDEO_CAPTURE_DEVICE = 0
 
