@@ -1,4 +1,9 @@
 
+## CONFIG ##
+
+## CONSTANTS ##
+
+
 # Circle detection constants
 # param1 is sensitivity (smaller == more circles)
 # param2 is number of points in the circle (precision)

@@ -5,7 +5,9 @@ from next_move import NextMove
 from robot_connection.connection_test import *
 
 # IMAGE, VIDEO, CAMERA or ROBOT
-analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO')
+# analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO')
+
+analyse_image(path='Media/Video/Balls3.mp4', media='VIDEO')
 
 # analyse_image(path='Media/Video/MovingBalls.mp4', media='CAMERA', mac_camera=True, connect=False)
 

@@ -148,3 +148,4 @@ def scale_pixel_to_meter(walls):
 
      return x_scale
 
+

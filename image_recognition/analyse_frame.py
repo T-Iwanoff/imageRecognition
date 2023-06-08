@@ -177,17 +177,6 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
                 walls_in_meters.append(converted_coords)
     # print(circles_in_meters)
 
-    # Round balls to 3 decimals
-    # if len(circles_in_meters) != 0:
-    #     circles_in_meters = np.round(circles_in_meters, 3)
-    # if len(orange_circle_in_meters) != 0:
-    #     orange_circle_in_meters = np.round(orange_circle_in_meters, 3)
-
-    # Determine order and type of the balls
-    # if len(obstacle_in_meters) != 0:
-    #     # contains an array with a coordinate array and a string in each element
-    #     ball_list = determine_order_and_type(walls_in_meters, obstacle_in_meters, circles_in_meters, orange_circle_in_meters)
-
     # Draw on the frame
     if wall_corners is not None:
         cv.drawContours(frame, [wall_corners], 0, (255, 0, 0), 2)

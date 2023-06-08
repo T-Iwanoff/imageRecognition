@@ -1,12 +1,13 @@
 import time
 import matplotlib.pyplot as plt
+from matplotlib.patches import Polygon as PolygonPatch
 import networkx as nx
 import random
 import math
 import numpy as np
 import pandas as pd
 from python_tsp.exact import solve_tsp_dynamic_programming
-from shapely.geometry import LineString, box
+from shapely.geometry import LineString, box, shape, Polygon
 from course import Course
 from constants import *
 
@@ -40,7 +41,6 @@ def create_graph(course: Course):
     # add nodes
     G.add_nodes_from(range(nmbr_of_nodes))
 
-
     pos = nx.random_layout(G, dim=2, center=None)
     # add nodes at ball coords
 
@@ -54,8 +54,6 @@ def create_graph(course: Course):
         y = course.ball_coords[i][1]
         G.add_node(i+1)
         pos[i+1] = (x, y)
-
-    
 
     # Randomize node positions
     # pos = nx.random_layout(G, dim=2, center=None)
@@ -91,25 +89,62 @@ def create_graph(course: Course):
                                     top_obstacle[1] -
                                     bottom_obstacle[1]]
 
-        horizontal_obstacle_vector_crossvector = [-horizontal_obstacle_vector[1], horizontal_obstacle_vector[0]]
-        vertical_obstacle_vector_crossvector = [-vertical_obstacle_vector[1], vertical_obstacle_vector[0]]
-        
-        horizontal_wall_length_vector=[horizontal_obstacle_vector_crossvector[0]*0.075,horizontal_obstacle_vector_crossvector[1]*0.075]
-        vertical_wall_length_vector=[vertical_obstacle_vector_crossvector[0]*0.075,vertical_obstacle_vector_crossvector[1]*0.075]
-        
-    ##TODO: Shapes instead of boxes
+        horizontal_obstacle_vector_crossvector = [
+            -horizontal_obstacle_vector[1], horizontal_obstacle_vector[0]]
+        vertical_obstacle_vector_crossvector = [
+            -vertical_obstacle_vector[1], vertical_obstacle_vector[0]]
+
+        horizontal_obstacle_length_vector = [
+            horizontal_obstacle_vector_crossvector[0]*0.075, horizontal_obstacle_vector_crossvector[1]*0.075]
+        vertical_obstacle_length_vector = [
+            vertical_obstacle_vector_crossvector[0]*0.075, vertical_obstacle_vector_crossvector[1]*0.075]
+
+        # Obstacle coords
+        horizontal_obstacle_top_left = [
+            left_obstacle[0]+horizontal_obstacle_length_vector[0], left_obstacle[1]+horizontal_obstacle_length_vector[1]]
+        horizontal_obstacle_top_right = [
+            right_obstacle[0]-horizontal_obstacle_length_vector[0], right_obstacle[1]-horizontal_obstacle_length_vector[1]]
+        horizontal_obstacle_bottom_left = [
+            left_obstacle[0]-horizontal_obstacle_length_vector[0], left_obstacle[1]-horizontal_obstacle_length_vector[1]]
+        horizontal_obstacle_bottom_right = [
+            right_obstacle[0]+horizontal_obstacle_length_vector[0], right_obstacle[1]+horizontal_obstacle_length_vector[1]]
+
+        vertical_obstacle_top_left = [
+            top_obstacle[0]+vertical_obstacle_length_vector[0], top_obstacle[1]+vertical_obstacle_length_vector[1]]
+        vertical_obstacle_top_right = [
+            top_obstacle[0]-vertical_obstacle_length_vector[0], top_obstacle[1]-vertical_obstacle_length_vector[1]]
+        vertical_obstacle_bottom_left = [
+            bottom_obstacle[0]+vertical_obstacle_length_vector[0], bottom_obstacle[1]+vertical_obstacle_length_vector[1]]
+        vertical_obstacle_bottom_right = [
+            bottom_obstacle[0]-vertical_obstacle_length_vector[0], bottom_obstacle[1]-vertical_obstacle_length_vector[1]]
+
+    print("vertical_obstacle_bottom_left = ", vertical_obstacle_bottom_left)
+    print("vertical_obstacle_bottom_right = ", vertical_obstacle_bottom_right)
+    print("vertical_obstacle_top_left = ", vertical_obstacle_top_left)
+    print("vertical_obstacle_top_right = ", vertical_obstacle_top_right)
+
+    # TODO: Shapes instead of boxes
 
     if left_obstacle is not None:
-        obstacle_1 = box(minx=left_obstacle[0]+horizontal_wall_length_vector[0], miny=left_obstacle[1]+horizontal_wall_length_vector[1],
-                         maxx=right_obstacle[0]-horizontal_wall_length_vector[0], maxy=right_obstacle[1]-horizontal_wall_length_vector[1])
 
-        obstacle_2 = box(minx=bottom_obstacle[0]+vertical_wall_length_vector[0], miny=bottom_obstacle[1]+vertical_wall_length_vector[1],
-                         maxx=top_obstacle[0]-vertical_wall_length_vector[0], maxy=top_obstacle[1]-vertical_wall_length_vector[1])
-        # obstacle_1 = box(minx=left_obstacle[0], miny=left_obstacle[1] - 0.015,
-        #                  maxx=right_obstacle[0], maxy=right_obstacle[1] + 0.015)
+        obstacle_1 = box(minx=left_obstacle[0]+horizontal_obstacle_length_vector[0], miny=left_obstacle[1]+horizontal_obstacle_length_vector[1],
+                         maxx=right_obstacle[0]-horizontal_obstacle_length_vector[0], maxy=right_obstacle[1]-horizontal_obstacle_length_vector[1])
 
-        # obstacle_2 = box(minx=bottom_obstacle[0] - 0.015, miny=bottom_obstacle[1],
-        #                  maxx=top_obstacle[0] + 0.015, maxy=top_obstacle[1])
+        obstacle_2 = box(minx=bottom_obstacle[0]+vertical_obstacle_length_vector[0], miny=bottom_obstacle[1]+vertical_obstacle_length_vector[1],
+                         maxx=top_obstacle[0]-vertical_obstacle_length_vector[0], maxy=top_obstacle[1]-vertical_obstacle_length_vector[1])
+
+        obstacle_11 = Polygon([
+            vertical_obstacle_top_left,
+            vertical_obstacle_top_right,
+            vertical_obstacle_bottom_right,
+            vertical_obstacle_bottom_left
+        ])
+        obstacle_22 = Polygon([
+            horizontal_obstacle_top_left,
+            horizontal_obstacle_top_right,
+            horizontal_obstacle_bottom_right,
+            horizontal_obstacle_bottom_left
+        ])
 
     ### EDGES ###
     edge_weights = {}
@@ -117,18 +152,18 @@ def create_graph(course: Course):
     if left_obstacle is not None:
         # If not last ball left
         # if nmbr_of_nodes > 1:
-            for i in range(nmbr_of_nodes):
-                for j in range(i + 1, nmbr_of_nodes):
-                    if G.has_node(i) and G.has_node(j):
-                        edge_coords = LineString([pos[i], pos[j]])
-                        if not edge_coords.intersects(obstacle_1) and not edge_coords.intersects(obstacle_2):
-                            dist = math.sqrt((pos[i][0] - pos[j][0])
-                                            ** 2 + (pos[i][1] - pos[j][1]) ** 2)
-                            G.add_edge(i, j, weight=dist)
-                            edge_weights[(i, j)] = dist
-                        else:
-                            # fake edge weight for algorithm
-                            G.add_edge(i, j, weight=math.inf)
+        for i in range(nmbr_of_nodes):
+            for j in range(i + 1, nmbr_of_nodes):
+                if G.has_node(i) and G.has_node(j):
+                    edge_coords = LineString([pos[i], pos[j]])
+                    if not edge_coords.intersects(obstacle_1) and not edge_coords.intersects(obstacle_2):
+                        dist = math.sqrt((pos[i][0] - pos[j][0])
+                                         ** 2 + (pos[i][1] - pos[j][1]) ** 2)
+                        G.add_edge(i, j, weight=dist)
+                        edge_weights[(i, j)] = dist
+                    else:
+                        # fake edge weight for algorithm
+                        G.add_edge(i, j, weight=math.inf)
         # elif nmbr_of_nodes == 2:
         #     edge_coords = LineString([pos[0], pos[1]])
         #     if not edge_coords.intersects(obstacle_1) and not edge_coords.intersects(obstacle_2):
@@ -175,7 +210,7 @@ def create_graph(course: Course):
             nx.draw_networkx_edges(G, pos, edgelist=list(
                 zip(tsp[0], tsp[0][1:])), width=EDGE_WIDTH, edge_color='r')
         elif len(G.edges) == 1 and len(G.nodes) == 2:
-            ##TODO: Add visual edge?
+            # TODO: Add visual edge?
             print("Graph has 1 ball left and is connected")
 
     # node labels
@@ -196,15 +231,35 @@ def create_graph(course: Course):
 
     # display the obstacles
     if left_obstacle is not None:
-        obstacle_patches = [plt.Rectangle((obstacle.bounds[0], obstacle.bounds[1]),
-                                          obstacle.bounds[2] -
-                                          obstacle.bounds[0],
-                                          obstacle.bounds[3] -
-                                          obstacle.bounds[1],
-                                          fill=True, color="red", alpha=0.5) for obstacle in [obstacle_1, obstacle_2]]
+        # obstacle_patches = [plt.Rectangle((obstacle.bounds[0], obstacle.bounds[1]),
+        #                                   obstacle.bounds[2] -
+        #                                   obstacle.bounds[0],
+        #                                   obstacle.bounds[3] -
+        #                                   obstacle.bounds[1],
+        #                                   fill=True, color="red", alpha=0.5) for obstacle in [obstacle_1, obstacle_2]]
+        # obstacle_patches2 = [plt.Rectangle((obstacle.bounds[0], obstacle.bounds[1]),
+        #                                   obstacle.bounds[2] -
+        #                                   obstacle.bounds[0],
+        #                                   obstacle.bounds[3] -
+        #                                   obstacle.bounds[1],
+        #                                   fill=True, color="red", alpha=0.5) for obstacle in [obstacle_11, obstacle_22]]
 
-        for patch in obstacle_patches:
-            ax.add_patch(patch)
+        # for patch in obstacle_patches:
+        #     ax.add_patch(patch)
+        # for patch in obstacle_patches2:
+        #     ax.add_patch(patch)
+
+        polygon_patch1 = PolygonPatch([(vertical_obstacle_top_left),
+                                      (vertical_obstacle_top_right),
+                                      (vertical_obstacle_bottom_right),
+                                      (vertical_obstacle_bottom_left)], alpha=0.5, color="red")
+        polygon_patch2 = PolygonPatch([(horizontal_obstacle_top_left),
+                                      (horizontal_obstacle_top_right),
+                                      (horizontal_obstacle_bottom_right),
+                                      (horizontal_obstacle_bottom_left)], alpha=0.5, color="red")
+
+        ax.add_patch(polygon_patch1)
+        ax.add_patch(polygon_patch2)
 
     # print the graph matrix
     # printGraphMatrix(G)
@@ -224,7 +279,7 @@ def create_graph(course: Course):
             for j in range(len(course.ball_coords)):
                 if pos[tsp[0][i]] == course.ball_coords[j]:
                     new_types_in_order.append(course.ball_types[j])
-                
+
     print(new_types_in_order)
 
     # if nmbr_of_nodes > 0: return coords of first node in tsp
