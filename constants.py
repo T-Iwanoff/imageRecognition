@@ -37,10 +37,26 @@ OBSTACLE_AREA_MIN = 900
 OBSTACLE_AREA_MAX = 1600
 
 # Determination constant for ball type detection
-DETERMINATION_THRESHOLD = 0.05
+DETERMINATION_THRESHOLD = 0.15
 
 # Used for rounding numbers of objects
 ROUNDING_AMOUNT = 3
+
+# Camera constants
+# Distance from camera to floor
+CAMERA_HEIGHT = 1.68 # Measure with each setup
+
+# Frame height in meter
+FRAME_HEIGHT_METER = 1.49
+
+# Pixel to meter
+PIXEL_IN_METER = FRAME_HEIGHT_METER / 480
+
+# Height of objects
+BALL_HEIGHT = 0.04
+WALL_HEIGHT = 0.071
+ROBOT_HEIGHT = 1 # placeholder
+
 
 AUTOMATED_AREA_DETECT = True
 
@@ -48,4 +64,9 @@ PRINT_COORDINATES = False
 PRINT_NUMBER_OF_BALLS = False
 STATIC_OUTER_WALLS = True
 ENABLE_MULTI_FRAME_BALL_DETECTION = True
+
+LIST_OF_ANCHOR_POINTS = [[COURSE_WIDTH*(1/4), COURSE_HEIGHT*(3/4)],
+                         [COURSE_WIDTH*(3/4), COURSE_HEIGHT*(3/4)],
+                         [COURSE_WIDTH*(3/4), COURSE_HEIGHT*(1/4)],
+                         [COURSE_WIDTH*(1/4), COURSE_HEIGHT*(1/4)]]
 

@@ -1,3 +1,6 @@
+import asyncio
+
+import cv2
 from course import Course
 from image_recognition.calibration import *
 from image_recognition.analyse_frame import analyse_frame, analyse_walls
@@ -8,24 +11,30 @@ from next_move import NextMove
 import robot_connection.socket_connection as sc
 
 
-def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=False, nmbr_of_balls=None):
+def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=False, connect=False):
 
-    socket_connection = sc.SocketConnection()
+    # Connect to the robot
     connected = False
-    if socket_connection.connect():
-        print("Connected!")
-        connected = True
+    if connect:
+        socket_connection = sc.SocketConnection()
 
-    course = Course()
+        if (socket_connection.connect()):
+            print("Connected!")
+            connected = True
 
+    # Static picture
     if media == 'IMAGE':
+        # TODO: Make robot part of graph
         # Get the current frame
         frame = cv.imread(path)
 
+        # Make course
         course = analyse_frame(frame)
 
+        # Display the graph
         display_graph(course)
 
+        # Find the robot
         robot_recognition(frame)
 
         while True:
@@ -33,6 +42,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 break
             cv.destroyAllWindows()
 
+    # Moving picture
     if media == 'CAMERA' or 'VIDEO':
         if media == 'VIDEO':
             video_capture = cv.VideoCapture(path)
@@ -56,6 +66,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
             video_capture) if STATIC_OUTER_WALLS else None
 
         frame_counter = 0
+
         if ENABLE_MULTI_FRAME_BALL_DETECTION:
             saved_data = []
             orange_balls = []
@@ -70,17 +81,23 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 print("Error: Frame not found")
                 exit()
 
-            
+
             # Analyse the frame
             if STATIC_OUTER_WALLS:
-                course = analyse_frame(frame, static_wall_corners, saved_data, orange_balls, frame_counter)
+                course, ball_frame = analyse_frame(
+                    frame, static_wall_corners, saved_data, orange_balls, frame_counter)
             else:
-                course = analyse_frame(frame, saved_circles=saved_data, saved_orange=orange_balls,
-                                       counter=frame_counter)
+                course, ball_frame = analyse_frame(frame, saved_circles=saved_data, saved_orange=orange_balls,
+                                                   counter=frame_counter)
+
+            course.robot_coords, course.robot_angle, frame_overlay = robot_recognition(
+                ball_frame, static_wall_corners)
+
+            # Display the frames
+            # frame_overlay = overlay_frames(ball_frame, robot_frame)
+            cv.imshow('Frame', frame_overlay)
 
 
-            course.robot_coords, course.robot_angle = robot_recognition(
-                frame, static_wall_corners)
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
@@ -89,7 +106,9 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 next_move.robot_angle = course.robot_angle
                 print(next_move.to_json())
                 if connected:
-                    socket_connection.send_next_move(next_move)
+                    print("Sending next move to robot")
+                    asyncio.run(
+                        socket_connection.async_send_next_move(next_move))
 
             frame_counter += 1
 
@@ -103,7 +122,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
 
 
 def display_graph(course: Course):
-    # print with 2 decimal places
+    # print coords with 2 decimal places
     if course.ball_coords is not None:
         ball_coords = [tuple(round(coord, 2) for coord in coords)
                        for coords in course.ball_coords]
@@ -124,8 +143,6 @@ def display_graph(course: Course):
         print("No wall coordinates found")
     # create graph
     return gt.create_graph(course)
-    # send coordinates
-    # robot.send_coords(course.ball_coordinates[0][0], course.ball_coordinates[0][1])
 
 
 def get_static_outer_walls(video_capture):
@@ -140,3 +157,14 @@ def get_static_outer_walls(video_capture):
         if static_outer_walls is not None:
             walls_detected = True
     return static_outer_walls
+
+
+def overlay_frames(frame1, frame2):
+    # Check if both frames have the same shape
+    if frame1.shape == frame2.shape:
+        # overlay the images
+        overlay = cv2.addWeighted(frame1, 0.5, frame2, 0.5, 0)
+    else:
+        print("Frames don't have the same shape")
+        overlay = None
+    return overlay
