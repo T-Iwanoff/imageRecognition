@@ -6,7 +6,7 @@ from image_recognition.calibration import *
 from image_recognition.analyse_frame import analyse_frame, analyse_walls
 import path_finder.graph_setup as gt
 from image_recognition.robotRecognition import robot_recognition
-from constants import STATIC_OUTER_WALLS, ENABLE_MULTI_FRAME_BALL_DETECTION
+from constants import STATIC_OUTER_WALLS, ENABLE_MULTI_FRAME_BALL_DETECTION, VIDEO_CAPTURE_DEVICE
 from next_move import NextMove
 import robot_connection.socket_connection as sc
 
@@ -48,9 +48,9 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
             video_capture = cv.VideoCapture(path)
         elif media == 'CAMERA':
             if mac_camera:
-                video_capture = cv.VideoCapture(0)
+                video_capture = cv.VideoCapture(VIDEO_CAPTURE_DEVICE)
             else:
-                video_capture = cv.VideoCapture(0, cv.CAP_DSHOW)
+                video_capture = cv.VideoCapture(VIDEO_CAPTURE_DEVICE, cv.CAP_DSHOW)
             video_capture.set(3, 640)
             video_capture.set(4, 480)
 

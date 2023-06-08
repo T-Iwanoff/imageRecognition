@@ -70,3 +70,6 @@ LIST_OF_ANCHOR_POINTS = [[COURSE_WIDTH*(1/4), COURSE_HEIGHT*(3/4)],
                          [COURSE_WIDTH*(3/4), COURSE_HEIGHT*(1/4)],
                          [COURSE_WIDTH*(1/4), COURSE_HEIGHT*(1/4)]]
 
+# Select video capture device
+VIDEO_CAPTURE_DEVICE = 0
+
