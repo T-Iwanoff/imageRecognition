@@ -47,7 +47,8 @@ def create_graph(course: Course):
     if course.robot_coords is not None:
         print("adding robot node")
         G.add_node(0)
-        pos[0] = (course.robot_coords[0], course.robot_coords[1])
+        if len(course.robot_coords) != 0:
+            pos[0] = (course.robot_coords[0], course.robot_coords[1])
 
     for i in range(nmbr_of_nodes-1):
         x = course.ball_coords[i][0]

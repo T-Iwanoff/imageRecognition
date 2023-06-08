@@ -44,7 +44,9 @@ ROUNDING_AMOUNT = 3
 
 # Camera constants
 # Distance from camera to floor
-CAMERA_HEIGHT = 1.68 # Measure with each setup
+CAMERA_HEIGHT = 1.69 # Measure with each setup
+CAMERA_DISTORT_X = 0.23 # Measure with each setup by testing for 3 ball positions.
+CAMERA_DISTORT_Y = 0.195 # Measure with each setup by testing for 3 ball positions.
 
 # Frame height in meter
 FRAME_HEIGHT_METER = 1.49
@@ -55,7 +57,7 @@ PIXEL_IN_METER = FRAME_HEIGHT_METER / 480
 # Height of objects
 BALL_HEIGHT = 0.04
 WALL_HEIGHT = 0.071
-ROBOT_HEIGHT = 1 # placeholder
+ROBOT_HEIGHT = 0.195 # placeholder
 
 
 AUTOMATED_AREA_DETECT = True
@@ -65,6 +67,7 @@ PRINT_NUMBER_OF_BALLS = False
 STATIC_OUTER_WALLS = True
 ENABLE_MULTI_FRAME_BALL_DETECTION = True
 
+GOAL_SIDE_RELATIVE_TO_CAMERA = "left"
 LIST_OF_ANCHOR_POINTS = [[COURSE_WIDTH*(1/4), COURSE_HEIGHT*(3/4)],
                          [COURSE_WIDTH*(3/4), COURSE_HEIGHT*(3/4)],
                          [COURSE_WIDTH*(3/4), COURSE_HEIGHT*(1/4)],

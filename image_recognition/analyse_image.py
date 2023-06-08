@@ -28,6 +28,9 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
         # Get the current frame
         frame = cv.imread(path)
 
+        # Find walls
+        walls = analyse_walls(frame)
+
         # Make course
         course = analyse_frame(frame)
 
@@ -35,7 +38,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
         display_graph(course)
 
         # Find the robot
-        robot_recognition(frame)
+        robot_recognition(frame, course.wall_coords)
 
         while True:
             if cv.waitKey(0) == ord('q'):

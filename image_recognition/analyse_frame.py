@@ -153,11 +153,11 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
     if wall_corners is not None:
         if circles is not None:
             for circle in circles:
-                # improved_coords = improve_coordinate_precision(
-                #    circle, "ball", wall_corners)
-                converted_coords = coordinate_conversion(
-                    wall_corners, circle[0], circle[1])
-                circles_in_meters.append(converted_coords)
+                improved_coords = improve_coordinate_precision_Jackie(wall_corners, circle, "ball")
+                find_goal_coordinates()
+                #converted_coords = coordinate_conversion(
+                #   wall_corners, improved_coords[0], improved_coords[1])
+                circles_in_meters.append(improved_coords)
 
         if orange_circle is not None and len(orange_circle):
             orange_circle_in_meters = coordinate_conversion(
@@ -171,7 +171,7 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
 
         if wall_corners is not None:
             for coord in wall_corners:
-                # improved_coords = improve_coordinate_precision(coord, "wall", wall_corners)
+                # improved_coords = improve_coordinate_precision(coord, "wall")
                 converted_coords = coordinate_conversion(
                     wall_corners, coord[0], coord[1])
                 walls_in_meters.append(converted_coords)
@@ -223,7 +223,7 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
         ball_coords_in_order.append(i[0])
         ball_types_in_order.append(i[1])
 
-    return Course(ball_coords = ball_coords_in_order, 
-                  obstacle_coords = obstacle_in_meters, 
-                  wall_coords = walls_in_meters, 
+    return Course(ball_coords = ball_coords_in_order,
+                  obstacle_coords = obstacle_in_meters,
+                  wall_coords = walls_in_meters,
                   ball_types = ball_types_in_order), frame
