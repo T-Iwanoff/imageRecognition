@@ -19,7 +19,7 @@ def find_circles(frame):
 
     # OLD CODE THAT WORKS OK
     # Find ping pong balls
-    circles = cv.HoughCircles(blurred_frame, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
+    circles = cv.HoughCircles(gray_frame, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
                               param1=CIRCLE_PARAM_1, param2=CIRCLE_PARAM_2, minRadius=CIRCLE_MIN_RADIUS,
                               maxRadius=CIRCLE_MAX_RADIUS)
     # param1 is sensitivity (smaller == more circles)

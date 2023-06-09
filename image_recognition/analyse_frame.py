@@ -155,9 +155,9 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
             for circle in circles:
                 improved_coords = improve_coordinate_precision(wall_corners, circle, "ball")
                 circles_in_meters.append(improved_coords)
-                text = "(" + str(round(improved_coords[0], 2)) + ", " + str(round(improved_coords[1], 2)) + ")"
-                # Draw coords on frame
-                cv.putText(frame, text, (circle[0]-40, circle[1]-20), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 1)
+                # text = "(" + str(round(improved_coords[0], 2)) + ", " + str(round(improved_coords[1], 2)) + ")"
+                # # Draw coords on frame
+                # cv.putText(frame, text, (circle[0]-40, circle[1]-20), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 1)
 
         if orange_circle is not None and len(orange_circle):
             improved_coords = improve_coordinate_precision(wall_corners, orange_circle, "ball")

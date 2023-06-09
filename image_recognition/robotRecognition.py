@@ -27,7 +27,7 @@ def robot_recognition(frame, wall_corners):
     # upper_bound_center = np.array([140,255,255])
 
     # lower bound and upper bound for center color (blue)
-    lower_bound_center = np.array([80,43,50])
+    lower_bound_center = np.array([80,85,50])
     upper_bound_center = np.array([110,150,255])
 
     # lower bound and upper bound for center color (lego blue)
@@ -113,7 +113,8 @@ def robot_recognition(frame, wall_corners):
     # calculate angle
     def calculate_angle(x0, y0, x, y):
         # x0,y0 = the center of the robot : x,y = is the coordinate of the oriantation point
-        angle = math.degrees(math.atan2(y0 - y, x - x0)) % 360
+        angle = math.degrees(math.atan2(y0 - y, x - x0)) + 180 % 360
+        print("robot angle test: ", angle)
         # print(f'The angle is = {angle}')
         return angle
 
