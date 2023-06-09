@@ -11,21 +11,17 @@ def find_circles(frame):
     # Create a grayFrame
     gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
-    # NEW CODE THAT DOESN'T WORK YET
-    white_mask = cv.inRange(frame, (30, 100, 200), (255, 255, 255))
+    # NEW CODE THAT DOESN'T WORK YET  HSV range for mask = (30, (120 - 130), (170 - 200)), (255,255,255)
+    white_mask = cv.inRange(frame, (30, 130, 175), (255, 255, 255))
     blurred_frame = cv.GaussianBlur(white_mask, (7,7), 0)
     cv.imshow('white',blurred_frame)
-    circles = cv.HoughCircles(blurred_frame, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
-                              param1=200, param2=4, minRadius=2,
-                              maxRadius=CIRCLE_MAX_RADIUS)
-    cv.imshow('hej', blurred_frame)
     # END OF NEW CODE
 
     # OLD CODE THAT WORKS OK
     # Find ping pong balls
-    # circles = cv.HoughCircles(gray_frame, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
-    #                           param1=CIRCLE_PARAM_1, param2=CIRCLE_PARAM_2, minRadius=CIRCLE_MIN_RADIUS,
-    #                           maxRadius=CIRCLE_MAX_RADIUS)
+    circles = cv.HoughCircles(blurred_frame, cv.HOUGH_GRADIENT, dp=1, minDist=CIRCLE_MIN_DIST,
+                              param1=CIRCLE_PARAM_1, param2=CIRCLE_PARAM_2, minRadius=CIRCLE_MIN_RADIUS,
+                              maxRadius=CIRCLE_MAX_RADIUS)
     # param1 is sensitivity (smaller == more circles)
     # param2 is number of points in the circle (precision)
 
