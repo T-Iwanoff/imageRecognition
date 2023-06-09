@@ -26,13 +26,13 @@ def robot_recognition(frame, wall_corners):
     # lower_bound_center = np.array([110,60,50])
     # upper_bound_center = np.array([140,255,255])
 
-    # lower bound and upper bound for center color (light blue)
-    # lower_bound_center = np.array([80,43,50])
-    # upper_bound_center = np.array([105,250,255])
+    # lower bound and upper bound for center color (blue)
+    lower_bound_center = np.array([80,43,50])
+    upper_bound_center = np.array([110,150,255])
 
     # lower bound and upper bound for center color (lego blue)
-    lower_bound_center = np.array([110, 75, 20])
-    upper_bound_center = np.array([130, 250, 255])
+    # lower_bound_center = np.array([110, 75, 20])
+    # upper_bound_center = np.array([130, 250, 255])
 
     # find the colors within the boundaries from center
     mask_center = cv2.inRange(hsv, lower_bound_center, upper_bound_center)
