@@ -36,25 +36,33 @@ def find_rectangle(wall, sort):
 
 
 def warp_frame(box, frame):
+    if len(box) == 0:
+        print("No walls detected")
+        return
+    if box[1][0] - box[0][0] == 0:  # If the walls are detected upside down, return nothing
+        print(box)
+        print("Wall are upside down")
+        return
+
     global converted_points
     # Warp image, code from https://thinkinfi.com/warp-perspective-opencv/
     # Pixel values in original image
-    lower_left_point = box[0]  # Black
-    upper_left_point = box[1]  # Red
-    upper_right_point = box[2]  # Green
-    lower_right_point = box[3]  # Blue
+    lower_left_point = box[3]  # Black
+    upper_left_point = box[0]  # Red
+    upper_right_point = box[1]  # Green
+    lower_right_point = box[2]  # Blue
     # Create point matrix
     point_matrix = np.float32(
         [upper_left_point, upper_right_point, lower_left_point, lower_right_point])
     # Draw circle for each point
-    cv.circle(
-        frame, (upper_left_point[0], upper_left_point[1]), 10, (0, 0, 255), cv.FILLED)
-    cv.circle(
-        frame, (upper_right_point[0], upper_right_point[1]), 10, (0, 255, 0), cv.FILLED)
-    cv.circle(
-        frame, (lower_right_point[0], lower_right_point[1]), 10, (255, 0, 0), cv.FILLED)
-    cv.circle(
-        frame, (lower_left_point[0], lower_left_point[1]), 10, (0, 0, 0), cv.FILLED)
+    # cv.circle(
+    #     frame, (upper_left_point[0], upper_left_point[1]), 10, (0, 0, 255), cv.FILLED)
+    # cv.circle(
+    #     frame, (upper_right_point[0], upper_right_point[1]), 10, (0, 255, 0), cv.FILLED)
+    # cv.circle(
+    #     frame, (lower_right_point[0], lower_right_point[1]), 10, (255, 0, 0), cv.FILLED)
+    # cv.circle(
+    #     frame, (lower_left_point[0], lower_left_point[1]), 10, (0, 0, 0), cv.FILLED)
     # Output image size
     width, height = 640, 480
     # Desired points value in output images

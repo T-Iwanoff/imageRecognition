@@ -129,7 +129,7 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
     obstacle = analyse_obstacles(frame, wall_contours)
 
     # Warp the frame to fit the outer wall
-    # frame = warpFrame(box, frame)
+    # frame = warp_frame(wall_corners, frame)
 
     # print("---")  # For calibration
     # Find contours in the frame again (in case the warp above is used)
@@ -151,7 +151,7 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
     ball_list = []
 
     if wall_corners is not None:
-        if circles is not None:
+        if circles is not None and len(circles):
             for circle in circles:
                 improved_coords = improve_coordinate_precision(wall_corners, circle, "ball")
                 circles_in_meters.append(improved_coords)
@@ -166,12 +166,12 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
             # Draw coords on frame
             cv.putText(frame, text, (orange_circle[0] - 40, orange_circle[1] - 20), cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
 
-        if obstacle is not None:
+        if obstacle is not None and len(obstacle):
             for coord in obstacle:
                 improved_coords = improve_coordinate_precision(wall_corners, coord, "ball")
                 obstacle_in_meters.append(improved_coords)
 
-        if wall_corners is not None:
+        if wall_corners is not None and len(wall_corners):
             for coord in wall_corners:
                 improved_coords = improve_coordinate_precision(wall_corners, coord, "ball")
                 walls_in_meters.append(improved_coords)
