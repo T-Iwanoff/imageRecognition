@@ -97,8 +97,13 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 course, ball_frame = analyse_frame(frame, saved_circles=saved_data, saved_orange=orange_balls,
                                                    counter=frame_counter)
 
+            # Display robot coords on frame overlay
             course.robot_coords, course.robot_angle, frame_overlay = robot_recognition(
                 ball_frame, static_wall_corners)
+            text = "(" + str(round(course.robot_coords[0], 2)) + ", " + str(round(course.robot_coords[1], 2)) + ")"
+            cv.putText(frame_overlay, text, (5, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
+            text = "Angle: " + str(round(course.robot_angle))
+            cv.putText(frame_overlay, text, (300, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
 
             # Display the frames
             # frame_overlay = overlay_frames(ball_frame, robot_frame)
