@@ -210,3 +210,15 @@ def find_goal_coordinates():
         print("goal right: ", goal_coordinates)
 
     return goal_coordinates
+
+def remove_objects_outside_walls_from_list(walls, obj_list):
+    new_list = np.array(obj_list)
+    if new_list.ndim == 1:
+        new_list = [obj_list]
+    else:
+        new_list = obj_list
+    for obj in new_list:
+        if not ((obj[0] > walls[0][0] and obj[0] > walls[3][0] and obj[0] < walls[2][0] and obj[0] < walls[1][0]) and
+                (obj[1] > walls[3][1] and obj[1] > walls[0][1] and obj[1] < walls[1][1] and obj[1] < walls[2][1])):
+            new_list.remove(obj)
+    return new_list
