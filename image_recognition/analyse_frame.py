@@ -4,110 +4,107 @@ from image_recognition.find_circles import *
 from image_recognition.find_walls import *
 from image_recognition.calibration import *
 from constants import *
+from config import *
 import cv2 as cv
 
 
-def analyse_walls(frame, wall_contours=None):
+def analyse_walls(frame):
+    walls = None
+
+    # Make a mask for the wall
+    wall_mask = frame_to_wall_mask(frame)
+
+    # Find contours in the red wall mask
+    wall_contours, _ = cv.findContours(
+        wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+
     # Find the correct max area of the outer wall
-    global wall_corners
-    wall_corners_detected = False
-
-    if STATIC_OUTER_WALLS:
-        # Calibrate the frame
-        frame = calibrate_frame(frame)
-
-        # Make a mask for the wall
-        wall_mask = frame_to_wall_mask(frame)
-
-        # Find contours in the red wall mask
-        wall_contours, _ = cv.findContours(
-            wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-
-    # Make a list of wall contours
     wall_area = []
     for wall_contour in wall_contours:
         wall_area.append(cv.contourArea(wall_contour))
-
     max_wall_area = calibrate_wall_area(wall_area, False) + 100
 
-    # Loop over the wall contours and draw walls
+    # Loop over the wall contours and find walls
     for wall_contour in wall_contours:
         wall_area = cv.contourArea(wall_contour)
-        # For the outer wall, draw a rectangle
         if (max_wall_area if AUTOMATED_AREA_DETECT else OUTER_WALL_AREA_MAX) > wall_area > OUTER_WALL_AREA_MIN:
             # print(wall_area)  # for calibration
-            wall_corners = find_rectangle(wall_contour, True)
-            wall_corners_detected = True
-    if not wall_corners_detected:
-        return
-    else:
-        return wall_corners
+            # Find the corners of the walls
+            walls = find_rectangle(wall_contour, True)
+    return walls
 
 
 def analyse_obstacles(frame, wall_contours=None):
-    obstacle_detected = False
+    obstacle = None
+
+    # Make a mask for the obstacle
+    obstacle_mask = frame_to_wall_mask(frame)
+
+    # Find contours in the red wall mask
+    obstacle_contours, _ = cv.findContours(
+        obstacle_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+
     # Find the correct max area of the obstacle
     obstacle_area = []
-    for wall_contour in wall_contours:
-        obstacle_area.append(cv.contourArea(wall_contour))
+    for contour in obstacle_contours:
+        obstacle_area.append(cv.contourArea(contour))
     max_obstacle_area = calibrate_wall_area(obstacle_area, True) + 100
 
-    # Loop over the wall contours and draw obstacle
-    for wall_contour in wall_contours:
-        wall_area = cv.contourArea(wall_contour)
-        # For the cross obstacle, mark the corners
+    # Loop over the obstacle contours and find obstacle
+    for contour in obstacle_contours:
+        wall_area = cv.contourArea(contour)
         if (max_obstacle_area if AUTOMATED_AREA_DETECT else OUTER_WALL_AREA_MAX) > wall_area > OBSTACLE_AREA_MIN:
             # print(wall_area) # For calibration
             # Find the corners of the obstacle
-            obstacle = find_rectangle(wall_contour, False)
-            obstacle_detected = True
-    if not obstacle_detected:
-        return
-    else:
-        return obstacle
+            obstacle = find_rectangle(contour, False)
+    return obstacle
 
 
-def analyse_balls(frame, saved_circles=None, counter=None):
+def analyse_balls(frame, saved_balls):
     # Find the balls
-    circles = find_circles(frame)
-    # circles = find_orange_circle(frame)
-    # if counter is not None:
-    #     if counter < SAVED_FRAMES:
-    #         saved_circles.append(circles)
-    #     else:
-    #         saved_circles[counter % SAVED_FRAMES] = circles
-    #     circles = find_repeated_coordinates(saved_circles, CUTOFF)
+    balls = find_circles(frame)
 
-    if counter is not None and circles is not None and saved_circles is not None:
-        if len(saved_circles) < SAVED_FRAMES:
-            saved_circles.append(circles)
-            circles = find_repeated_coordinates(saved_circles, CUTOFF)
+    # Adds the balls to the list of previous balls
+    if balls is not None and saved_balls is not None and ENABLE_MULTI_FRAME_BALL_DETECTION:
+        if len(saved_balls) < SAVED_FRAMES:
+            saved_balls.append(balls)
+            balls = find_repeated_coordinates(saved_balls, CUTOFF)
         else:
-            saved_circles[counter % SAVED_FRAMES] = circles
-            circles = find_repeated_coordinates(saved_circles, CUTOFF)
+            substitute_in_list(saved_balls, balls)
+            balls = find_repeated_coordinates(saved_balls, CUTOFF)
 
-    return circles
+    return balls
 
 
-def analyse_orange_ball(frame, saved_circle=None, counter=None):
-    # Find the balls
-    circle = find_orange_circle(frame)
+def analyse_orange_ball(frame, saved_balls):
+    # Find the orange ball
+    ball = find_orange_circle(frame)
 
-    if counter is not None and circle is not None and saved_circle is not None:
-        if len(saved_circle) < SAVED_FRAMES:
-            saved_circle.append(circle)
-            circle = find_repeated_coordinates(saved_circle, ORANGE_CUTOFF)
+    # Adds the ball to the list of previous balls
+    if ball is not None and saved_balls is not None and ENABLE_MULTI_FRAME_BALL_DETECTION:
+        if len(saved_balls) < SAVED_FRAMES:
+            saved_balls.append(ball)
+            ball = find_repeated_coordinates(saved_balls, ORANGE_CUTOFF)
         else:
-            saved_circle[counter % SAVED_FRAMES] = circle
-            circle = find_repeated_coordinates(saved_circle, ORANGE_CUTOFF)
+            substitute_in_list(saved_balls, ball)
+            ball = find_repeated_coordinates(saved_balls, ORANGE_CUTOFF)
 
-        if circle is not None and bool(circle):
-            circle = circle[0]
+        if ball is not None and bool(ball):
+            ball = ball[0]
 
-    return circle
+    return ball
 
 
-def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_orange=None, counter=None):
+# Deletes the first element in a list, moves every other element one index back
+def substitute_in_list(list, value):
+    length = len(list)
+    for i in range(length-1):
+        list[i] = list[i+1]
+    list[length-1] = value
+    return list
+
+
+def analyse_frame2(frame, static_wall_corners=None, saved_circles=None, saved_orange=None, counter=None):
 
     # Calibrate the frame
     frame = calibrate_frame(frame)
@@ -199,7 +196,7 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
         cv.circle(frame, (orange_circle[0], orange_circle[1]),
                   orange_circle[2], (100, 100, 255), 2)  # Outer circle
 
-    # TODO: Not working delete?
+    # Not working delete?
     # showing coords on top of balls on frame
     # if circles is not None:
     #     for i in old_circles:
@@ -221,3 +218,44 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
                   obstacle_coords = obstacle_in_meters,
                   wall_coords = walls_in_meters,
                   ball_types = ball_types_in_order), frame
+
+
+def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
+
+    # Calibrate the frame
+    frame = calibrate_frame(frame)
+
+    # Find the wall corners
+    if not STATIC_OUTER_WALLS or walls is None:
+        walls = analyse_walls(frame)
+
+    # Find the obstacle points
+    obstacle = analyse_obstacles(frame)
+
+    # Find the balls
+    balls = analyse_balls(frame, saved_balls)
+
+    # Find the orange ball
+    orange_ball = analyse_orange_ball(frame, saved_oranges)
+
+    # Remove orange ball from list of balls
+    balls = remove_circle_from_list(orange_ball, balls)
+
+    # TODO find robot
+
+    # TODO sort the list here?
+
+    # ball_list = determine_order_and_type(
+    #     walls_in_meters, obstacle_in_meters, circles_in_meters, orange_circle_in_meters)
+    # ball_coords_in_order = []
+    # ball_types_in_order = []
+    # if ball_list is not None:
+    #     for i in ball_list:
+    #         ball_coords_in_order.append(i[0])
+    #         ball_types_in_order.append(i[1])
+
+    # TODO Add robot and orange ball to course
+    return Course(ball_coords=balls,
+                  obstacle_coords=obstacle,
+                  wall_coords=walls,
+                  ), frame
