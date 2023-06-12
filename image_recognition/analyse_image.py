@@ -105,9 +105,9 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
             if len(course.ball_coords):
                 course.ball_coords = remove_objects_outside_walls_from_list(course.wall_coords, course.ball_coords)
             if len(course.robot_coords):
-                course.robot_coords = remove_objects_outside_walls_from_list(course.wall_coords, course.robot_coords)
+                course.robot_coords = remove_objects_outside_walls_from_list(course.wall_coords, course.robot_coords, "robot")
 
-            if len(course.robot_coords) and len(course.robot_angle):
+            if len(course.robot_coords):
                 text = "(" + str(round(course.robot_coords[0], 2)) + ", " + str(round(course.robot_coords[1], 2)) + ")"
                 cv.putText(frame_overlay, text, (5, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
                 text = "Angle: " + str(round(course.robot_angle))
