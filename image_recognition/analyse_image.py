@@ -124,7 +124,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 next_move = display_graph(course)
                 next_move.robot_coords = course.robot_coords
                 next_move.robot_angle = course.robot_angle
-                print(next_move.to_json())
+                print("The next move is:", next_move.to_json())
                 if connected:
                     print("Sending next move to robot")
                     asyncio.run(

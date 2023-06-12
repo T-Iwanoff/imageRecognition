@@ -114,7 +114,7 @@ def robot_recognition(frame, wall_corners):
     def calculate_angle(x0, y0, x, y):
         # x0,y0 = the center of the robot : x,y = is the coordinate of the oriantation point
         angle = math.degrees(math.atan2(y0 - y, x - x0)) + 180 % 360
-        print("robot angle test: ", angle)
+        # print("robot angle test: ", angle)
         # print(f'The angle is = {angle}')
         return angle
 
@@ -123,12 +123,12 @@ def robot_recognition(frame, wall_corners):
     # cv2.imshow("pointer mask", mask_pointer)
 
     robot_coords = [cX_center, cY_center]
-    print("robot xy: ", robot_coords)
+    # print("robot xy: ", robot_coords)
     # Showing the output
     robot_pos = improve_coordinate_precision(wall_corners, robot_coords, "robot")
-    print("Robot coords: ", robot_pos)
+    # print("Robot coords: ", robot_pos)
     robot_angle = calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)
-    print("Robot angle: ", robot_angle)
+    # print("Robot angle: ", robot_angle)
 
     #cv2.imshow('robot-recognition', frame)
 

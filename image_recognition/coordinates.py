@@ -39,7 +39,7 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
     # Convert orange ball from numpy array to list for formatting
     # orange_ball = np.array(orange_ball)
     # orange_ball = orange_ball.tolist()
-    print(orange_ball)
+    # print(orange_ball)
 
     if len(walls) == 0:
         return
@@ -171,8 +171,6 @@ def improve_coordinate_precision(walls, pixel_coordinates, obj):
             find_length_in_meter(walls, 480, "y") - find_length_in_meter(walls, walls[3][1], "y")]
 
     obj_coordinate_truth = [x_robot_truth + camera_point_meter[0] - orego[0], y_robot_truth + camera_point_meter[1] - orego[1]]
-
-    print("object found: ", obj_coordinate_truth)
 
     return obj_coordinate_truth
 
