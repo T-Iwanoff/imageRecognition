@@ -7,7 +7,7 @@ from image_recognition.analyse_frame import analyse_frame, analyse_walls
 import path_finder.graph_setup as gt
 from image_recognition.coordinates import remove_objects_outside_walls_from_list
 from image_recognition.robotRecognition import robot_recognition
-from constants import STATIC_OUTER_WALLS, ENABLE_MULTI_FRAME_BALL_DETECTION, VIDEO_CAPTURE_DEVICE
+from constants import STATIC_OUTER_WALLS, ENABLE_MULTI_FRAME_BALL_DETECTION, VIDEO_CAPTURE_DEVICE, SETUP_MODE
 from next_move import NextMove
 import robot_connection.socket_connection as sc
 
@@ -112,6 +112,20 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 cv.putText(frame_overlay, text, (5, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
                 text = "Angle: " + str(round(course.robot_angle))
                 cv.putText(frame_overlay, text, (300, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
+
+            if SETUP_MODE:
+                # setup camera center with the course for optimal coordinate calculation
+                # Getting the height and width of the image
+                height = frame_overlay.shape[0]
+                width = frame_overlay.shape[1]
+
+                height_center = int(height / 2)
+                width_center = int(width / 2)
+                # crosshair horizontal
+                # horizontal
+                cv2.line(frame_overlay, (0, height_center), (width, height_center), (0, 0, 255), 2)
+                # vertical
+                cv2.line(frame_overlay, (width_center, 0), (width_center, height), (0, 0, 255), 2)
 
             # Display the frames
             # frame_overlay = overlay_frames(ball_frame, robot_frame)

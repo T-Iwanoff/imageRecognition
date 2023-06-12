@@ -172,6 +172,8 @@ def improve_coordinate_precision(walls, pixel_coordinates, obj):
 
     obj_coordinate_truth = [x_robot_truth + camera_point_meter[0] - orego[0], y_robot_truth + camera_point_meter[1] - orego[1]]
 
+    # print("object found: ", obj_coordinate_truth)
+
     return obj_coordinate_truth
 
 
