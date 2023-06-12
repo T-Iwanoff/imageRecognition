@@ -184,8 +184,9 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
     #     ball_list = determine_order_and_type(walls_in_meters, obstacle_in_meters, circles_in_meters, orange_circle_in_meters)
 
     # Draw on the frame
-    if wall_corners is not None:
-        cv.drawContours(frame, [wall_corners], 0, (255, 0, 0), 2)
+    if not SETUP_MODE:
+        if wall_corners is not None:
+            cv.drawContours(frame, [wall_corners], 0, (255, 0, 0), 2)
     if obstacle is not None:
         for coord in obstacle:
             cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)

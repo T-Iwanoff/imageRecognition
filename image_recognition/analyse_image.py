@@ -121,11 +121,21 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
 
                 height_center = int(height / 2)
                 width_center = int(width / 2)
-                # crosshair horizontal
-                # horizontal
-                cv2.line(frame_overlay, (0, height_center), (width, height_center), (0, 0, 255), 2)
+                # Course setup lines (setup for outer edge of walls)
+                # horizontal lines
+                # top line
+                cv.line(frame_overlay, (0, 28), (width, 28), (255, 255, 255), 1)
+                # bottom line
+                cv.line(frame_overlay, (0, 415), (width, 406), (255, 255, 255), 1)
+
                 # vertical
-                cv2.line(frame_overlay, (width_center, 0), (width_center, height), (0, 0, 255), 2)
+                # left line
+                cv.line(frame_overlay, (48, 0), (48, height), (255, 255, 255), 1)
+                # right line
+                cv.line(frame_overlay, (575, 0), (563, height), (255, 255, 255), 1)
+
+                #camera setup rectangle
+                cv.rectangle(frame_overlay, (220, 410), (397, 500), 255, 1)
 
             # Display the frames
             # frame_overlay = overlay_frames(ball_frame, robot_frame)
