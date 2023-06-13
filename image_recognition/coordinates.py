@@ -231,7 +231,8 @@ def find_goal_coordinates():
 
 def remove_objects_outside_walls_from_list(walls, obj_list, type=None):
     new_list = np.array(obj_list)
-    sensitivity = 0.10
+    sensitivity = 0.0
+
     if new_list.ndim == 1:
         new_list = [obj_list]
     else:
