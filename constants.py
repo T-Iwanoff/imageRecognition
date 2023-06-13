@@ -1,4 +1,9 @@
 
+## CONFIG ##
+
+## CONSTANTS ##
+
+
 # Circle detection constants
 # param1 is sensitivity (smaller == more circles)
 # param2 is number of points in the circle (precision)
@@ -37,8 +42,6 @@ OUTER_WALL_AREA_MAX = 195000
 OBSTACLE_AREA_MIN = 900
 OBSTACLE_AREA_MAX = 1600
 
-# Determination constant for ball type detection
-DETERMINATION_THRESHOLD = 0.15
 
 # Used for rounding numbers of objects
 ROUNDING_AMOUNT = 3
@@ -59,6 +62,14 @@ PIXEL_IN_METER = FRAME_HEIGHT_METER / 480
 BALL_HEIGHT = 0.04
 WALL_HEIGHT = 0.071
 ROBOT_HEIGHT = 0.195 # placeholder
+
+# Length and width of objects
+HALF_OF_ROBOT_WIDTH = 0.14
+OBSTACLE_WIDTH = 0.015
+OBSTACLE_LENGTH_FROM_MIDDLE = 0.085
+
+# Determination constant for ball type detection
+DETERMINATION_THRESHOLD = HALF_OF_ROBOT_WIDTH
 
 
 AUTOMATED_AREA_DETECT = True
