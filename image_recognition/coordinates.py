@@ -33,7 +33,6 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
     ball_list = []
 
     # Convert balls from numpy array to list to prevent error
-    # print(balls)
     balls = np.array(balls)
     balls = balls.tolist()
 
@@ -190,8 +189,6 @@ def improve_coordinate_precision(walls, pixel_coordinates, obj):
 
     obj_coordinate_truth = [x_robot_truth + camera_point_meter[0] - orego[0], y_robot_truth + camera_point_meter[1] - orego[1]]
 
-    # print("object found: ", obj_coordinate_truth)
-
     return obj_coordinate_truth
 
 
@@ -229,6 +226,19 @@ def find_goal_coordinates():
 
     return goal_coordinates
 
+
+def remove_objects_outside_walls(walls, object):
+    object = np.array(object)
+    if object.ndim > 1:
+        for ball in object:
+            if ball[0] < walls[0][0] or ball[0] > walls[1][0] or ball[1] < walls[0][1] or ball[1] > walls[3][1]:
+                object.remove(ball)
+    else:
+        if object[0] < walls[0][0] or object[0] > walls[1][0] or object[1] < walls[0][1] or object[1] > walls[3][1]:
+            return None
+    return object
+
+# TODO sensitivity?
 def remove_objects_outside_walls_from_list(walls, obj_list, type=None):
     new_list = np.array(obj_list)
     sensitivity = 0.0

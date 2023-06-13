@@ -7,6 +7,14 @@ from image_recognition.calibration import calibrate_frame
 from image_recognition.coordinates import coordinate_conversion
 
 
+def calculate_angle(x0, y0, x, y):
+    # x0,y0 = the center of the robot : x,y = is the coordinate of the orientation point
+    angle = math.degrees(math.atan2(y0 - y, x - x0)) + 180 % 360
+    # print("robot angle test: ", angle)
+    # print(f'The angle is = {angle}')
+    return angle
+
+
 def robot_roi(frame, cX_center, cY_center):
     # find only pointers in a certain area
     # Circular ROI in original image; must be selected via an additional mask
@@ -25,6 +33,7 @@ def robot_roi(frame, cX_center, cY_center):
     return mask
 
 
+# TODO This method is doing way too many things
 def robot_recognition(frame, wall_corners):
     # Calibrate the frame
     # frame = calibrate_frame(frame)
@@ -123,14 +132,6 @@ def robot_recognition(frame, wall_corners):
         # check the coordinates found
         # print("pointer: x = " + str(cX_pointer) + " and " "y = " + str(cY_pointer))
 
-    # calculate angle
-    def calculate_angle(x0, y0, x, y):
-        # x0,y0 = the center of the robot : x,y = is the coordinate of the oriantation point
-        angle = math.degrees(math.atan2(y0 - y, x - x0)) + 180 % 360
-        # print("robot angle test: ", angle)
-        # print(f'The angle is = {angle}')
-        return angle
-
     # show mask for the center and pointer
     # cv2.imshow("center mask", mask_center)
     # cv2.imshow("pointer mask", mask_pointer)
@@ -145,4 +146,4 @@ def robot_recognition(frame, wall_corners):
 
     # cv2.imshow('robot-recognition', frame)
 
-    return robot_pos, robot_angle, frame
+    return robot_pos, robot_angle
