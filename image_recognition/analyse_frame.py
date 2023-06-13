@@ -6,6 +6,7 @@ from image_recognition.calibration import *
 from constants import *
 from config import *
 import cv2 as cv
+from image_recognition.robotRecognition import robot_recognition
 
 
 def analyse_walls(frame):
@@ -241,21 +242,24 @@ def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
     # Remove orange ball from list of balls
     balls = remove_circle_from_list(orange_ball, balls)
 
-    # TODO find robot
+    # Find the robot
+    if walls is not None and len(walls):
+        robot_position, robot_heading = robot_recognition(frame, walls)
 
-    # TODO sort the list here?
+    # TODO change this to pixels
+    # Discard balls (and robot?) found outside the course
+    # if len(balls):
+    #     balls = remove_objects_outside_walls_from_list(walls, balls)
+    # if len(course.robot_coords):
+    #     course.robot_coords = remove_objects_outside_walls_from_list(course.wall_coords, course.robot_coords,
+    #                                                                  "robot")
 
-    # ball_list = determine_order_and_type(
-    #     walls_in_meters, obstacle_in_meters, circles_in_meters, orange_circle_in_meters)
-    # ball_coords_in_order = []
-    # ball_types_in_order = []
-    # if ball_list is not None:
-    #     for i in ball_list:
-    #         ball_coords_in_order.append(i[0])
-    #         ball_types_in_order.append(i[1])
+    # TODO Add ball type here?
 
-    # TODO Add robot and orange ball to course
     return Course(ball_coords=balls,
+                  orange_ball=orange_ball,
                   obstacle_coords=obstacle,
                   wall_coords=walls,
+                  robot_coords=robot_position,
+                  robot_heading=robot_heading
                   ), frame

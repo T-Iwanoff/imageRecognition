@@ -103,25 +103,17 @@ def analyse_video(path=None, media='CAMERA'):
         obstacle_in_meters = []
         walls_in_meters = []
 
-        # Convert to meters and draw on frame
+        # Convert to meters
         if course.wall_coords is not None:
             if balls is not None and len(balls):
                 for ball in balls:
                     # Convert to meter
                     improved_coords = improve_coordinate_precision(walls, ball, "ball")
                     balls_in_meters.append(improved_coords)
-                    # Draw coords on frame
-                    text = "(" + str(round(improved_coords[0], 2)) + ", " + str(round(improved_coords[1], 2)) + ")"
-                    cv.putText(frame, text, (ball[0] - 40, ball[1] - 20), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0),
-                               1)
 
             if orange_ball is not None and len(orange_ball):
                 improved_coords = improve_coordinate_precision(walls, orange_ball, "ball")
                 orange_ball_in_meters.append(improved_coords)
-                # Draw coords on frame
-                text = "(" + str(round(improved_coords[0], 2)) + ", " + str(round(improved_coords[1], 2)) + ")"
-                cv.putText(frame, text, (orange_ball[0] - 40, orange_ball[1] - 20), cv.FONT_HERSHEY_SIMPLEX, 0.4,
-                           (255, 0, 0), 1)
 
             if obstacle is not None and len(obstacle):
                 for coord in obstacle:
@@ -135,60 +127,24 @@ def analyse_video(path=None, media='CAMERA'):
                     improved_coords = improve_coordinate_precision(walls, coord, "ball")
                     walls_in_meters.append(improved_coords)
 
-        # TODO everything after this
         # Draw on the frame
-        draw_frame = calibrated_frame[:]
+        draw_frame = draw_on_frame(frame=calibrated_frame, course=course, balls=balls_in_meters,
+                                   orange_ball=orange_ball_in_meters)
 
-        if walls is not None:
-            cv.drawContours(draw_frame, [walls], 0, (255, 0, 0), 2)
-        if obstacle is not None:
-            for coord in obstacle:
-                cv.circle(draw_frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
-        if balls is not None and len(balls):
-            for i in balls:
-                cv.circle(draw_frame, (i[0], i[1]), 1, (0, 0, 0), 2)  # Center of the circle
-                cv.circle(draw_frame, (i[0], i[1]), i[2], (255, 0, 255), 2)  # Outer circle
-        if orange_ball is not None and len(orange_ball):
-            cv.circle(draw_frame, (orange_ball[0], orange_ball[1]), 1, (0, 0, 0), 2)  # Center of the circle
-            cv.circle(draw_frame, (orange_ball[0], orange_ball[1]), orange_ball[2], (100, 100, 255), 2)  # Outer circle
-
-        # Sort balls here?
-
-        # ball_list = determine_order_and_type(
-        #     walls_in_meters, obstacle_in_meters, balls_in_meters, orange_ball_in_meters)
-        # ball_coords_in_order = []
-        # ball_types_in_order = []
-        # if ball_list is not None:
-        #     for i in ball_list:
-        #         ball_coords_in_order.append(i[0])
-        #         ball_types_in_order.append(i[1])
-
-
+        # TODO Lift robot draw out of robot_recognition
         # Display robot coords on frame overlay
-        course.robot_coords, course.robot_angle, frame_overlay = robot_recognition(
-            draw_frame, static_walls)
-
-        if len(course.ball_coords):
-            course.ball_coords = remove_objects_outside_walls_from_list(course.wall_coords, course.ball_coords)
-        if len(course.robot_coords):
-            course.robot_coords = remove_objects_outside_walls_from_list(course.wall_coords, course.robot_coords,
-                                                                         "robot")
-
-        if len(course.robot_coords):
-            text = "(" + str(round(course.robot_coords[0], 2)) + ", " + str(round(course.robot_coords[1], 2)) + ")"
-            cv.putText(frame_overlay, text, (5, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
-            text = "Angle: " + str(round(course.robot_angle))
-            cv.putText(frame_overlay, text, (300, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
+        # course.robot_coords, course.robot_heading, frame_overlay = robot_recognition(
+        #     draw_frame, static_walls)
 
         # Display the frames
         # frame_overlay = overlay_frames(ball_frame, robot_frame)
-        cv.imshow('Frame', frame_overlay)
+        cv.imshow('Frame', draw_frame)
 
         # print the coordinates of the balls when g is pressed
         if cv.waitKey(1) == ord('g'):
             next_move = display_graph(course)
             next_move.robot_coords = course.robot_coords
-            next_move.robot_angle = course.robot_angle
+            next_move.robot_heading = course.robot_heading
             print("The next move is:", next_move.to_json())
             if connected:
                 print("Sending next move to robot")
@@ -206,7 +162,40 @@ def analyse_video(path=None, media='CAMERA'):
     cv.destroyAllWindows()
 
 
+def draw_on_frame(frame, course: Course, balls, orange_ball):
+    if course.wall_coords is not None and len(course.wall_coords):
+        cv.drawContours(frame, [course.wall_coords], 0, (255, 0, 0), 2)
 
+    if course.obstacle_coords is not None and len(course.obstacle_coords):
+        for coord in course.obstacle_coords:
+            cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
+
+    if course.ball_coords is not None and len(course.ball_coords):
+        for ball in course.ball_coords:
+            cv.circle(frame, (ball[0], ball[1]), 1, (0, 0, 0), 2)  # Center of the circle
+            cv.circle(frame, (ball[0], ball[1]), 6, (255, 0, 255), 2)  # Outer circle
+            # Draw coords on frame
+            text = "(" + str(round(balls[0], 2)) + ", " + str(round(balls[1], 2)) + ")"
+            cv.putText(frame, text, (ball[0] - 40, ball[1] - 20), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0),
+                       1)
+
+    if course.orange_ball is not None and len(course.orange_ball):
+        cv.circle(frame, (course.orange_ball[0], course.orange_ball[1]), 1, (0, 0, 0), 2)  # Center of the circle
+        cv.circle(frame, (course.orange_ball[0], course.orange_ball[1]), 6, (100, 100, 255), 2)  # Outer circle
+        # Draw coords on frame
+        text = "(" + str(round(orange_ball[0], 2)) + ", " + str(round(orange_ball[1], 2)) + ")"
+        cv.putText(frame, text, (course.orange_ball[0] - 40, course.orange_ball[1] - 20),
+                   cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
+
+    if course.robot_coords is not None and len(course.robot_coords):
+        text = "(" + str(round(course.robot_coords[0], 2)) + ", " + str(round(course.robot_coords[1], 2)) + ")"
+        cv.putText(frame, text, (5, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
+
+    if course.robot_heading is not None and len(course.robot_heading):
+        text = "Angle: " + str(round(course.robot_heading))
+        cv.putText(frame, text, (300, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
+
+    return frame
 
 
 def open_video_capture(media='CAMERA', path=None):
@@ -264,7 +253,7 @@ def old_analyse_course(path='Media/Video/MovingBalls.mp4', media='VIDEO'):
                                                counter=frame_counter)
 
         # Display robot coords on frame overlay
-        course.robot_coords, course.robot_angle, frame_overlay = robot_recognition(
+        course.robot_coords, course.robot_heading, frame_overlay = robot_recognition(
             ball_frame, static_wall_corners)
 
         if len(course.ball_coords):
@@ -275,7 +264,7 @@ def old_analyse_course(path='Media/Video/MovingBalls.mp4', media='VIDEO'):
         if len(course.robot_coords):
             text = "(" + str(round(course.robot_coords[0], 2)) + ", " + str(round(course.robot_coords[1], 2)) + ")"
             cv.putText(frame_overlay, text, (5, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
-            text = "Angle: " + str(round(course.robot_angle))
+            text = "Angle: " + str(round(course.robot_heading))
             cv.putText(frame_overlay, text, (300, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
 
         # Display the frames
@@ -288,7 +277,7 @@ def old_analyse_course(path='Media/Video/MovingBalls.mp4', media='VIDEO'):
         if cv.waitKey(1) == ord('g'):
             next_move = display_graph(course)
             next_move.robot_coords = course.robot_coords
-            next_move.robot_angle = course.robot_angle
+            next_move.robot_heading = course.robot_heading
             print("The next move is:", next_move.to_json())
             if connected:
                 print("Sending next move to robot")
