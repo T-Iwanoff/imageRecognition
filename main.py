@@ -9,7 +9,7 @@ from robot_connection.connection_test import *
 
 # analyse_image(path='Media/Video/Balls3.mp4', media='VIDEO')
 
-analyse_image(path='Media/Video/MovingBalls.mp4', media='CAMERA', mac_camera=True, connect=False)
+analyse_image(path='Media/Video/MovingBalls.mp4', media='CAMERA', mac_camera=True, connect=True)
 
 # analyse_image(path='Media/Image/Corner2.jpg', media='IMAGE', connect=False)
 

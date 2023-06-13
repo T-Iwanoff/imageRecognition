@@ -239,31 +239,40 @@ def create_graph(course: Course):
                     pos[i + 1] = np.squeeze(move_away_from_obstacle(pos[i+1],
                                                                     middle_of_obstacle))
                     print("pos[i] after after: ", pos[i+1])
+                    course.ball_coords[i] = pos[i+1]
 
                 elif course.ball_types[i] == "lower_left_corner":
                     pos[i+1] = [HALF_OF_ROBOT_WIDTH +
                                 short_extra_distance, HALF_OF_ROBOT_WIDTH+short_extra_distance]
+                    course.ball_coords[i] = pos[i+1]
                 elif course.ball_types[i] == "lower_right_corner":
                     pos[i+1] = [COURSE_WIDTH -
                                 HALF_OF_ROBOT_WIDTH-short_extra_distance, HALF_OF_ROBOT_WIDTH+short_extra_distance]
+                    course.ball_coords[i] = pos[i+1]
                 elif course.ball_types[i] == "upper_left_corner":
                     pos[i+1] = [HALF_OF_ROBOT_WIDTH+short_extra_distance,
                                 COURSE_HEIGHT - HALF_OF_ROBOT_WIDTH-short_extra_distance]
+                    course.ball_coords[i] = pos[i+1]
                 elif course.ball_types[i] == "upper_right_corner":
                     pos[i+1] = [COURSE_WIDTH - HALF_OF_ROBOT_WIDTH-short_extra_distance,
                                 COURSE_HEIGHT - HALF_OF_ROBOT_WIDTH-short_extra_distance]
+                    course.ball_coords[i] = pos[i+1]
                 elif course.ball_types[i] == "left_edge":
                     pos[i+1] = [HALF_OF_ROBOT_WIDTH +
                                 short_extra_distance, pos[i+1][1]]
+                    course.ball_coords[i] = pos[i+1]
                 elif course.ball_types[i] == "right_edge":
                     pos[i+1] = [COURSE_WIDTH -
                                 HALF_OF_ROBOT_WIDTH-short_extra_distance, pos[i+1][1]]
+                    course.ball_coords[i] = pos[i+1]
                 elif course.ball_types[i] == "lower_edge":
                     pos[i+1] = [pos[i+1][0],
                                 HALF_OF_ROBOT_WIDTH+short_extra_distance]
+                    course.ball_coords[i] = pos[i+1]
                 elif course.ball_types[i] == "upper_edge":
                     pos[i+1] = [pos[i+1][0], COURSE_HEIGHT -
                                 HALF_OF_ROBOT_WIDTH-short_extra_distance]
+                    course.ball_coords[i] = pos[i+1]
 
     ### EDGES ###
     edge_weights = {}
@@ -406,10 +415,13 @@ def create_graph(course: Course):
     if nx.is_connected(G) and len(G.edges) > 0:
         for i in range(len(tsp[0])):
             for j in range(len(course.ball_coords)):
-                if pos[tsp[0][i]] == course.ball_coords[j]:
+                if pos[tsp[0][i]][0] == course.ball_coords[j][0]:
                     move_types_in_order.append(course.ball_types[j])
 
-    print(move_types_in_order)
+    print("pos: ", pos)
+    print("course.ball_coords: ", course.ball_coords)
+
+    print("move_types_in_order: " , move_types_in_order)
 
     # if nmbr_of_nodes > 0: return coords of first node in tsp
     if nmbr_of_nodes > 0:
