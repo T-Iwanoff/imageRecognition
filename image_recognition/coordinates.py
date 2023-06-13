@@ -160,7 +160,8 @@ def improve_coordinate_precision(walls, pixel_coordinates, obj):
 
     # get the angle from the ground camera point to the robot point for later use (tan(V)=mod/hos).
     if x_obj_cam == 0:
-        return
+        x_obj_cam = 0.01
+        print("NOTE!")
     angle_obj_cam_ground = math.degrees(math.atan(y_obj_cam / x_obj_cam))
     angle_obj_cam_ground = round(angle_obj_cam_ground, 2)
 
@@ -229,11 +230,13 @@ def find_goal_coordinates():
 
 
 def remove_objects_outside_walls(walls, object):
+    object_list = []
     object = np.array(object)
     if object.ndim > 1:
         for ball in object:
-            if ball[0] < walls[0][0] or ball[0] > walls[1][0] or ball[1] < walls[0][1] or ball[1] > walls[3][1]:
-                object.remove(ball)
+            if not (ball[0] < walls[0][0] or ball[0] > walls[1][0] or ball[1] < walls[0][1] or ball[1] > walls[3][1]):
+                object_list.append(ball)
+        return object_list
     else:
         if object[0] < walls[0][0] or object[0] > walls[1][0] or object[1] < walls[0][1] or object[1] > walls[3][1]:
             return None

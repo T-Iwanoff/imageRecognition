@@ -16,7 +16,7 @@ import robot_connection.socket_connection as sc
 
 def analyse_course(path=None, media='CAMERA'):
     if SETUP_MODE:
-        setup()
+        setup(media='VIDEO', path='Media/Video/MovingBalls.mp4')
     elif media == 'CAMERA':
         analyse_video()
     elif media == 'VIDEO':
@@ -25,15 +25,21 @@ def analyse_course(path=None, media='CAMERA'):
         analyse_image(path)
 
 
-# TODO test this
-def setup():
+# TODO the video capture doesn't work for no apparent reason
+def setup(path, media):
     # Get video capture
-    video_capture = open_video_capture()
+    video_capture = open_video_capture(media, path)
+
+    # # Get video capture
+    # video_capture = open_video_capture(media='VIDEO', path='Media/Video/MovingBalls.mp4')
 
     # Check video capture
     if not video_capture.isOpened():
         print("Error: Camera not found")
         exit()
+
+    ret, frame = video_capture.read()
+    cv.imshow('test', frame)
 
     while True:
         # Get the current frame
@@ -44,8 +50,7 @@ def setup():
 
         # Analyse the frame
         course, calibrated_frame = analyse_frame(frame)
-        cv.imshow('Frame', frame)
-        print("analysed")
+
         # Convert to meter
         balls_in_meters, orange_ball_in_meters, obstacle_in_meters, walls_in_meters = \
             convert_pixel_to_meter(course)
@@ -72,7 +77,7 @@ def setup():
         cv.rectangle(draw_frame, (220, 410), (397, 500), 255, 1)
 
         # Display the frame
-        cv.imshow('Frame', frame)
+        # cv.imshow('Frame', frame)
 
 #TODO Fix this method
 def analyse_image(path='Media/Image/Bold2-165-84.5.jpg'):
@@ -220,7 +225,7 @@ def convert_pixel_to_meter(course: Course):
 
 
 def draw_on_frame(frame, course: Course, balls, orange_ball):
-    if course.wall_coords is not None and len(course.wall_coords) and not SETUP_MODE:
+    if course.wall_coords is not None and len(course.wall_coords): #and not SETUP_MODE:
         cv.drawContours(frame, [course.wall_coords], 0, (255, 0, 0), 2)
 
     if course.obstacle_coords is not None and len(course.obstacle_coords[0]):
@@ -233,10 +238,11 @@ def draw_on_frame(frame, course: Course, balls, orange_ball):
             cv.circle(frame, (ball[0], ball[1]), 1, (0, 0, 0), 2)  # Center of the circle
             cv.circle(frame, (ball[0], ball[1]), 6, (255, 0, 255), 2)  # Outer circle
             # Draw coords on frame
-            text = "(" + str(round(balls[counter][0], 2)) + ", " + str(round(balls[counter][1], 2)) + ")"  # meters
-            cv.putText(frame, text, (ball[0] - 40, ball[1] - 20), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0),  # pixels
-                       1)
-            counter = counter + 1
+            if balls is not None and len(balls):
+                text = "(" + str(round(balls[counter][0], 2)) + ", " + str(round(balls[counter][1], 2)) + ")"  # meters
+                cv.putText(frame, text, (ball[0] - 40, ball[1] - 20), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0),  # pixels
+                           1)
+                counter = counter + 1
 
     if course.orange_ball is not None and len(course.orange_ball):
         cv.circle(frame, (course.orange_ball[0], course.orange_ball[1]), 1, (0, 0, 0), 2)  # Center of the circle
