@@ -7,9 +7,10 @@ import math
 import numpy as np
 import pandas as pd
 from python_tsp.exact import solve_tsp_dynamic_programming
-from shapely.geometry import LineString, box, shape, Polygon
+from shapely.geometry import LineString, box, shape, Polygon, Point
 from course import Course
 from constants import *
+from next_move import NextMove
 
 
 ### GRAPH SETTINGS ###
@@ -75,76 +76,174 @@ def create_graph(course: Course):
     left_obstacle, top_obstacle, right_obstacle, bottom_obstacle = None, None, None, None
     # check if there are obstacles
     if len(course.obstacle_coords) > 0:
+
         left_obstacle = course.obstacle_coords[0]
         top_obstacle = course.obstacle_coords[1]
         right_obstacle = course.obstacle_coords[2]
         bottom_obstacle = course.obstacle_coords[3]
 
-        horizontal_obstacle_vector = [left_obstacle[0] -
-                                      right_obstacle[0],
-                                      left_obstacle[1] -
-                                      right_obstacle[1]]
-        vertical_obstacle_vector = [top_obstacle[0] -
-                                    bottom_obstacle[0],
-                                    top_obstacle[1] -
-                                    bottom_obstacle[1]]
+        # TODO: ORDER THE OBSTACLES
+        hor_obs_vector = [left_obstacle[0] -
+                          right_obstacle[0],
+                          left_obstacle[1] -
+                          right_obstacle[1]]
+        vert_obs_vector = [top_obstacle[0] -
+                           bottom_obstacle[0],
+                           top_obstacle[1] -
+                           bottom_obstacle[1]]
 
-        horizontal_obstacle_vector_crossvector = [
-            -horizontal_obstacle_vector[1], horizontal_obstacle_vector[0]]
-        vertical_obstacle_vector_crossvector = [
-            -vertical_obstacle_vector[1], vertical_obstacle_vector[0]]
+        # Obstacle orthogonal vector
+        hor_obs_orthog_vector = [
+            -hor_obs_vector[1], hor_obs_vector[0]]
+        vert_obs_orthog_vector = [
+            -vert_obs_vector[1], vert_obs_vector[0]]
 
-        horizontal_obstacle_length_vector = [
-            horizontal_obstacle_vector_crossvector[0]*0.075, horizontal_obstacle_vector_crossvector[1]*0.075]
-        vertical_obstacle_length_vector = [
-            vertical_obstacle_vector_crossvector[0]*0.075, vertical_obstacle_vector_crossvector[1]*0.075]
+        # Obstacle orthogonal unit vectors
+        hor_obs_orthog_unit_vector = [
+            hor_obs_orthog_vector[0]/np.linalg.norm(hor_obs_orthog_vector),
+            hor_obs_orthog_vector[1]/np.linalg.norm(hor_obs_orthog_vector)]
+        vert_obs_orthog_unit_vector = [
+            vert_obs_orthog_vector[0]/np.linalg.norm(vert_obs_orthog_vector),
+            vert_obs_orthog_vector[1]/np.linalg.norm(vert_obs_orthog_vector)]
+
+        # Obstacle unit vectors
+        hor_obs_unit_vector = [
+            hor_obs_vector[0]/np.linalg.norm(hor_obs_vector),
+            hor_obs_vector[1]/np.linalg.norm(hor_obs_vector)]
+        vert_obs_unit_vector = [
+            vert_obs_vector[0]/np.linalg.norm(vert_obs_vector),
+            vert_obs_vector[1]/np.linalg.norm(vert_obs_vector)]
+
+        # Obstacle length vector
+        hor_obs_length_vector = [
+            hor_obs_orthog_unit_vector[0]*OBSTACLE_WIDTH, hor_obs_orthog_unit_vector[1]*OBSTACLE_WIDTH]
+        vert_obs_length_vector = [
+            vert_obs_orthog_unit_vector[0]*OBSTACLE_WIDTH, vert_obs_orthog_unit_vector[1]*OBSTACLE_WIDTH]
 
         # Obstacle coords
-        horizontal_obstacle_top_left = [
-            left_obstacle[0]+horizontal_obstacle_length_vector[0], left_obstacle[1]+horizontal_obstacle_length_vector[1]]
-        horizontal_obstacle_top_right = [
-            right_obstacle[0]-horizontal_obstacle_length_vector[0], right_obstacle[1]-horizontal_obstacle_length_vector[1]]
-        horizontal_obstacle_bottom_left = [
-            left_obstacle[0]-horizontal_obstacle_length_vector[0], left_obstacle[1]-horizontal_obstacle_length_vector[1]]
-        horizontal_obstacle_bottom_right = [
-            right_obstacle[0]+horizontal_obstacle_length_vector[0], right_obstacle[1]+horizontal_obstacle_length_vector[1]]
+        hor_obs_coords = [
+            [left_obstacle[0] + hor_obs_length_vector[0],
+                left_obstacle[1] + hor_obs_length_vector[1]],
+            [right_obstacle[0]-hor_obs_length_vector[0],
+                right_obstacle[1]-hor_obs_length_vector[1]],
+            [left_obstacle[0]-hor_obs_length_vector[0],
+                left_obstacle[1]-hor_obs_length_vector[1]],
+            [right_obstacle[0]+hor_obs_length_vector[0],
+                right_obstacle[1]+hor_obs_length_vector[1]]]
 
-        vertical_obstacle_top_left = [
-            top_obstacle[0]+vertical_obstacle_length_vector[0], top_obstacle[1]+vertical_obstacle_length_vector[1]]
-        vertical_obstacle_top_right = [
-            top_obstacle[0]-vertical_obstacle_length_vector[0], top_obstacle[1]-vertical_obstacle_length_vector[1]]
-        vertical_obstacle_bottom_left = [
-            bottom_obstacle[0]+vertical_obstacle_length_vector[0], bottom_obstacle[1]+vertical_obstacle_length_vector[1]]
-        vertical_obstacle_bottom_right = [
-            bottom_obstacle[0]-vertical_obstacle_length_vector[0], bottom_obstacle[1]-vertical_obstacle_length_vector[1]]
+        vert_obs_coords = [
+            [top_obstacle[0]+vert_obs_length_vector[0],
+                top_obstacle[1]+vert_obs_length_vector[1]],
+            [bottom_obstacle[0]-vert_obs_length_vector[0],
+                bottom_obstacle[1]-vert_obs_length_vector[1]],
+            [top_obstacle[0]-vert_obs_length_vector[0],
+                top_obstacle[1]-vert_obs_length_vector[1]],
+            [bottom_obstacle[0]+vert_obs_length_vector[0],
+                bottom_obstacle[1]+vert_obs_length_vector[1]]]
 
-    print("vertical_obstacle_bottom_left = ", vertical_obstacle_bottom_left)
-    print("vertical_obstacle_bottom_right = ", vertical_obstacle_bottom_right)
-    print("vertical_obstacle_top_left = ", vertical_obstacle_top_left)
-    print("vertical_obstacle_top_right = ", vertical_obstacle_top_right)
+        # Order obstacles coords
+        hor_obs_coords = order_obstacles(hor_obs_coords)
+        vert_obs_coords = order_obstacles(vert_obs_coords)
 
-    # TODO: Shapes instead of boxes
+        # Create expanded obstacles
+        middle_of_obstacle = [
+            left_obstacle[0] - hor_obs_vector[0]/2], [left_obstacle[1] - hor_obs_vector[1]/2]
+        print("middle_of_obstacle: ", middle_of_obstacle)
+
+        obs_expanded_corners_point1 = [x + y for x, y in zip(
+            middle_of_obstacle, [(x + y)/2 for x, y in zip(hor_obs_vector, vert_obs_vector)])]
+        obs_expanded_corners_point2 = [x + y for x, y in zip(
+            middle_of_obstacle, [(-x + y)/2 for x, y in zip(hor_obs_vector, vert_obs_vector)])]
+        obs_expanded_corners_point3 = [x + y for x, y in zip(
+            middle_of_obstacle, [(-x - y)/2 for x, y in zip(hor_obs_vector, vert_obs_vector)])]
+        obs_expanded_corners_point4 = [x + y for x, y in zip(
+            middle_of_obstacle, [(x - y)/2 for x, y in zip(hor_obs_vector, vert_obs_vector)])]
+
+        obs_expanded_corners_point1 = np.squeeze(obs_expanded_corners_point1)
+        obs_expanded_corners_point2 = np.squeeze(obs_expanded_corners_point2)
+        obs_expanded_corners_point3 = np.squeeze(obs_expanded_corners_point3)
+        obs_expanded_corners_point4 = np.squeeze(obs_expanded_corners_point4)
+
+        obs_expanded_corners = [
+            obs_expanded_corners_point1,
+            obs_expanded_corners_point2,
+            obs_expanded_corners_point3,
+            obs_expanded_corners_point4
+        ]
+        
+
+        
+
+
+        # TODO: make obstacles more expanded
+        # obs_expanded_lengths1 = []
+
+        # Create expanded walls
+        top_left_wall_expanded_point = [
+            HALF_OF_ROBOT_WIDTH, COURSE_HEIGHT-HALF_OF_ROBOT_WIDTH,
+        ]
+        top_right_wall_expanded_point = [
+            COURSE_WIDTH-HALF_OF_ROBOT_WIDTH, COURSE_HEIGHT-HALF_OF_ROBOT_WIDTH,
+        ]
+        bottom_left_wall_expanded_point = [
+            HALF_OF_ROBOT_WIDTH, HALF_OF_ROBOT_WIDTH,
+        ]
+        bottom_right_wall_expanded_point = [
+            COURSE_WIDTH-HALF_OF_ROBOT_WIDTH, HALF_OF_ROBOT_WIDTH,
+        ]
+
+        left_wall_expanded = [
+            [0, COURSE_HEIGHT],
+            top_left_wall_expanded_point,
+            bottom_left_wall_expanded_point,
+            [0, 0]
+        ]
+        top_wall_expanded = [
+            [0, COURSE_HEIGHT],
+            [COURSE_WIDTH, COURSE_HEIGHT],
+            top_right_wall_expanded_point,
+            top_left_wall_expanded_point
+        ]
+        right_wall_expanded = [
+            top_right_wall_expanded_point,
+            [COURSE_WIDTH, COURSE_HEIGHT],
+            [COURSE_WIDTH, 0],
+            bottom_right_wall_expanded_point
+        ]
+        bottom_wall_expanded = [
+            bottom_left_wall_expanded_point,
+            bottom_right_wall_expanded_point,
+            [COURSE_WIDTH, 0],
+            [0, 0]
+        ]
 
     if left_obstacle is not None:
+        # obstacles
+        hor_obs_poly = Polygon(hor_obs_coords)
+        vert_obs_poly = Polygon(vert_obs_coords)
+        # obstacles expanded
+        obs_expanded_corners_poly = Polygon(obs_expanded_corners)
+        # walls expanded
+        left_wall_expanded_poly = Polygon(left_wall_expanded)
+        top_wall_expanded_poly = Polygon(top_wall_expanded)
+        right_wall_expanded_poly = Polygon(right_wall_expanded)
+        bottom_wall_expanded_poly = Polygon(bottom_wall_expanded)
 
-        obstacle_1 = box(minx=left_obstacle[0]+horizontal_obstacle_length_vector[0], miny=left_obstacle[1]+horizontal_obstacle_length_vector[1],
-                         maxx=right_obstacle[0]-horizontal_obstacle_length_vector[0], maxy=right_obstacle[1]-horizontal_obstacle_length_vector[1])
+    ### REPOSITION NODES ###
+    # Reposition nodes if they intersect with obstacles
+    if left_obstacle is not None:
+        for i in range(nmbr_of_nodes-1):
+            
+            if course.ball_types[i] != "none":
+                ## If inside obs_expanded_corners_poly
+                if obs_expanded_corners_poly.contains(Point(pos[i+1])):
+                    print("pos[i]: ", pos[i+1])
+                    pos[i+1] = find_closest_corner(pos[i+1], obs_expanded_corners)
+                    print("pos[i] after: ", pos[i+1])
+                # if course.ball_types[i] == "bottom_left":
 
-        obstacle_2 = box(minx=bottom_obstacle[0]+vertical_obstacle_length_vector[0], miny=bottom_obstacle[1]+vertical_obstacle_length_vector[1],
-                         maxx=top_obstacle[0]-vertical_obstacle_length_vector[0], maxy=top_obstacle[1]-vertical_obstacle_length_vector[1])
+                
 
-        obstacle_11 = Polygon([
-            vertical_obstacle_top_left,
-            vertical_obstacle_top_right,
-            vertical_obstacle_bottom_right,
-            vertical_obstacle_bottom_left
-        ])
-        obstacle_22 = Polygon([
-            horizontal_obstacle_top_left,
-            horizontal_obstacle_top_right,
-            horizontal_obstacle_bottom_right,
-            horizontal_obstacle_bottom_left
-        ])
 
     ### EDGES ###
     edge_weights = {}
@@ -156,7 +255,7 @@ def create_graph(course: Course):
             for j in range(i + 1, nmbr_of_nodes):
                 if G.has_node(i) and G.has_node(j):
                     edge_coords = LineString([pos[i], pos[j]])
-                    if not edge_coords.intersects(obstacle_1) and not edge_coords.intersects(obstacle_2):
+                    if not edge_coords.intersects(hor_obs_poly) and not edge_coords.intersects(vert_obs_poly) and not edge_coords.intersects(obs_expanded_corners_poly) and not edge_coords.intersects(left_wall_expanded_poly) and not edge_coords.intersects(top_wall_expanded_poly) and not edge_coords.intersects(right_wall_expanded_poly) and not edge_coords.intersects(bottom_wall_expanded_poly):
                         dist = math.sqrt((pos[i][0] - pos[j][0])
                                          ** 2 + (pos[i][1] - pos[j][1]) ** 2)
                         G.add_edge(i, j, weight=dist)
@@ -231,35 +330,44 @@ def create_graph(course: Course):
 
     # display the obstacles
     if left_obstacle is not None:
-        # obstacle_patches = [plt.Rectangle((obstacle.bounds[0], obstacle.bounds[1]),
-        #                                   obstacle.bounds[2] -
-        #                                   obstacle.bounds[0],
-        #                                   obstacle.bounds[3] -
-        #                                   obstacle.bounds[1],
-        #                                   fill=True, color="red", alpha=0.5) for obstacle in [obstacle_1, obstacle_2]]
-        # obstacle_patches2 = [plt.Rectangle((obstacle.bounds[0], obstacle.bounds[1]),
-        #                                   obstacle.bounds[2] -
-        #                                   obstacle.bounds[0],
-        #                                   obstacle.bounds[3] -
-        #                                   obstacle.bounds[1],
-        #                                   fill=True, color="red", alpha=0.5) for obstacle in [obstacle_11, obstacle_22]]
 
-        # for patch in obstacle_patches:
-        #     ax.add_patch(patch)
-        # for patch in obstacle_patches2:
-        #     ax.add_patch(patch)
+        hor_obs_patch = PolygonPatch([(hor_obs_coords[0]),
+                                      (hor_obs_coords[1]),
+                                      (hor_obs_coords[2]),
+                                      (hor_obs_coords[3])], alpha=0.5, color="red")
+        vert_obs_patch = PolygonPatch([(vert_obs_coords[0]),
+                                      (vert_obs_coords[1]),
+                                      (vert_obs_coords[2]),
+                                      (vert_obs_coords[3])], alpha=0.5, color="red")
+        obs_expanded_corners_patch = PolygonPatch([(obs_expanded_corners[0]),
+                                                   (obs_expanded_corners[1]),
+                                                   (obs_expanded_corners[2]),
+                                                   (obs_expanded_corners[3])], alpha=0.2, color="red")
+        left_wall_expanded_patch = PolygonPatch([(left_wall_expanded[0]),
+                                                 (left_wall_expanded[1]),
+                                                 (left_wall_expanded[2]),
+                                                 (left_wall_expanded[3])], alpha=0.2, color="red")
+        right_wall_expanded_patch = PolygonPatch([(right_wall_expanded[0]),
+                                                  (right_wall_expanded[1]),
+                                                  (right_wall_expanded[2]),
+                                                  (right_wall_expanded[3])], alpha=0.2, color="red")
+        top_wall_expanded_patch = PolygonPatch([(top_wall_expanded[0]),
+                                                (top_wall_expanded[1]),
+                                                (top_wall_expanded[2]),
+                                                (top_wall_expanded[3])], alpha=0.2, color="red")
+        bottom_wall_expanded_patch = PolygonPatch([(bottom_wall_expanded[0]),
+                                                   (bottom_wall_expanded[1]),
+                                                   (bottom_wall_expanded[2]),
+                                                   (bottom_wall_expanded[3])], alpha=0.2, color="red")
 
-        polygon_patch1 = PolygonPatch([(vertical_obstacle_top_left),
-                                      (vertical_obstacle_top_right),
-                                      (vertical_obstacle_bottom_right),
-                                      (vertical_obstacle_bottom_left)], alpha=0.5, color="red")
-        polygon_patch2 = PolygonPatch([(horizontal_obstacle_top_left),
-                                      (horizontal_obstacle_top_right),
-                                      (horizontal_obstacle_bottom_right),
-                                      (horizontal_obstacle_bottom_left)], alpha=0.5, color="red")
+        ax.add_patch(left_wall_expanded_patch)
+        ax.add_patch(right_wall_expanded_patch)
+        ax.add_patch(top_wall_expanded_patch)
+        ax.add_patch(bottom_wall_expanded_patch)
 
-        ax.add_patch(polygon_patch1)
-        ax.add_patch(polygon_patch2)
+        ax.add_patch(hor_obs_patch)
+        ax.add_patch(vert_obs_patch)
+        ax.add_patch(obs_expanded_corners_patch)
 
     # print the graph matrix
     # printGraphMatrix(G)
@@ -272,22 +380,23 @@ def create_graph(course: Course):
     plt.tight_layout()
     plt.show()
 
-    new_types_in_order = []
+    move_types_in_order = []
 
-    if len(tsp[0]) > 0:
+    if len(tsp[0]) > 0 and nx.is_connected(G):
         for i in range(len(tsp[0])):
             for j in range(len(course.ball_coords)):
                 if pos[tsp[0][i]] == course.ball_coords[j]:
-                    new_types_in_order.append(course.ball_types[j])
+                    move_types_in_order.append(course.ball_types[j])
 
-    print(new_types_in_order)
+    print(move_types_in_order)
 
     # if nmbr_of_nodes > 0: return coords of first node in tsp
     if nmbr_of_nodes > 0:
         if nx.is_connected(G) and len(G.edges) > 0:
-            return pos[tsp[0][1]], new_types_in_order
+            return NextMove(pos[tsp[0][1]], move_types_in_order[0])
         else:
-            return None
+            print("Graph is not connected")
+            return NextMove()
 
 
 def solve_tsp(G):
@@ -338,3 +447,63 @@ def print_graph_matrix(G):
     df = pd.DataFrame(adj_matrix, columns=node_labels.values(),
                       index=node_labels.values())
     print(df)
+
+
+def order_obstacles(obstacle_coords):
+
+    # Sort the coordinates based on x-coordinate (left to right)
+    sorted_coords = sorted(obstacle_coords, key=lambda c: c[0])
+
+    if (sorted_coords[0][1] > sorted_coords[2][1] and sorted_coords[1][1] > sorted_coords[3][1]):
+        if (sorted_coords[0][1] > sorted_coords[1][1]):
+            top_left, top_right = sorted_coords[0], sorted_coords[2]
+            bottom_left, bottom_right = sorted_coords[1], sorted_coords[3]
+        else:
+            top_left, top_right = sorted_coords[0], sorted_coords[1]
+            bottom_left, bottom_right = sorted_coords[2], sorted_coords[3]
+    elif (sorted_coords[0][1] < sorted_coords[2][1] and sorted_coords[1][1] < sorted_coords[3][1]):
+        if (sorted_coords[0][1] < sorted_coords[1][1]):
+            bottom_left, bottom_right = sorted_coords[0], sorted_coords[2]
+            top_left, top_right = sorted_coords[1], sorted_coords[3]
+        else:
+            bottom_left, bottom_right = sorted_coords[0], sorted_coords[1]
+            top_left, top_right = sorted_coords[2], sorted_coords[3]
+
+    return [top_left, top_right, bottom_right, bottom_left]
+
+
+def expand_obstacle(obstacle_coords, unit_vector, orthog_unit_vector):
+
+    expanded_obstacle_coords = []
+
+    expanded_obstacle_coords.append(obstacle_coords[0] + unit_vector * 0.1)
+    expanded_obstacle_coords.append(obstacle_coords[1] - unit_vector * 0.1)
+    expanded_obstacle_coords.append(
+        obstacle_coords[2] + orthog_unit_vector * 0.1)
+    expanded_obstacle_coords.append(
+        obstacle_coords[3] - orthog_unit_vector * 0.1)
+    
+def find_closest_corner(coords, obs_expanded_corners):
+    
+    # Four coordinates
+    coord1 = obs_expanded_corners[0]
+    coord2 = obs_expanded_corners[1]
+    coord3 = obs_expanded_corners[2]
+    coord4 = obs_expanded_corners[3]
+
+    # Target coordinate
+    target = coords
+
+    # Calculate distances
+    distances = [
+        math.sqrt((coord[0] - target[0]) ** 2 + (coord[1] - target[1]) ** 2)
+        for coord in [coord1, coord2, coord3, coord4]
+    ]
+
+    # Find the index of the closest coordinate
+    closest_index = distances.index(min(distances))
+
+    # Get the closest coordinate
+    closest_coordinate = [coord1, coord2, coord3, coord4][closest_index]
+
+    return closest_coordinate

@@ -101,7 +101,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
 
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
-                next_move = NextMove(display_graph(course))
+                next_move = display_graph(course)
                 next_move.robot_coords = course.robot_coords
                 next_move.robot_angle = course.robot_angle
                 print(next_move.to_json())
