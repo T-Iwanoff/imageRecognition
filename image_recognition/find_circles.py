@@ -94,17 +94,20 @@ def find_orange_circle(frame):
     return circles
 
 
-def remove_circle_from_list(circle, list_of_circles):
-    if circle is None or not len(circle) or list_of_circles is None or not len(list_of_circles):
-        return list_of_circles
+def remove_ball_from_list(ball, list_of_balls):
+    if ball is None or not len(ball) or list_of_balls is None or not len(list_of_balls):
+        return list_of_balls
 
     dist = SAVED_CIRCLE_DIST
-    circles = []
-    for i in list_of_circles:
-        if not (abs(int(circle[0]) - int(i[0])) <= dist) or not (abs(int(circle[1]) - int(i[1])) <= dist):
-            circles.append(i)
-    circles = numpy.array(circles)
-    return circles
+    balls = []
+    for i in list_of_balls:
+        if not (abs(int(ball[0]) - int(i[0])) <= dist) or not (abs(int(ball[1]) - int(i[1])) <= dist):
+            balls.append(i)
+    # Make it an array
+    # for i in range(len(balls)):
+    #     balls[i] = numpy.array(balls[i])
+    # balls = numpy.array(balls)
+    return balls
 
 
 def find_repeated_coordinates(frames, cutoff):
