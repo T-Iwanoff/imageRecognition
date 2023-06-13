@@ -115,7 +115,7 @@ def analyse_video(path=None, media='CAMERA'):
                 improved_coords = improve_coordinate_precision(walls, orange_ball, "ball")
                 orange_ball_in_meters.append(improved_coords)
 
-            if obstacle is not None and len(obstacle):
+            if obstacle is not None and len(obstacle[0]):
                 for coord in obstacle:
                     # Convert to meter
                     improved_coords = improve_coordinate_precision(walls, coord, "ball")
@@ -124,7 +124,7 @@ def analyse_video(path=None, media='CAMERA'):
             if walls is not None and len(walls):
                 for coord in walls:
                     # Convert to meter
-                    improved_coords = improve_coordinate_precision(walls, coord, "ball")
+                    improved_coords = improve_coordinate_precision(walls, coord, "wall")
                     walls_in_meters.append(improved_coords)
 
         # Draw on the frame
@@ -166,32 +166,34 @@ def draw_on_frame(frame, course: Course, balls, orange_ball):
     if course.wall_coords is not None and len(course.wall_coords):
         cv.drawContours(frame, [course.wall_coords], 0, (255, 0, 0), 2)
 
-    if course.obstacle_coords is not None and len(course.obstacle_coords):
+    if course.obstacle_coords is not None and len(course.obstacle_coords[0]):
         for coord in course.obstacle_coords:
             cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
 
+    counter = 0
     if course.ball_coords is not None and len(course.ball_coords):
         for ball in course.ball_coords:
             cv.circle(frame, (ball[0], ball[1]), 1, (0, 0, 0), 2)  # Center of the circle
             cv.circle(frame, (ball[0], ball[1]), 6, (255, 0, 255), 2)  # Outer circle
             # Draw coords on frame
-            text = "(" + str(round(balls[0], 2)) + ", " + str(round(balls[1], 2)) + ")"
-            cv.putText(frame, text, (ball[0] - 40, ball[1] - 20), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0),
+            text = "(" + str(round(balls[counter][0], 2)) + ", " + str(round(balls[counter][1], 2)) + ")"  # meters
+            cv.putText(frame, text, (ball[0] - 40, ball[1] - 20), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0),  # pixels
                        1)
+            counter = counter + 1
 
     if course.orange_ball is not None and len(course.orange_ball):
         cv.circle(frame, (course.orange_ball[0], course.orange_ball[1]), 1, (0, 0, 0), 2)  # Center of the circle
         cv.circle(frame, (course.orange_ball[0], course.orange_ball[1]), 6, (100, 100, 255), 2)  # Outer circle
-        # Draw coords on frame
-        text = "(" + str(round(orange_ball[0], 2)) + ", " + str(round(orange_ball[1], 2)) + ")"
-        cv.putText(frame, text, (course.orange_ball[0] - 40, course.orange_ball[1] - 20),
-                   cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
+        if orange_ball is not None and len(orange_ball):
+            text = "(" + str(round(orange_ball[0], 2)) + ", " + str(round(orange_ball[1], 2)) + ")"
+            cv.putText(frame, text, (course.orange_ball[0] - 40, course.orange_ball[1] - 20),
+                       cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
 
     if course.robot_coords is not None and len(course.robot_coords):
         text = "(" + str(round(course.robot_coords[0], 2)) + ", " + str(round(course.robot_coords[1], 2)) + ")"
         cv.putText(frame, text, (5, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
 
-    if course.robot_heading is not None and len(course.robot_heading):
+    if course.robot_heading is not None:
         text = "Angle: " + str(round(course.robot_heading))
         cv.putText(frame, text, (300, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
 

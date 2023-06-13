@@ -135,6 +135,6 @@ def robot_recognition(frame, wall_corners):
 
     #cv2.imshow('robot-recognition', frame)
 
-    return robot_pos, robot_angle, frame
+    return robot_pos, robot_angle
 
 

@@ -99,9 +99,10 @@ def analyse_orange_ball(frame, saved_balls):
 # Deletes the first element in a list, moves every other element one index back
 def substitute_in_list(list, value):
     length = len(list)
-    for i in range(length-1):
-        list[i] = list[i+1]
-    list[length-1] = value
+    for i in range(length - 1):
+        n = length - i - 1
+        list[n] = list[n - 1]
+    list[0] = value
     return list
 
 
