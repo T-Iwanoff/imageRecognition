@@ -20,15 +20,6 @@ CIRCLE_MAX_RADIUS = 7
 COURSE_HEIGHT = 1.235
 COURSE_WIDTH = 1.683
 
-# Define the frames sampled and minimum number of frames
-# that a circle has to be present to in to count as a ball
-# SAVED_CIRCLE_DIFF dictates the minimum distance between two detected circles,
-# before they count as distinct balls. Is smaller than the one distance specified in Houghcircles
-SAVED_FRAMES = 10
-CUTOFF = 2
-ORANGE_CUTOFF = 1
-SAVED_CIRCLE_DIST = 6
-
 # Define color ranges for red wall detection (inverted to cyan)
 LOWER_WALL_COLOR = (80, 70, 50)
 UPPER_WALL_COLOR = (100, 255, 255)

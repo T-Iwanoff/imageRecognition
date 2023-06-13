@@ -2,9 +2,8 @@ import cv2 as cv
 import numpy
 import numpy as np
 import array
-
-from constants import CIRCLE_MIN_DIST, CIRCLE_PARAM_1, CIRCLE_PARAM_2, CIRCLE_MIN_RADIUS, CIRCLE_MAX_RADIUS, \
-    SAVED_CIRCLE_DIST
+from config import *
+from constants import CIRCLE_MIN_DIST, CIRCLE_PARAM_1, CIRCLE_PARAM_2, CIRCLE_MIN_RADIUS, CIRCLE_MAX_RADIUS
 
 
 def find_circles(frame):

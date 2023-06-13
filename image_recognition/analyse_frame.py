@@ -131,12 +131,15 @@ def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
     # Find the robot
     if walls is not None and len(walls):
         robot_position, robot_heading = robot_recognition(frame, walls)
+    else:
+        robot_position = None
+        robot_heading = None
 
     # Discard balls (and robot?) found outside the course
     if walls is not None and len(walls):
-        if len(balls) and balls is not None:
+        if balls is not None and len(balls):
             balls = remove_objects_outside_walls(walls, balls)
-        if len(robot_position) and robot_position is not None:
+        if robot_position is not None and len(robot_position):
             robot_position = remove_objects_outside_walls(walls, robot_position)
 
     # TODO Add ball type here?

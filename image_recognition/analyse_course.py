@@ -15,13 +15,64 @@ import robot_connection.socket_connection as sc
 
 
 def analyse_course(path=None, media='CAMERA'):
-    if media == 'CAMERA':
+    if SETUP_MODE:
+        setup()
+    elif media == 'CAMERA':
         analyse_video()
     elif media == 'VIDEO':
         analyse_video(path, 'VIDEO')
     elif media == 'IMAGE':
         analyse_image(path)
 
+
+# TODO test this
+def setup():
+    # Get video capture
+    video_capture = open_video_capture()
+
+    # Check video capture
+    if not video_capture.isOpened():
+        print("Error: Camera not found")
+        exit()
+
+    while True:
+        # Get the current frame
+        ret, frame = video_capture.read()
+        if not ret:
+            print("Error: Frame not found")
+            exit()
+
+        # Analyse the frame
+        course, calibrated_frame = analyse_frame(frame)
+        cv.imshow('Frame', frame)
+        print("analysed")
+        # Convert to meter
+        balls_in_meters, orange_ball_in_meters, obstacle_in_meters, walls_in_meters = \
+            convert_pixel_to_meter(course)
+
+        # Draw on the frame
+        draw_frame = draw_on_frame(frame=calibrated_frame, course=course, balls=balls_in_meters,
+                                   orange_ball=orange_ball_in_meters)
+
+        # Getting the height and width of the image
+        height = calibrated_frame.shape[0]
+        width = calibrated_frame.shape[1]
+
+        # Course setup lines (setup for outer edge of walls)
+        # top line
+        cv.line(draw_frame, (0, 28), (width, 28), (255, 255, 255), 1)
+        # bottom line
+        cv.line(draw_frame, (0, 415), (width, 406), (255, 255, 255), 1)
+        # left line
+        cv.line(draw_frame, (48, 0), (48, height), (255, 255, 255), 1)
+        # right line
+        cv.line(draw_frame, (575, 0), (563, height), (255, 255, 255), 1)
+
+        # camera setup rectangle
+        cv.rectangle(draw_frame, (220, 410), (397, 500), 255, 1)
+
+        # Display the frame
+        cv.imshow('Frame', frame)
 
 #TODO Fix this method
 def analyse_image(path='Media/Image/Bold2-165-84.5.jpg'):
@@ -91,41 +142,9 @@ def analyse_video(path=None, media='CAMERA'):
         # Save data for future frames
         static_walls = course.wall_coords
 
-        # Simplify variables. Temp?
-        balls = course.ball_coords
-        walls = course.wall_coords
-        obstacle = course.obstacle_coords
-        orange_ball = course.orange_ball
-
         # Convert to meter
-        balls_in_meters = []
-        orange_ball_in_meters = []
-        obstacle_in_meters = []
-        walls_in_meters = []
-
-        # Convert to meters
-        if course.wall_coords is not None:
-            if balls is not None and len(balls):
-                for ball in balls:
-                    # Convert to meter
-                    improved_coords = improve_coordinate_precision(walls, ball, "ball")
-                    balls_in_meters.append(improved_coords)
-
-            if orange_ball is not None and len(orange_ball):
-                improved_coords = improve_coordinate_precision(walls, orange_ball, "ball")
-                orange_ball_in_meters = improved_coords
-
-            if obstacle is not None and len(obstacle[0]):
-                for coord in obstacle:
-                    # Convert to meter
-                    improved_coords = improve_coordinate_precision(walls, coord, "ball")
-                    obstacle_in_meters.append(improved_coords)
-
-            if walls is not None and len(walls):
-                for coord in walls:
-                    # Convert to meter
-                    improved_coords = improve_coordinate_precision(walls, coord, "wall")
-                    walls_in_meters.append(improved_coords)
+        balls_in_meters, orange_ball_in_meters, obstacle_in_meters, walls_in_meters =\
+            convert_pixel_to_meter(course)
 
         # Draw on the frame
         draw_frame = draw_on_frame(frame=calibrated_frame, course=course, balls=balls_in_meters,
@@ -136,8 +155,6 @@ def analyse_video(path=None, media='CAMERA'):
         # course.robot_coords, course.robot_heading, frame_overlay = robot_recognition(
         #     draw_frame, static_walls)
 
-        # Display the frames
-        # frame_overlay = overlay_frames(ball_frame, robot_frame)
         cv.imshow('Frame', draw_frame)
 
         # print the coordinates of the balls when g is pressed
@@ -162,8 +179,48 @@ def analyse_video(path=None, media='CAMERA'):
     cv.destroyAllWindows()
 
 
-def draw_on_frame(frame, course: Course, balls, orange_ball):
+def convert_pixel_to_meter(course: Course):
+    # Simplify variables. Temp?
+    balls = course.ball_coords
+    walls = course.wall_coords
+    obstacle = course.obstacle_coords
+    orange_ball = course.orange_ball
+
+    # Create lists
+    balls_in_meters = []
+    orange_ball_in_meters = []
+    obstacle_in_meters = []
+    walls_in_meters = []
+
+    # Convert to meters
     if course.wall_coords is not None and len(course.wall_coords):
+        if balls is not None and len(balls) and len(balls[0]):
+            for ball in balls:
+                # Convert to meter
+                improved_coords = improve_coordinate_precision(walls, ball, "ball")
+                balls_in_meters.append(improved_coords)
+
+        if orange_ball is not None and len(orange_ball):
+            improved_coords = improve_coordinate_precision(walls, orange_ball, "ball")
+            orange_ball_in_meters = improved_coords
+
+        if obstacle is not None and len(obstacle[0]):
+            for coord in obstacle:
+                # Convert to meter
+                improved_coords = improve_coordinate_precision(walls, coord, "ball")
+                obstacle_in_meters.append(improved_coords)
+
+        if walls is not None and len(walls):
+            for coord in walls:
+                # Convert to meter
+                improved_coords = improve_coordinate_precision(walls, coord, "wall")
+                walls_in_meters.append(improved_coords)
+
+    return balls_in_meters, orange_ball_in_meters, obstacle_in_meters, walls_in_meters
+
+
+def draw_on_frame(frame, course: Course, balls, orange_ball):
+    if course.wall_coords is not None and len(course.wall_coords) and not SETUP_MODE:
         cv.drawContours(frame, [course.wall_coords], 0, (255, 0, 0), 2)
 
     if course.obstacle_coords is not None and len(course.obstacle_coords[0]):
@@ -171,7 +228,7 @@ def draw_on_frame(frame, course: Course, balls, orange_ball):
             cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
 
     counter = 0
-    if course.ball_coords is not None and len(course.ball_coords):
+    if course.ball_coords is not None and len(course.ball_coords) and len(course.ball_coords[0]):
         for ball in course.ball_coords:
             cv.circle(frame, (ball[0], ball[1]), 1, (0, 0, 0), 2)  # Center of the circle
             cv.circle(frame, (ball[0], ball[1]), 6, (255, 0, 255), 2)  # Outer circle
@@ -240,20 +297,6 @@ def display_graph(course: Course):
         print("No ball types found")
     # create graph
     return gt.create_graph(course)
-
-
-def get_static_outer_walls(video_capture):
-    walls_detected = False
-    while not walls_detected:
-        # Get the current frame
-        ret, frame = video_capture.read()
-        if not ret:
-            print("Error: Frame not found")
-            exit()
-        static_outer_walls = analyse_walls(frame)
-        if static_outer_walls is not None:
-            walls_detected = True
-    return static_outer_walls
 
 
 def overlay_frames(frame1, frame2):

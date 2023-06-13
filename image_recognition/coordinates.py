@@ -4,6 +4,7 @@ import cv2 as cv
 import numpy
 import numpy as np
 from constants import *
+from config import *
 
 
 # Takes the walls of the course and the x and y coordinates of a point inside the course that you want to find
