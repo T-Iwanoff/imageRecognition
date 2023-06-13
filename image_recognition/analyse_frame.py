@@ -209,15 +209,16 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
 
     # Display the frame
     # cv.imshow('frame', frame)
-
-    ball_list = determine_order_and_type(
-        walls_in_meters, obstacle_in_meters, circles_in_meters, orange_circle_in_meters)
+    if circles_in_meters.count(None) == 0:
+        ball_list = determine_order_and_type(
+            walls_in_meters, obstacle_in_meters, circles_in_meters, orange_circle_in_meters)
     ball_coords_in_order = []
     ball_types_in_order = []
     if ball_list is not None:
         for i in ball_list:
             ball_coords_in_order.append(i[0])
             ball_types_in_order.append(i[1])
+    # print(ball_types_in_order)
 
     return Course(ball_coords = ball_coords_in_order,
                   obstacle_coords = obstacle_in_meters,

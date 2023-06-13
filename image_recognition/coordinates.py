@@ -33,6 +33,7 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
     ball_list = []
 
     # Convert balls from numpy array to list to prevent error
+    # print(balls)
     balls = np.array(balls)
     balls = balls.tolist()
 
@@ -50,18 +51,30 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
         ball_type = check_type(balls[i], walls, obstacle)
 
         # Checking for corner ball
-        if ball_type == "corner":
-            ball_list.append([balls[i], "corner"])
+        if ball_type == "lower_left_corner":
+            ball_list.append([balls[i], "lower_left_corner"])
+        if ball_type == "upper_left_corner":
+            ball_list.append([balls[i], "upper_left_corner"])
+        if ball_type == "lower_right_corner":
+            ball_list.append([balls[i], "lower_right_corner"])
+        if ball_type == "upper_right_corner":
+            ball_list.append([balls[i], "upper_right_corner"])
 
         # Checking for middle ball
-        if ball_type == "middle":
+        elif ball_type == "middle":
             ball_list.append([balls[i], "middle"])
 
-        # Checking for edge ball
-        if ball_type == "edge":
-            ball_list.append([balls[i], "edge"])
+        # Checking for edge balls
+        elif ball_type == "left_edge":
+            ball_list.append([balls[i], "left_edge"])
+        elif ball_type == "right_edge":
+            ball_list.append([balls[i], "right_edge"])
+        elif ball_type == "lower_edge":
+            ball_list.append([balls[i], "lower_edge"])
+        elif ball_type == "upper_edge":
+            ball_list.append([balls[i], "upper_edge"])
 
-        if ball_type == "none":
+        elif ball_type == "none":
             ball_list.append([balls[i], "none"])
 
     # Determine type of orange ball and putting the orange ball in the end of the list
@@ -76,16 +89,18 @@ def check_type(ball, walls, obstacle):
         return "none"
     ball_type = "none"
 
-    # Checking for corner ball
-    if (ball[0] < DETERMINATION_THRESHOLD and  # left lower corner
-        ball[1] < DETERMINATION_THRESHOLD) or \
-            (ball[0] < DETERMINATION_THRESHOLD and  # left upper corner
-             ball[1] > walls[0][1] - DETERMINATION_THRESHOLD) or \
-            (ball[0] > walls[2][0] - DETERMINATION_THRESHOLD and  # right lower corner
-             ball[1] < DETERMINATION_THRESHOLD) or \
-            (ball[0] > walls[1][0] - DETERMINATION_THRESHOLD and  # right upper corner
+    if (ball[0] < DETERMINATION_THRESHOLD and # left lower corner
+        ball[1] < DETERMINATION_THRESHOLD):
+        ball_type = "lower_left_corner"
+    elif (ball[0] < DETERMINATION_THRESHOLD and  # left upper corner
+             ball[1] > walls[0][1] - DETERMINATION_THRESHOLD):
+        ball_type = "upper_left_corner"
+    elif (ball[0] > walls[2][0] - DETERMINATION_THRESHOLD and  # right lower corner
+             ball[1] < DETERMINATION_THRESHOLD):
+        ball_type = "lower_right_corner"
+    elif (ball[0] > walls[1][0] - DETERMINATION_THRESHOLD and  # right upper corner
              ball[1] > walls[1][1] - DETERMINATION_THRESHOLD):
-        ball_type = "corner"
+        ball_type = "upper_right_corner"
 
     # Checking for middle ball
     elif (ball[0] > obstacle[0][0] and ball[0] < obstacle[2][0]) and \
@@ -93,11 +108,14 @@ def check_type(ball, walls, obstacle):
         ball_type = "middle"
 
     # Checking for edge ball
-    elif (ball[0] < DETERMINATION_THRESHOLD) or \
-            ball[0] > (walls[2][0] - DETERMINATION_THRESHOLD) or \
-            (ball[1] < DETERMINATION_THRESHOLD) or \
-            (ball[1] > (walls[0][1] - DETERMINATION_THRESHOLD)):
-        ball_type = "edge"
+    elif ball[0] < DETERMINATION_THRESHOLD:
+        ball_type = "left_edge"
+    elif ball[0] > (walls[2][0] - DETERMINATION_THRESHOLD):
+        ball_type = "right_edge"
+    elif ball[1] < DETERMINATION_THRESHOLD:
+        ball_type = "lower_edge"
+    elif ball[1] > (walls[0][1] - DETERMINATION_THRESHOLD):
+        ball_type = "upper_edge"
 
     return ball_type
 
@@ -213,13 +231,14 @@ def find_goal_coordinates():
 
 def remove_objects_outside_walls_from_list(walls, obj_list, type=None):
     new_list = np.array(obj_list)
+    sensitivity = 0.10
     if new_list.ndim == 1:
         new_list = [obj_list]
     else:
         new_list = obj_list
     for obj in new_list:
-        if not ((obj[0] > walls[0][0] and obj[0] > walls[3][0] and obj[0] < walls[2][0] and obj[0] < walls[1][0]) and
-                (obj[1] > walls[3][1] and obj[1] < walls[0][1] and obj[1] < walls[1][1] and obj[1] > walls[2][1])):
+        if not ((obj[0] > (walls[0][0] - sensitivity) and obj[0] > (walls[3][0] - sensitivity) and obj[0] < (walls[2][0] + sensitivity) and obj[0] < (walls[1][0] + sensitivity)) and
+                (obj[1] > (walls[3][1] - sensitivity) and obj[1] < (walls[0][1] + sensitivity) and obj[1] < (walls[1][1] + sensitivity) and obj[1] > (walls[2][1]) - sensitivity)):
             new_list.remove(obj)
 
     if type == "robot":
