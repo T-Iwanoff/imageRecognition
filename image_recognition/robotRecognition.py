@@ -12,7 +12,10 @@ def robot_roi(frame, cX_center, cY_center):
     # Circular ROI in original image; must be selected via an additional mask
     # link: https://stackoverflow.com/questions/59873870/crop-a-circle-area-roi-of-an-image-and-put-it-onto-a-white-mask
     roi = np.zeros(frame.shape[:2], np.uint8)
+    # circle roi
     roi = cv2.circle(roi, (cX_center, cY_center), 45, 255, cv2.FILLED)
+    # rectangle roi
+    # roi = cv2.rectangle(roi, (cX_center - 45, cY_center - 30), (cX_center + 45, cY_center + 30), 20, cv2.FILLED)
 
     # Target image; white background
     mask = np.ones_like(frame) * 255
@@ -21,8 +24,8 @@ def robot_roi(frame, cX_center, cY_center):
 
     return mask
 
-def robot_recognition(frame, wall_corners):
 
+def robot_recognition(frame, wall_corners):
     # Calibrate the frame
     # frame = calibrate_frame(frame)
 
@@ -41,8 +44,8 @@ def robot_recognition(frame, wall_corners):
     # upper_bound_center = np.array([140,255,255])
 
     # lower bound and upper bound for center color (blue)
-    lower_bound_center = np.array([80,85,50])
-    upper_bound_center = np.array([110,150,255])
+    lower_bound_center = np.array([80, 85, 50])
+    upper_bound_center = np.array([110, 150, 255])
 
     # lower bound and upper bound for center color (lego blue)
     # lower_bound_center = np.array([110, 75, 20])
@@ -85,9 +88,12 @@ def robot_recognition(frame, wall_corners):
     # draw a circle around the center of the robot
     cv2.circle(img=frame, center=(cX_center, cY_center), radius=45, color=(255, 0, 0), thickness=2)
 
+    # draw a rectangle around the center of the robot
+    # rectangle(frame, (cX_center - 45, cY_center - 30), (cX_center + 45, cY_center + 30), 255, 2)
+
     mask = robot_roi(frame, cX_center, cY_center)
 
-    cv2.imshow("mask for roi", mask)
+    # cv2.imshow("mask for roi", mask)
 
     # pointer finding setup for region of interest ROI (won't find pointer outside of ROI)
     # convert to hsv colorspace
@@ -137,6 +143,6 @@ def robot_recognition(frame, wall_corners):
     robot_angle = calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)
     # print("Robot angle: ", robot_angle)
 
-    #cv2.imshow('robot-recognition', frame)
+    # cv2.imshow('robot-recognition', frame)
 
     return robot_pos, robot_angle, frame
