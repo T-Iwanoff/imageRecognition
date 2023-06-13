@@ -170,10 +170,6 @@ def create_graph(course: Course):
             obs_expanded_corners_point3,
             obs_expanded_corners_point4
         ]
-        
-
-        
-
 
         # TODO: make obstacles more expanded
         # obs_expanded_lengths1 = []
@@ -230,20 +226,44 @@ def create_graph(course: Course):
         bottom_wall_expanded_poly = Polygon(bottom_wall_expanded)
 
     ### REPOSITION NODES ###
+    short_extra_distance = 0.01
     # Reposition nodes if they intersect with obstacles
     if left_obstacle is not None:
         for i in range(nmbr_of_nodes-1):
-            
             if course.ball_types[i] != "none":
-                ## If inside obs_expanded_corners_poly
+                # If inside obs_expanded_corners_poly
                 if obs_expanded_corners_poly.contains(Point(pos[i+1])):
                     print("pos[i]: ", pos[i+1])
-                    pos[i+1] = find_closest_corner(pos[i+1], obs_expanded_corners)
+                    pos[i + 1] = find_closest_corner(pos[i+1], obs_expanded_corners)
                     print("pos[i] after: ", pos[i+1])
-                # if course.ball_types[i] == "bottom_left":
+                    pos[i + 1] = np.squeeze(move_away_from_obstacle(pos[i+1],
+                                                                    middle_of_obstacle))
+                    print("pos[i] after after: ", pos[i+1])
 
-                
-
+                elif course.ball_types[i] == "lower_left_corner":
+                    pos[i+1] = [HALF_OF_ROBOT_WIDTH +
+                                short_extra_distance, HALF_OF_ROBOT_WIDTH+short_extra_distance]
+                elif course.ball_types[i] == "lower_right_corner":
+                    pos[i+1] = [COURSE_WIDTH -
+                                HALF_OF_ROBOT_WIDTH-short_extra_distance, HALF_OF_ROBOT_WIDTH+short_extra_distance]
+                elif course.ball_types[i] == "upper_left_corner":
+                    pos[i+1] = [HALF_OF_ROBOT_WIDTH+short_extra_distance,
+                                COURSE_HEIGHT - HALF_OF_ROBOT_WIDTH-short_extra_distance]
+                elif course.ball_types[i] == "upper_right_corner":
+                    pos[i+1] = [COURSE_WIDTH - HALF_OF_ROBOT_WIDTH-short_extra_distance,
+                                COURSE_HEIGHT - HALF_OF_ROBOT_WIDTH-short_extra_distance]
+                elif course.ball_types[i] == "left_edge":
+                    pos[i+1] = [HALF_OF_ROBOT_WIDTH +
+                                short_extra_distance, pos[i+1][1]]
+                elif course.ball_types[i] == "right_edge":
+                    pos[i+1] = [COURSE_WIDTH -
+                                HALF_OF_ROBOT_WIDTH-short_extra_distance, pos[i+1][1]]
+                elif course.ball_types[i] == "lower_edge":
+                    pos[i+1] = [pos[i+1][0],
+                                HALF_OF_ROBOT_WIDTH+short_extra_distance]
+                elif course.ball_types[i] == "upper_edge":
+                    pos[i+1] = [pos[i+1][0], COURSE_HEIGHT -
+                                HALF_OF_ROBOT_WIDTH-short_extra_distance]
 
     ### EDGES ###
     edge_weights = {}
@@ -300,6 +320,7 @@ def create_graph(course: Course):
     plt.figure(figsize=(DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
     # nodes
+    print(pos)
     nx.draw_networkx_nodes(G, pos, node_size=NODE_SIZE)
 
     # edges
@@ -382,7 +403,7 @@ def create_graph(course: Course):
 
     move_types_in_order = []
 
-    if nx.is_connected(G):
+    if nx.is_connected(G) and len(G.edges) > 0:
         for i in range(len(tsp[0])):
             for j in range(len(course.ball_coords)):
                 if pos[tsp[0][i]] == course.ball_coords[j]:
@@ -482,9 +503,10 @@ def expand_obstacle(obstacle_coords, unit_vector, orthog_unit_vector):
         obstacle_coords[2] + orthog_unit_vector * 0.1)
     expanded_obstacle_coords.append(
         obstacle_coords[3] - orthog_unit_vector * 0.1)
-    
+
+
 def find_closest_corner(coords, obs_expanded_corners):
-    
+
     # Four coordinates
     coord1 = obs_expanded_corners[0]
     coord2 = obs_expanded_corners[1]
@@ -507,3 +529,30 @@ def find_closest_corner(coords, obs_expanded_corners):
     closest_coordinate = [coord1, coord2, coord3, coord4][closest_index]
 
     return closest_coordinate
+
+
+def move_away_from_obstacle(corner_coords, middle_coords):
+    # Coordinate to be moved
+    coordinate = corner_coords
+
+    # Reference coordinate
+    reference = middle_coords
+
+    # Length of move
+    length_of_move = 0.2
+
+    # Calculate the vector from the reference coordinate to the coordinate
+    vector = [coordinate[0] - reference[0], coordinate[1] - reference[1]]
+
+    # Calculate the magnitude of the vector
+    magnitude = math.sqrt(vector[0] ** 2 + vector[1] ** 2)
+
+    # Scale the vector to have a magnitude of 1 centimeter
+    scaled_vector = [(length_of_move / magnitude) * vector[0],
+                     (length_of_move / magnitude) * vector[1]]
+
+    # Move the coordinate 1 centimeter away from the reference coordinate
+    new_coordinate = [reference[0] + scaled_vector[0],
+                      reference[1] + scaled_vector[1]]
+
+    return new_coordinate
