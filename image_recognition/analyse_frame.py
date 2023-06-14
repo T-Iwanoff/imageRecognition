@@ -234,7 +234,7 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
             ball_coords_in_order.append(i[0])
             ball_types_in_order.append(i[1])
     
-    print("ball list: ", ball_list)
+    # print("ball list: ", ball_list)
 
     return Course(ball_coords = ball_coords_in_order,
                   obstacle_coords = obstacle_in_meters,
