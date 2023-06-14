@@ -70,8 +70,8 @@ def robot_recognition(frame, wall_corners):
     # upper_bound_center = np.array([110, 150, 255])
 
     # lower bound and upper bound for center color (lego blue)
-    # lower_bound_center = np.array([110, 75, 20])
-    # upper_bound_center = np.array([130, 250, 255])
+    # lower_bound_center = np.array([110, 130, 20])
+    # upper_bound_center = np.array([150, 250, 255])
 
     # HSV for the test day, based on robot.mp4.
     # lower bound and upper bound for pointer color (light green)
@@ -83,6 +83,8 @@ def robot_recognition(frame, wall_corners):
 
     # find the colors within the boundaries from center
     mask_center = cv2.inRange(hsv, lower_bound_center, upper_bound_center)
+    cv2.imshow("mask_center", mask_center)
+    
 
     # Remove unnecessary noise from mask center
     mask_center = cv2.morphologyEx(mask_center, cv2.MORPH_CLOSE, kernel)

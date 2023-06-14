@@ -429,7 +429,7 @@ def create_graph(course: Course):
             return NextMove(pos[tsp[0][1]], move_types_in_order[0])
         else:
             print("Graph is not connected")
-            return NextMove()
+            return NextMove(move_type = "goal")
 
 
 def solve_tsp(G):

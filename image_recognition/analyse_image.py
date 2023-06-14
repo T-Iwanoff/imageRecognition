@@ -169,6 +169,8 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
 def display_graph(course: Course):
     # print coords with 2 decimal places
 
+    print("obstacle coords: ", course.obstacle_coords)
+
     if course.ball_coords is not None:
         ball_coords = [tuple(round(coord, 2) for coord in coords)
                        for coords in course.ball_coords]
