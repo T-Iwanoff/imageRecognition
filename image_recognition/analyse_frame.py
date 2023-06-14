@@ -108,6 +108,8 @@ def substitute_in_list(list, value):
 
 def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
 
+    
+
     # Calibrate the frame
     frame = calibrate_frame(frame)
 
