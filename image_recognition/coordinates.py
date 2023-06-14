@@ -4,6 +4,7 @@ import cv2 as cv
 import numpy
 import numpy as np
 from constants import *
+from config import *
 
 
 # Takes the walls of the course and the x and y coordinates of a point inside the course that you want to find
@@ -33,7 +34,6 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
     ball_list = []
 
     # Convert balls from numpy array to list to prevent error
-    # print(balls)
     balls = np.array(balls)
     balls = balls.tolist()
 
@@ -86,6 +86,8 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
 
 def check_type(ball, walls, obstacle):
     if obstacle is None or len(obstacle) == 0:
+        return "none"
+    if ball is None or len(ball) == 0:
         return "none"
     ball_type = "none"
 
@@ -160,7 +162,8 @@ def improve_coordinate_precision(walls, pixel_coordinates, obj):
 
     # get the angle from the ground camera point to the robot point for later use (tan(V)=mod/hos).
     if x_obj_cam == 0:
-        return
+        x_obj_cam = 0.01
+        print("NOTE!")
     angle_obj_cam_ground = math.degrees(math.atan(y_obj_cam / x_obj_cam))
     angle_obj_cam_ground = round(angle_obj_cam_ground, 2)
 
@@ -189,8 +192,6 @@ def improve_coordinate_precision(walls, pixel_coordinates, obj):
             find_length_in_meter(walls, 480, "y") - find_length_in_meter(walls, walls[3][1], "y")]
 
     obj_coordinate_truth = [x_robot_truth + camera_point_meter[0] - orego[0], y_robot_truth + camera_point_meter[1] - orego[1]]
-
-    # print("object found: ", obj_coordinate_truth)
 
     return obj_coordinate_truth
 
@@ -229,6 +230,21 @@ def find_goal_coordinates():
 
     return goal_coordinates
 
+
+def remove_objects_outside_walls(walls, object):
+    object_list = []
+    object = np.array(object)
+    if object.ndim > 1:
+        for ball in object:
+            if not (ball[0] < walls[0][0] or ball[0] > walls[1][0] or ball[1] < walls[0][1] or ball[1] > walls[3][1]):
+                object_list.append(ball)
+        return object_list
+    else:
+        if object[0] < walls[0][0] or object[0] > walls[1][0] or object[1] < walls[0][1] or object[1] > walls[3][1]:
+            return None
+    return object
+
+# TODO sensitivity?
 def remove_objects_outside_walls_from_list(walls, obj_list, type=None):
     new_list = np.array(obj_list)
     sensitivity = 0.0

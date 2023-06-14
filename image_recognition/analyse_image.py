@@ -7,7 +7,8 @@ from image_recognition.analyse_frame import analyse_frame, analyse_walls
 import path_finder.graph_setup as gt
 from image_recognition.coordinates import remove_objects_outside_walls_from_list
 from image_recognition.robotRecognition import robot_recognition
-from constants import STATIC_OUTER_WALLS, ENABLE_MULTI_FRAME_BALL_DETECTION, VIDEO_CAPTURE_DEVICE, SETUP_MODE
+from constants import VIDEO_CAPTURE_DEVICE, SETUP_MODE
+from config import *
 from next_move import NextMove
 import robot_connection.socket_connection as sc
 
@@ -167,6 +168,8 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
 
 def display_graph(course: Course):
     # print coords with 2 decimal places
+
+    print("obstacle coords: ", course.obstacle_coords)
 
     if course.ball_coords is not None:
         ball_coords = [tuple(round(coord, 2) for coord in coords)

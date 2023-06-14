@@ -20,15 +20,6 @@ CIRCLE_MAX_RADIUS = 7
 COURSE_HEIGHT = 1.235
 COURSE_WIDTH = 1.683
 
-# Define the frames sampled and minimum number of frames
-# that a circle has to be present to in to count as a ball
-# SAVED_CIRCLE_DIFF dictates the minimum distance between two detected circles,
-# before they count as distinct balls. Is smaller than the one distance specified in Houghcircles
-SAVED_FRAMES = 10
-CUTOFF = 2
-ORANGE_CUTOFF = 1
-SAVED_CIRCLE_DIST = 6
-
 # Define color ranges for red wall detection (inverted to cyan)
 LOWER_WALL_COLOR = (80, 70, 50)
 UPPER_WALL_COLOR = (100, 255, 255)
@@ -48,7 +39,7 @@ ROUNDING_AMOUNT = 3
 
 # Camera constants
 # Distance from camera to floor
-CAMERA_HEIGHT = 1.69 # Measure with each setup
+CAMERA_HEIGHT = 1.68 # Measure with each setup
 CAMERA_DISTORT_X = 0.23 # Measure with each setup by testing for 3 ball positions.
 CAMERA_DISTORT_Y = 0.195 # Measure with each setup by testing for 3 ball positions.
 
@@ -72,12 +63,7 @@ OBSTACLE_LENGTH_FROM_MIDDLE = 0.085
 DETERMINATION_THRESHOLD = HALF_OF_ROBOT_WIDTH
 
 
-AUTOMATED_AREA_DETECT = True
-
 PRINT_COORDINATES = False
-PRINT_NUMBER_OF_BALLS = False
-STATIC_OUTER_WALLS = True
-ENABLE_MULTI_FRAME_BALL_DETECTION = True
 
 GOAL_SIDE_RELATIVE_TO_CAMERA = "left"
 LIST_OF_ANCHOR_POINTS = [[COURSE_WIDTH*(1/4), COURSE_HEIGHT*(3/4)],
