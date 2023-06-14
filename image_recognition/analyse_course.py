@@ -1,5 +1,8 @@
 import asyncio
+import copy
 import platform
+import time
+
 import cv2
 import numpy as np
 
@@ -80,6 +83,9 @@ def analyse_video(path=None, media='CAMERA'):
     backup_obstacle = []
     backup_robot_pos = []
     backup_robot_heading = None
+    start_time = time.perf_counter()
+    timer = time.perf_counter()
+    frame_count = 0
 
     # Analyse the frames
     while True:
@@ -89,11 +95,21 @@ def analyse_video(path=None, media='CAMERA'):
             print("Error: Frame not found")
             exit()
 
+        if time.perf_counter() - timer > 1:
+            print("time: ", time.perf_counter() - start_time)
+            print("frames: ", frame_counter)
+            fps = (frame_counter - frame_count) / (time.perf_counter() - timer)
+            print("fps: ", fps)
+            print("---")
+            frame_count = copy.deepcopy(frame_counter)
+            timer = time.perf_counter()
+
+
         frame_counter += 1
 
-        if np.mod(frame_counter, 2):
-            print(frame_counter)
-            pass
+        # if np.mod(frame_counter, 2):
+        #     print(frame_counter)
+        #     pass
 
         # Analyse the frame
         course, calibrated_frame = analyse_frame(frame, static_walls, saved_balls, saved_orange_balls)
@@ -274,8 +290,6 @@ def open_video_capture(media='CAMERA', path=None):
 
 
 def display_graph(course: Course):
-    # print coords with 2 decimal places
-
     if course.ball_coords is not None:
         ball_coords = [tuple(round(coord, 2) for coord in coords)
                        for coords in course.ball_coords]

@@ -70,7 +70,7 @@ def robot_recognition(frame, wall_corners, mask):
 
     # find the colors within the boundaries from center
     mask_center = cv2.inRange(hsv, lower_bound_center, upper_bound_center)
-    cv2.imshow("mask_center", mask_center)
+    # cv2.imshow("mask_center", mask_center)
     
 
     # Remove unnecessary noise from mask center
