@@ -15,13 +15,13 @@ def calculate_angle(x0, y0, x, y):
     return angle
 
 
-def robot_roi(frame, cX_center, cY_center):
+def robot_roi(frame, cX_center, cY_center, radius):
     # find only pointers in a certain area
     # Circular ROI in original image; must be selected via an additional mask
     # link: https://stackoverflow.com/questions/59873870/crop-a-circle-area-roi-of-an-image-and-put-it-onto-a-white-mask
     roi = np.zeros(frame.shape[:2], np.uint8)
     # circle roi
-    roi = cv2.circle(roi, (cX_center, cY_center), 45, 255, cv2.FILLED)
+    roi = cv2.circle(roi, (cX_center, cY_center), radius, 255, cv2.FILLED)
     # rectangle roi
     # roi = cv2.rectangle(roi, (cX_center - 45, cY_center - 30), (cX_center + 45, cY_center + 30), 20, cv2.FILLED)
 
@@ -38,27 +38,48 @@ def robot_recognition(frame, wall_corners):
     # Calibrate the frame
     # frame = calibrate_frame(frame)
 
+    # find only robot in a certain area
+    roi = np.zeros(frame.shape[:2], np.uint8)
+    # wall shape
+    roi = cv2.fillPoly(roi, np.array([wall_corners]), (255, 255, 255))
+
+    # Target image; white background
+    mask = np.ones_like(frame) * 255
+    # Copy ROI part from original image to target image
+    frame_mask = cv2.bitwise_and(mask, frame, mask=roi) + cv2.bitwise_and(mask, mask, mask=~roi)
+
+    # show the mask for the robot recognition
+    # cv2.imshow("roi frame", frame_mask)
+
     # define kernel size
     kernel = np.ones((7, 7), np.uint8)
 
     # convert to hsv colorspace
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(frame_mask, cv2.COLOR_BGR2HSV)
 
     # lower bound and upper bound for pointer color (light green)
-    lower_bound_pointer = np.array([50, 50, 20])
-    upper_bound_pointer = np.array([80, 100, 255])
+    # lower_bound_pointer = np.array([50, 50, 20])
+    # upper_bound_pointer = np.array([80, 100, 255])
 
     # lower bound and upper bound for center color (dark blue)
     # lower_bound_center = np.array([110,60,50])
     # upper_bound_center = np.array([140,255,255])
 
     # lower bound and upper bound for center color (blue)
-    lower_bound_center = np.array([80, 85, 50])
-    upper_bound_center = np.array([110, 150, 255])
+    # lower_bound_center = np.array([80, 85, 50])
+    # upper_bound_center = np.array([110, 150, 255])
 
     # lower bound and upper bound for center color (lego blue)
     # lower_bound_center = np.array([110, 75, 20])
     # upper_bound_center = np.array([130, 250, 255])
+
+    # HSV for the test day, based on robot.mp4.
+    # lower bound and upper bound for pointer color (light green)
+    lower_bound_pointer = np.array([40, 50, 20])
+    upper_bound_pointer = np.array([80, 100, 255])
+    # lower bound and upper bound for center color (blue)
+    lower_bound_center = np.array([80, 175, 50])
+    upper_bound_center = np.array([110, 250, 255])
 
     # find the colors within the boundaries from center
     mask_center = cv2.inRange(hsv, lower_bound_center, upper_bound_center)
@@ -94,15 +115,13 @@ def robot_recognition(frame, wall_corners):
         # check the coordinates found
         # print("center: x = " + str(cX_center) + " and " "y = " + str(cY_center))
 
+    radius = 45
     # draw a circle around the center of the robot
-    cv2.circle(img=frame, center=(cX_center, cY_center), radius=45, color=(255, 0, 0), thickness=2)
+    cv2.circle(img=frame, center=(cX_center, cY_center), radius=radius, color=(255, 0, 0), thickness=2)
 
-    # draw a rectangle around the center of the robot
-    # rectangle(frame, (cX_center - 45, cY_center - 30), (cX_center + 45, cY_center + 30), 255, 2)
+    mask = robot_roi(frame, cX_center, cY_center, radius)
 
-    mask = robot_roi(frame, cX_center, cY_center)
-
-    # cv2.imshow("mask for roi", mask)
+    cv2.imshow("mask for roi", mask)
 
     # pointer finding setup for region of interest ROI (won't find pointer outside of ROI)
     # convert to hsv colorspace
@@ -112,6 +131,9 @@ def robot_recognition(frame, wall_corners):
     # Remove unnecessary noise from mask
     mask_pointer = cv2.morphologyEx(mask_pointer, cv2.MORPH_CLOSE, kernel)
     mask_pointer = cv2.morphologyEx(mask_pointer, cv2.MORPH_OPEN, kernel)
+
+    # pointer mask for testing of HSV
+    # cv2.imshow("pointer mask", mask_pointer)
 
     # Segment only the detected region
     segmented_img_pointer = cv2.bitwise_and(frame, frame, mask=mask_pointer)

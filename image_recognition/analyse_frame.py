@@ -105,7 +105,7 @@ def substitute_in_list(list, value):
     list[0] = value
     return list
 
-
+# TODO Preserve obstacle
 def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
 
     # Calibrate the frame

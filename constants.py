@@ -52,7 +52,7 @@ PIXEL_IN_METER = FRAME_HEIGHT_METER / 480
 # Height of objects
 BALL_HEIGHT = 0.04
 WALL_HEIGHT = 0.071
-ROBOT_HEIGHT = 0.195 # placeholder
+ROBOT_HEIGHT = 0.205 # placeholder
 
 # Length and width of objects
 HALF_OF_ROBOT_WIDTH = 0.14
