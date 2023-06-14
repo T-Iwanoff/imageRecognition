@@ -175,7 +175,7 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
 
         if wall_corners is not None and len(wall_corners):
             for coord in wall_corners:
-                improved_coords = improve_coordinate_precision(wall_corners, coord, "ball")
+                improved_coords = improve_coordinate_precision(wall_corners, coord, "wall")
                 walls_in_meters.append(improved_coords)
 
     # Determine order and type of the balls

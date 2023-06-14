@@ -48,7 +48,7 @@ ROUNDING_AMOUNT = 3
 
 # Camera constants
 # Distance from camera to floor
-CAMERA_HEIGHT = 1.69 # Measure with each setup
+CAMERA_HEIGHT = 1.68 # Measure with each setup
 CAMERA_DISTORT_X = 0.23 # Measure with each setup by testing for 3 ball positions.
 CAMERA_DISTORT_Y = 0.195 # Measure with each setup by testing for 3 ball positions.
 
@@ -61,7 +61,7 @@ PIXEL_IN_METER = FRAME_HEIGHT_METER / 480
 # Height of objects
 BALL_HEIGHT = 0.04
 WALL_HEIGHT = 0.071
-ROBOT_HEIGHT = 0.195 # placeholder
+ROBOT_HEIGHT = 0.205 # placeholder
 
 # Length and width of objects
 HALF_OF_ROBOT_WIDTH = 0.14

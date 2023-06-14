@@ -87,6 +87,8 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
 def check_type(ball, walls, obstacle):
     if obstacle is None or len(obstacle) == 0:
         return "none"
+    if ball is None or len(ball) == 0:
+        return "none"
     ball_type = "none"
 
     if (ball[0] < DETERMINATION_THRESHOLD and # left lower corner
