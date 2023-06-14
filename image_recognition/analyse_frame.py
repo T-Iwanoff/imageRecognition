@@ -151,8 +151,6 @@ def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
         robot_position = None
         robot_heading = None
 
-    # TODO Add ball type here?
-
     return Course(ball_coords=balls,
                   orange_ball=orange_ball,
                   obstacle_coords=obstacle,

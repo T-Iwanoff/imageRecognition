@@ -154,6 +154,7 @@ def analyse_video(path=None, media='CAMERA'):
 
         # print the coordinates of the balls when g is pressed
         if cv.waitKey(1) == ord('g'):
+            #TODO Find ball type
             next_move = display_graph(course)
             next_move.robot_coords = course.robot_coords
             next_move.robot_heading = course.robot_heading
@@ -287,6 +288,17 @@ def open_video_capture(media='CAMERA', path=None):
         video_capture.set(3, 640)
         video_capture.set(4, 480)
     return video_capture
+
+# def find_ball_type(circles_):
+#     if circles_in_meters.count(None) == 0:
+#         ball_list = determine_order_and_type(
+#             walls_in_meters, obstacle_in_meters, circles_in_meters, orange_circle_in_meters)
+#     ball_coords_in_order = []
+#     ball_types_in_order = []
+#     if ball_list is not None:
+#         for i in ball_list:
+#             ball_coords_in_order.append(i[0])
+#             ball_types_in_order.append(i[1])
 
 
 def display_graph(course: Course):
