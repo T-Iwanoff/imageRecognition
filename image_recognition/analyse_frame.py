@@ -110,6 +110,7 @@ def analyse_orange_ball(frame, saved_circle=None, counter=None):
 def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_orange=None, counter=None):
 
     # Calibrate the frame
+    global temp_obstacle
     frame = calibrate_frame(frame)
 
     # Make a mask for the wall
@@ -127,6 +128,8 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
 
     # Find the obstacle points
     obstacle = analyse_obstacles(frame, wall_contours)
+    if obstacle is not None:
+        temp_obstacle = obstacle
 
     # Warp the frame to fit the outer wall
     # frame = warp_frame(wall_corners, frame)
@@ -170,6 +173,11 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
 
         if obstacle is not None and len(obstacle):
             for coord in obstacle:
+                improved_coords = improve_coordinate_precision(wall_corners, coord, "ball")
+                obstacle_in_meters.append(improved_coords)
+
+        if obstacle is None and temp_obstacle is not None:
+            for coord in temp_obstacle:
                 improved_coords = improve_coordinate_precision(wall_corners, coord, "ball")
                 obstacle_in_meters.append(improved_coords)
 
@@ -219,7 +227,6 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
         for i in ball_list:
             ball_coords_in_order.append(i[0])
             ball_types_in_order.append(i[1])
-    # print(ball_types_in_order)
 
     return Course(ball_coords = ball_coords_in_order,
                   obstacle_coords = obstacle_in_meters,
