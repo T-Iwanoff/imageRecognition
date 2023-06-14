@@ -7,7 +7,7 @@ ENABLE_MULTI_FRAME_BALL_DETECTION = True
 # Automatically adjust the area targeting for finding walls
 AUTOMATED_AREA_DETECT = True
 # Adds guiding lines for adjusting the camera
-SETUP_MODE = True
+SETUP_MODE = False
 
 # Select video capture device
 VIDEO_CAPTURE_DEVICE = 0

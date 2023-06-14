@@ -112,21 +112,25 @@ def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
     frame = calibrate_frame(frame)
 
     # Find the wall corners
-    if not STATIC_OUTER_WALLS or walls is None:
+    if not STATIC_OUTER_WALLS or walls is None or not len(walls):
         walls = analyse_walls(frame)
 
     # Find the obstacle points
     obstacle = analyse_obstacles(frame)
 
     # Find the balls
-    balls = analyse_balls(frame, saved_balls)
+    if walls is not None and len(walls):
+        balls = analyse_balls(frame, saved_balls, walls)
 
-    # Find the orange ball
-    orange_ball = analyse_orange_ball(frame, saved_oranges)
+        # Find the orange ball
+        orange_ball = analyse_orange_ball(frame, saved_oranges, walls)
 
+        # Remove orange ball from list of balls
+        balls = remove_ball_from_list(orange_ball, balls)
+    else:
+        balls = None
+        orange_ball = None
 
-    # Remove orange ball from list of balls
-    balls = remove_ball_from_list(orange_ball, balls)
 
     # Find the robot
     if walls is not None and len(walls):

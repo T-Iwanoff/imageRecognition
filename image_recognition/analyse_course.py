@@ -1,6 +1,7 @@
 import asyncio
 import platform
 import cv2
+import numpy as np
 
 from config import *
 from course import *
@@ -88,6 +89,12 @@ def analyse_video(path=None, media='CAMERA'):
             print("Error: Frame not found")
             exit()
 
+        frame_counter += 1
+
+        if np.mod(frame_counter, 2):
+            print(frame_counter)
+            pass
+
         # Analyse the frame
         course, calibrated_frame = analyse_frame(frame, static_walls, saved_balls, saved_orange_balls)
 
@@ -139,8 +146,6 @@ def analyse_video(path=None, media='CAMERA'):
                 print("Sending next move to robot")
                 asyncio.run(
                     socket_connection.async_send_next_move(next_move))
-
-        frame_counter += 1
 
         # If q is pressed, end the program
         if cv.waitKey(1) == ord('q'):

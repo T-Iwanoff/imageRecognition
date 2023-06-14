@@ -74,6 +74,3 @@ LIST_OF_ANCHOR_POINTS = [[COURSE_WIDTH*(1/4), COURSE_HEIGHT*(3/4)],
 # Select video capture device
 VIDEO_CAPTURE_DEVICE = 0
 
-# setup const
-SETUP_MODE = False
-
