@@ -56,6 +56,11 @@ def create_graph(course: Course):
         G.add_node(i+1)
         pos[i+1] = (x, y)
 
+    print("")
+    print("")
+    print("ball coords: ", course.ball_coords)
+    print("pos: ", pos)
+
     # Randomize node positions
     # pos = nx.random_layout(G, dim=2, center=None)
     # for node, coords in pos.items():

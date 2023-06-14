@@ -102,10 +102,10 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
             course.robot_coords, course.robot_angle, frame_overlay = robot_recognition(
                 ball_frame, static_wall_corners)
 
-            if len(course.ball_coords):
-                course.ball_coords = remove_objects_outside_walls_from_list(course.wall_coords, course.ball_coords)
-            if len(course.robot_coords):
-                course.robot_coords = remove_objects_outside_walls_from_list(course.wall_coords, course.robot_coords, "robot")
+            # if len(course.ball_coords):
+            #     course.ball_coords = remove_objects_outside_walls_from_list(course.wall_coords, course.ball_coords)
+            # if len(course.robot_coords):
+            #     course.robot_coords = remove_objects_outside_walls_from_list(course.wall_coords, course.robot_coords, "robot")
 
             if len(course.robot_coords):
                 text = "(" + str(round(course.robot_coords[0], 2)) + ", " + str(round(course.robot_coords[1], 2)) + ")"

@@ -122,6 +122,13 @@ def check_type(ball, walls, obstacle):
     return ball_type
 
 def improve_coordinate_precision(walls, pixel_coordinates, obj):
+    # Temporary fix for 320 in x and 240 in y for obstacles pixel coordinates
+    if pixel_coordinates[0] == 320:
+        pixel_coordinates[0] = 319
+    if pixel_coordinates[1] == 240:
+        pixel_coordinates[1] = 239
+
+
     camera_point_meter = [find_length_in_meter(walls, 320, "x"), find_length_in_meter(walls, 240, "y")]
 
     # Calculate point relative to the walls
