@@ -44,48 +44,33 @@ def robot_recognition(frame, wall_corners, mask):
     # convert to hsv colorspace
     hsv = cv2.cvtColor(mask, cv2.COLOR_BGR2HSV)
 
-    ## Blue floor
     # lower bound and upper bound for pointer color (light green)
     lower_bound_pointer = np.array([50, 50, 20])
     upper_bound_pointer = np.array([80, 100, 255])
-    # lower bound and upper bound for center color (blue)
-    lower_bound_center = np.array([80, 105, 50])
-    upper_bound_center = np.array([110, 150, 255])
-    
-    # lower bound and upper bound for pointer color (light green)
-    # lower_bound_pointer = np.array([50, 50, 20])
-    # upper_bound_pointer = np.array([80, 100, 255])
 
     # lower bound and upper bound for center color (dark blue)
     # lower_bound_center = np.array([110,60,50])
     # upper_bound_center = np.array([140,255,255])
 
-    
+    # lower bound and upper bound for center color (blue)
+    lower_bound_center = np.array([80, 95, 50])
+    upper_bound_center = np.array([110, 150, 255])
 
     # lower bound and upper bound for center color (lego blue)
     # lower_bound_center = np.array([110, 130, 20])
     # upper_bound_center = np.array([150, 250, 255])
 
-    ## HSV for different test places
     # HSV for the test day, based on robot.mp4.
-    # # lower bound and upper bound for pointer color (light green)
+    # lower bound and upper bound for pointer color (light green)
     # lower_bound_pointer = np.array([40, 50, 20])
     # upper_bound_pointer = np.array([80, 100, 255])
     # # lower bound and upper bound for center color (blue)
     # lower_bound_center = np.array([80, 175, 50])
     # upper_bound_center = np.array([110, 250, 255])
-    
-    ## Meeting room
-    # # lower bound and upper bound for center color (blue)
-    # lower_bound_center = np.array([80, 85, 50])
-    # upper_bound_center = np.array([110, 150, 255])
-    # # lower bound and upper bound for pointer color (light green)
-    # lower_bound_pointer = np.array([50, 50, 20])
-    # upper_bound_pointer = np.array([80, 100, 255])
 
     # find the colors within the boundaries from center
     mask_center = cv2.inRange(hsv, lower_bound_center, upper_bound_center)
-    cv2.imshow("mask_center", mask_center)
+    # cv2.imshow("mask_center", mask_center)
     
 
     # Remove unnecessary noise from mask center
