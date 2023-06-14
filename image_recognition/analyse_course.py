@@ -15,69 +15,13 @@ import robot_connection.socket_connection as sc
 
 
 def analyse_course(path=None, media='CAMERA'):
-    if SETUP_MODE:
-        setup(media='VIDEO', path='Media/Video/MovingBalls.mp4')
-    elif media == 'CAMERA':
+    if media == 'CAMERA':
         analyse_video()
     elif media == 'VIDEO':
         analyse_video(path, 'VIDEO')
     elif media == 'IMAGE':
         analyse_image(path)
 
-
-# TODO the video capture doesn't work for no apparent reason
-def setup(path, media):
-    # Get video capture
-    video_capture = open_video_capture(media, path)
-
-    # # Get video capture
-    # video_capture = open_video_capture(media='VIDEO', path='Media/Video/MovingBalls.mp4')
-
-    # Check video capture
-    if not video_capture.isOpened():
-        print("Error: Camera not found")
-        exit()
-
-    ret, frame = video_capture.read()
-    cv.imshow('test', frame)
-
-    while True:
-        # Get the current frame
-        ret, frame = video_capture.read()
-        if not ret:
-            print("Error: Frame not found")
-            exit()
-
-        # Analyse the frame
-        course, calibrated_frame = analyse_frame(frame)
-
-        # Convert to meter
-        balls_in_meters, orange_ball_in_meters, obstacle_in_meters, walls_in_meters = \
-            convert_pixel_to_meter(course)
-
-        # Draw on the frame
-        draw_frame = draw_on_frame(frame=calibrated_frame, course=course, balls=balls_in_meters,
-                                   orange_ball=orange_ball_in_meters)
-
-        # Getting the height and width of the image
-        height = calibrated_frame.shape[0]
-        width = calibrated_frame.shape[1]
-
-        # Course setup lines (setup for outer edge of walls)
-        # top line
-        cv.line(draw_frame, (0, 28), (width, 28), (255, 255, 255), 1)
-        # bottom line
-        cv.line(draw_frame, (0, 415), (width, 406), (255, 255, 255), 1)
-        # left line
-        cv.line(draw_frame, (48, 0), (48, height), (255, 255, 255), 1)
-        # right line
-        cv.line(draw_frame, (575, 0), (563, height), (255, 255, 255), 1)
-
-        # camera setup rectangle
-        cv.rectangle(draw_frame, (220, 410), (397, 500), 255, 1)
-
-        # Display the frame
-        # cv.imshow('Frame', frame)
 
 #TODO Fix this method
 def analyse_image(path='Media/Image/Bold2-165-84.5.jpg'):
@@ -155,6 +99,10 @@ def analyse_video(path=None, media='CAMERA'):
         draw_frame = draw_on_frame(frame=calibrated_frame, course=course, balls=balls_in_meters,
                                    orange_ball=orange_ball_in_meters)
 
+        # If in setup mode, add guiding lines
+        if SETUP_MODE:
+            draw_frame = draw_setup_lines(draw_frame)
+
         # TODO Lift robot draw out of robot_recognition
         # Display robot coords on frame overlay
         # course.robot_coords, course.robot_heading, frame_overlay = robot_recognition(
@@ -225,8 +173,12 @@ def convert_pixel_to_meter(course: Course):
 
 
 def draw_on_frame(frame, course: Course, balls, orange_ball):
-    if course.wall_coords is not None and len(course.wall_coords): #and not SETUP_MODE:
-        cv.drawContours(frame, [course.wall_coords], 0, (255, 0, 0), 2)
+    if course.wall_coords is not None and len(course.wall_coords):
+        if SETUP_MODE:
+            for coord in course.wall_coords:
+                cv.circle(frame, (coord[0], coord[1]), 2, (238, 0, 104), 2)
+        else:
+            cv.drawContours(frame, [course.wall_coords], 0, (255, 0, 0), 2)
 
     if course.obstacle_coords is not None and len(course.obstacle_coords[0]):
         for coord in course.obstacle_coords:
@@ -259,6 +211,27 @@ def draw_on_frame(frame, course: Course, balls, orange_ball):
     if course.robot_heading is not None:
         text = "Angle: " + str(round(course.robot_heading))
         cv.putText(frame, text, (300, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
+
+    return frame
+
+
+def draw_setup_lines(frame):
+    # Getting the height and width of the image
+    height = frame.shape[0]
+    width = frame.shape[1]
+
+    # Course setup lines (setup for outer edge of walls)
+    # top line
+    cv.line(frame, (0, 28), (width, 28), (255, 255, 255), 1)
+    # bottom line
+    cv.line(frame, (0, 415), (width, 406), (255, 255, 255), 1)
+    # left line
+    cv.line(frame, (48, 0), (48, height), (255, 255, 255), 1)
+    # right line
+    cv.line(frame, (575, 0), (563, height), (255, 255, 255), 1)
+
+    # camera setup rectangle
+    cv.rectangle(frame, (220, 410), (397, 500), 255, 1)
 
     return frame
 
