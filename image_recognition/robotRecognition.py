@@ -121,7 +121,7 @@ def robot_recognition(frame, wall_corners):
 
     mask = robot_roi(frame, cX_center, cY_center, radius)
 
-    cv2.imshow("mask for roi", mask)
+    # cv2.imshow("mask for roi", mask)
 
     # pointer finding setup for region of interest ROI (won't find pointer outside of ROI)
     # convert to hsv colorspace

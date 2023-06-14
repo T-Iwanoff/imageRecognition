@@ -139,8 +139,8 @@ def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
     if walls is not None and len(walls):
         if balls is not None and len(balls):
             balls = remove_objects_outside_walls(walls, balls)
-        if robot_position is not None and len(robot_position):
-            robot_position = remove_objects_outside_walls(walls, robot_position)
+        # if robot_position is not None and len(robot_position):
+        #     robot_position = remove_objects_outside_walls(walls, robot_position)
 
     # TODO Add ball type here?
 

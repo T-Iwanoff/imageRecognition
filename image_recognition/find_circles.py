@@ -13,7 +13,7 @@ def find_circles(frame):
     # NEW CODE THAT DOESN'T WORK YET  HSV range for mask = (30, (120 - 130), (170 - 200)), (255,255,255)
     white_mask = cv.inRange(frame, (30, 130, 175), (255, 255, 255))
     blurred_frame = cv.GaussianBlur(white_mask, (7,7), 0)
-    cv.imshow('white',blurred_frame)
+    # cv.imshow('white',blurred_frame)
     # END OF NEW CODE
 
     # OLD CODE THAT WORKS OK

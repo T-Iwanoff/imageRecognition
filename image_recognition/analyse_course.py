@@ -76,6 +76,9 @@ def analyse_video(path=None, media='CAMERA'):
     static_walls = None
     saved_balls = []
     saved_orange_balls = []
+    backup_obstacle = []
+    backup_robot_pos = []
+    backup_robot_heading = None
 
     # Analyse the frames
     while True:
@@ -90,6 +93,22 @@ def analyse_video(path=None, media='CAMERA'):
 
         # Save data for future frames
         static_walls = course.wall_coords
+
+        # Update or use backup objects
+        if course.obstacle_coords is not None and len(course.obstacle_coords):
+            backup_obstacle = course.obstacle_coords
+        else:
+            course.obstacle_coords = backup_obstacle
+
+        if course.robot_coords is not None and len(course.robot_coords):
+            backup_robot_pos = course.robot_coords
+        else:
+            course.robot_coords = backup_robot_pos
+
+        if course.robot_heading is not None:
+            backup_robot_heading = course.robot_heading
+        else:
+            course.robot_heading = backup_robot_heading
 
         # Convert to meter
         balls_in_meters, orange_ball_in_meters, obstacle_in_meters, walls_in_meters =\
