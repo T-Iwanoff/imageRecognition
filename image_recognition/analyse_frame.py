@@ -67,9 +67,9 @@ def analyse_obstacles(frame, wall_contours=None):
         return obstacle
 
 
-def analyse_balls(frame, saved_circles=None, counter=None):
+def analyse_balls(frame, saved_circles=None, counter=None, walls=None):
     # Find the balls
-    circles = find_circles(frame)
+    circles = find_circles(frame, walls)
     # circles = find_orange_circle(frame)
     # if counter is not None:
     #     if counter < SAVED_FRAMES:
@@ -89,9 +89,9 @@ def analyse_balls(frame, saved_circles=None, counter=None):
     return circles
 
 
-def analyse_orange_ball(frame, saved_circle=None, counter=None):
+def analyse_orange_ball(frame, saved_circle=None, counter=None, walls=None):
     # Find the balls
-    circle = find_orange_circle(frame)
+    circle = find_orange_circle(frame, walls)
 
     if counter is not None and circle is not None and saved_circle is not None:
         if len(saved_circle) < SAVED_FRAMES:
@@ -139,11 +139,11 @@ def analyse_frame(frame, static_wall_corners=None, saved_circles=None, saved_ora
     # wall_mask = frameToWallMask(frame)
     # wall_contours, _ = cv.findContours(wall_mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
-    circles = analyse_balls(frame, saved_circles, counter)
+    circles = analyse_balls(frame, saved_circles, counter, wall_corners)
     # for showing the coords on frame
     # old_circles = circles
 
-    orange_circle = analyse_orange_ball(frame, saved_orange, counter)
+    orange_circle = analyse_orange_ball(frame, saved_orange, counter, wall_corners)
     circles = remove_circle_from_list(orange_circle, circles)
 
     # Converting to meter

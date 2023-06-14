@@ -7,14 +7,25 @@ from constants import CIRCLE_MIN_DIST, CIRCLE_PARAM_1, CIRCLE_PARAM_2, CIRCLE_MI
     SAVED_CIRCLE_DIST
 
 
-def find_circles(frame):
+def find_circles(frame, walls):
+    # find only robot in a certain area
+    roi = np.zeros(frame.shape[:2], np.uint8)
+    # wall shape
+    roi = cv.fillPoly(roi, np.array([walls]), (255, 255, 255))
+
+    # Target image; white background
+    mask = np.ones_like(frame) * 255
+    # Copy ROI part from original image to target image
+    frame_mask = cv.bitwise_and(mask, frame, mask=roi) + cv.bitwise_and(mask, mask, mask=~roi)
+
+
     # Create a grayFrame
-    gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    gray_frame = cv.cvtColor(frame_mask, cv.COLOR_BGR2GRAY)
 
     # NEW CODE THAT DOESN'T WORK YET  HSV range for mask = (30, (120 - 130), (170 - 200)), (255,255,255)
-    white_mask = cv.inRange(frame, (30, 130, 175), (255, 255, 255))
-    blurred_frame = cv.GaussianBlur(white_mask, (7,7), 0)
-    cv.imshow('white',blurred_frame)
+    #white_mask = cv.inRange(frame, (30, 130, 175), (255, 255, 255))
+    # blurred_frame = cv.GaussianBlur(white_mask, (7,7), 0)
+    # cv.imshow('white',blurred_frame)
     # END OF NEW CODE
 
     # OLD CODE THAT WORKS OK
@@ -73,8 +84,18 @@ def find_circles(frame):
 #
 #     return circles
 
-def find_orange_circle(frame):
-    hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+def find_orange_circle(frame, walls):
+    # find only robot in a certain area
+    roi = np.zeros(frame.shape[:2], np.uint8)
+    # wall shape
+    roi = cv.fillPoly(roi, np.array([walls]), (255, 255, 255))
+
+    # Target image; white background
+    mask = np.ones_like(frame) * 255
+    # Copy ROI part from original image to target image
+    frame_mask = cv.bitwise_and(mask, frame, mask=roi) + cv.bitwise_and(mask, mask, mask=~roi)
+
+    hsv = cv.cvtColor(frame_mask, cv.COLOR_BGR2HSV)
 
     low_orange = np.array([10, 80, 245])
     high_orange = np.array([45, 255, 255])

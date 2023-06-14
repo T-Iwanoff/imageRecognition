@@ -161,7 +161,6 @@ def robot_recognition(frame, wall_corners):
     # print("robot xy: ", robot_coords)
     # Showing the output
     robot_pos = improve_coordinate_precision(wall_corners, robot_coords, "robot")
-    # print("Robot coords: ", robot_pos)
     robot_angle = calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)
     # print("Robot angle: ", robot_angle)
 
