@@ -61,9 +61,9 @@ def analyse_obstacles(frame, wall_contours=None):
     return obstacle
 
 
-def analyse_balls(frame, saved_balls, walls=None):
+def analyse_balls(frame, saved_balls, mask):
     # Find the balls
-    balls = find_circles(frame, walls)
+    balls = find_circles(frame, mask)
 
     # Adds the balls to the list of previous balls
     if balls is not None and saved_balls is not None and ENABLE_MULTI_FRAME_BALL_DETECTION:
@@ -77,9 +77,9 @@ def analyse_balls(frame, saved_balls, walls=None):
     return balls
 
 
-def analyse_orange_ball(frame, saved_balls, walls=None):
+def analyse_orange_ball(frame, saved_balls, mask):
     # Find the orange ball
-    ball = find_orange_circle(frame, walls)
+    ball = find_orange_circle(frame, mask)
 
     # Adds the ball to the list of previous balls
     if ball is not None and saved_balls is not None and ENABLE_MULTI_FRAME_BALL_DETECTION:
@@ -118,12 +118,24 @@ def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
     # Find the obstacle points
     obstacle = analyse_obstacles(frame)
 
+    if walls is not None and len(walls):
+        # find only robot in a certain area
+        roi = np.zeros(frame.shape[:2], np.uint8)
+        # wall shape
+        roi = cv.fillPoly(roi, np.array([walls]), (255, 255, 255))
+        # Target image; white background
+        mask = np.ones_like(frame) * 255
+        # Copy ROI part from original image to target image
+        frame_mask = cv.bitwise_and(mask, frame, mask=roi) + cv.bitwise_and(mask, mask, mask=~roi)
+
+        cv.imshow("course mask", frame_mask)
+
     # Find the balls
     if walls is not None and len(walls):
-        balls = analyse_balls(frame, saved_balls, walls)
+        balls = analyse_balls(frame, saved_balls, frame_mask)
 
         # Find the orange ball
-        orange_ball = analyse_orange_ball(frame, saved_oranges, walls)
+        orange_ball = analyse_orange_ball(frame, saved_oranges, frame_mask)
 
         # Remove orange ball from list of balls
         balls = remove_ball_from_list(orange_ball, balls)
@@ -134,7 +146,7 @@ def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
 
     # Find the robot
     if walls is not None and len(walls):
-        robot_position, robot_heading = robot_recognition(frame, walls)
+        robot_position, robot_heading = robot_recognition(frame, walls, frame_mask)
     else:
         robot_position = None
         robot_heading = None

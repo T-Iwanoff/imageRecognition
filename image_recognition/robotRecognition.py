@@ -34,28 +34,15 @@ def robot_roi(frame, cX_center, cY_center, radius):
 
 
 # TODO This method is doing way too many things
-def robot_recognition(frame, wall_corners):
+def robot_recognition(frame, wall_corners, mask):
     # Calibrate the frame
     # frame = calibrate_frame(frame)
-
-    # find only robot in a certain area
-    roi = np.zeros(frame.shape[:2], np.uint8)
-    # wall shape
-    roi = cv2.fillPoly(roi, np.array([wall_corners]), (255, 255, 255))
-
-    # Target image; white background
-    mask = np.ones_like(frame) * 255
-    # Copy ROI part from original image to target image
-    frame_mask = cv2.bitwise_and(mask, frame, mask=roi) + cv2.bitwise_and(mask, mask, mask=~roi)
-
-    # show the mask for the robot recognition
-    # cv2.imshow("roi frame", frame_mask)
 
     # define kernel size
     kernel = np.ones((7, 7), np.uint8)
 
     # convert to hsv colorspace
-    hsv = cv2.cvtColor(frame_mask, cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(mask, cv2.COLOR_BGR2HSV)
 
     # lower bound and upper bound for pointer color (light green)
     # lower_bound_pointer = np.array([50, 50, 20])
