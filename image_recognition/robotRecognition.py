@@ -151,10 +151,12 @@ def robot_recognition(frame, wall_corners, mask):
     # print("robot xy: ", robot_coords)
     # Showing the output
     robot_pos = improve_coordinate_precision(wall_corners, robot_coords, "robot")
-    robot_angle = calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)
+    if cX_center != 0 and cY_center != 0 and cX_pointer != 0 and cY_pointer != 0:
+        robot_angle = calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)
+        return robot_pos, robot_angle
+    else:
+        return None, None
     # print("Robot angle: ", robot_angle)
     # print("current robot pos: ", robot_pos)
 
     # cv2.imshow('robot-recognition', frame)
-
-    return robot_pos, robot_angle
