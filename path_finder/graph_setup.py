@@ -32,6 +32,7 @@ def create_graph(course: Course):
 
     start_node = 0
     end_node = nmbr_of_nodes-1
+    orange_ball = False
 
     ### GRAPH CREATION ###
     G = nx.Graph()
@@ -54,6 +55,12 @@ def create_graph(course: Course):
         y = course.ball_coords[i][1]
         G.add_node(i+1)
         pos[i+1] = (x, y)
+
+    if course.orange_ball is not None:
+        G.add_node(nmbr_of_nodes)
+        pos[nmbr_of_nodes] = (course.orange_ball[0], course.orange_ball[1])
+        nmbr_of_nodes += 1
+        orange_ball = True
 
 
 
@@ -230,7 +237,7 @@ def create_graph(course: Course):
     short_extra_distance = 0.01
     # Reposition nodes if they intersect with obstacles
     if left_obstacle is not None:
-        for i in range(nmbr_of_nodes-1):
+        for i in range(nmbr_of_nodes-2 if orange_ball else nmbr_of_nodes-1):
             if course.ball_types[i] != "none":
                 # If inside obs_expanded_corners_poly
                 if obs_expanded_corners_poly.contains(Point(pos[i+1])):
@@ -274,6 +281,54 @@ def create_graph(course: Course):
                     pos[i+1] = [pos[i+1][0], COURSE_HEIGHT -
                                 HALF_OF_ROBOT_WIDTH-short_extra_distance]
                     course.ball_coords[i] = pos[i+1]
+    if orange_ball:
+        if course.ball_types[nmbr_of_nodes-2] != "none":
+                
+                print("nmbr_of_nodes: ", nmbr_of_nodes)
+                print("course.ball_types.length: ", len(course.ball_types))
+                # If inside obs_expanded_corners_poly
+                if obs_expanded_corners_poly.contains(Point(pos[nmbr_of_nodes-1])):
+
+                    pos[nmbr_of_nodes-1] = find_closest_corner(
+                        pos[nmbr_of_nodes-1], obs_expanded_corners)
+
+                    pos[nmbr_of_nodes-1] = np.squeeze(move_away_from_obstacle(pos[nmbr_of_nodes-1],
+                                                                        middle_of_obstacle))
+
+                    course.orange_ball = pos[nmbr_of_nodes-1]
+
+                elif course.ball_types[nmbr_of_nodes-2] == "lower_left_corner":
+                    pos[nmbr_of_nodes-1] = [HALF_OF_ROBOT_WIDTH +
+                                short_extra_distance, HALF_OF_ROBOT_WIDTH+short_extra_distance]
+                    course.orange_ball = pos[nmbr_of_nodes-1]
+                elif course.ball_types[nmbr_of_nodes-2] == "lower_right_corner":
+                    pos[nmbr_of_nodes-1] = [COURSE_WIDTH -
+                                HALF_OF_ROBOT_WIDTH-short_extra_distance, HALF_OF_ROBOT_WIDTH+short_extra_distance]
+                    course.orange_ball = pos[nmbr_of_nodes-1]
+                elif course.ball_types[nmbr_of_nodes-2] == "upper_left_corner":
+                    pos[nmbr_of_nodes-1] = [HALF_OF_ROBOT_WIDTH+short_extra_distance,
+                                COURSE_HEIGHT - HALF_OF_ROBOT_WIDTH-short_extra_distance]
+                    course.orange_ball = pos[nmbr_of_nodes-1]
+                elif course.ball_types[nmbr_of_nodes-2] == "upper_right_corner":
+                    pos[nmbr_of_nodes-1] = [COURSE_WIDTH - HALF_OF_ROBOT_WIDTH-short_extra_distance,
+                                COURSE_HEIGHT - HALF_OF_ROBOT_WIDTH-short_extra_distance]
+                    course.orange_ball = pos[nmbr_of_nodes-1]
+                elif course.ball_types[nmbr_of_nodes-2] == "left_edge":
+                    pos[nmbr_of_nodes-1] = [HALF_OF_ROBOT_WIDTH +
+                                short_extra_distance, pos[nmbr_of_nodes-1][1]]
+                    course.orange_ball = pos[nmbr_of_nodes-1]
+                elif course.ball_types[nmbr_of_nodes-2] == "right_edge":
+                    pos[nmbr_of_nodes-1] = [COURSE_WIDTH -
+                                HALF_OF_ROBOT_WIDTH-short_extra_distance, pos[nmbr_of_nodes-1][1]]
+                    course.orange_ball = pos[nmbr_of_nodes-1]
+                elif course.ball_types[nmbr_of_nodes-2] == "lower_edge":
+                    pos[nmbr_of_nodes-1] = [pos[nmbr_of_nodes-1][0],
+                                HALF_OF_ROBOT_WIDTH+short_extra_distance]
+                    course.orange_ball = pos[nmbr_of_nodes-1]
+                elif course.ball_types[nmbr_of_nodes-2] == "upper_edge":
+                    pos[nmbr_of_nodes-1] = [pos[nmbr_of_nodes-1][0], COURSE_HEIGHT -
+                                HALF_OF_ROBOT_WIDTH-short_extra_distance]
+                    course.orange_ball = pos[nmbr_of_nodes-1]
 
     ### EDGES ###
     edge_weights = {}
