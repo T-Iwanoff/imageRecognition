@@ -8,7 +8,8 @@ import asyncio
 import concurrent.futures
 
 
-ev3_host = '192.168.222.107'  # Replace with the IP address of your EV3 robot
+ev3_host = '192.168.222.107'   # Mark
+#ev3_host = '192.168.43.206'     # Thor
 # ev3_host = '10.0.1.1' # access point 1
 # ev3_host = '192.168.48.208'  # access point+
 # ev3_host = '0.0.0.0'

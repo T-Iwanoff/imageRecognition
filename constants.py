@@ -8,9 +8,9 @@
 # param1 is sensitivity (smaller == more circles)
 # param2 is number of points in the circle (precision)
 # minDist is the minimum distance between circles. Meant to prevent overlapping circles
-# default ≈ param1=80, param2=17, minDist=3, minRadius=3, maxRadius=9
+# default ≈ param1=200, param2=13, minDist=9, minRadius=5, maxRadius=7
 CIRCLE_PARAM_1 = 200
-CIRCLE_PARAM_2 = 13 # old version
+CIRCLE_PARAM_2 = 12 # old version
 # CIRCLE_PARAM_2 = 6
 CIRCLE_MIN_DIST = 9
 CIRCLE_MIN_RADIUS = 5
@@ -39,12 +39,12 @@ ROUNDING_AMOUNT = 3
 
 # Camera constants
 # Distance from camera to floor
-CAMERA_HEIGHT = 1.68 # Measure with each setup
+CAMERA_HEIGHT = 1.685 # Measure with each setup
 CAMERA_DISTORT_X = 0.23 # Measure with each setup by testing for 3 ball positions.
 CAMERA_DISTORT_Y = 0.195 # Measure with each setup by testing for 3 ball positions.
 
 # Frame height in meter
-FRAME_HEIGHT_METER = 1.49
+FRAME_HEIGHT_METER = 1.53
 
 # Pixel to meter
 PIXEL_IN_METER = FRAME_HEIGHT_METER / 480

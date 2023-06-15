@@ -1,5 +1,8 @@
 import asyncio
+import copy
 import platform
+import time
+
 import cv2
 import numpy as np
 
@@ -80,6 +83,11 @@ def analyse_video(path=None, media='CAMERA'):
     backup_obstacle = []
     backup_robot_pos = []
     backup_robot_heading = None
+    # start_time = time.perf_counter()
+    # timer = time.perf_counter()
+    # frame_count = 0
+    # timer = time.perf_counter() + 4
+
 
     # Analyse the frames
     while True:
@@ -89,11 +97,11 @@ def analyse_video(path=None, media='CAMERA'):
             print("Error: Frame not found")
             exit()
 
-        frame_counter += 1
 
-        if np.mod(frame_counter, 2):
-            print(frame_counter)
-            pass
+
+        # if np.mod(frame_counter, 2):
+        #     print(frame_counter)
+        #     pass
 
         # Analyse the frame
         course, calibrated_frame = analyse_frame(frame, static_walls, saved_balls, saved_orange_balls)
@@ -118,12 +126,16 @@ def analyse_video(path=None, media='CAMERA'):
             course.robot_heading = backup_robot_heading
 
         # Convert to meter
-        balls_in_meters, orange_ball_in_meters, obstacle_in_meters, walls_in_meters =\
-            convert_pixel_to_meter(course)
+        balls_in_meters, orange_ball_in_meters, obstacle_in_meters, walls_in_meters = convert_pixel_to_meter(course)
 
         # Draw on the frame
         draw_frame = draw_on_frame(frame=calibrated_frame, course=course, balls=balls_in_meters,
                                    orange_ball=orange_ball_in_meters)
+        
+        course.obstacle_coords = obstacle_in_meters
+        course.wall_coords = walls_in_meters
+        course.ball_coords = balls_in_meters
+        course.orange_ball = orange_ball_in_meters
 
         # If in setup mode, add guiding lines
         if SETUP_MODE:
@@ -136,8 +148,28 @@ def analyse_video(path=None, media='CAMERA'):
 
         cv.imshow('Frame', draw_frame)
 
+        # if time.perf_counter() - timer > 1:
+        #     print("time: ", time.perf_counter() - start_time)
+        #     print("frames: ", frame_counter)
+        #     fps = (frame_counter - frame_count) / (time.perf_counter() - timer)
+        #     print("fps: ", fps)
+        #     print("---")
+        #     frame_count = copy.deepcopy(frame_counter)
+        #     timer = time.perf_counter()
+
+        # if course.robot_coords != backup_robot_pos:
+        #     timer = time.perf_counter()
+        # elif time.perf_counter() - timer > 3:
+            # Find ball types
+            # make graph
+            # If connected
+            #   Send instruction
+
+
         # print the coordinates of the balls when g is pressed
         if cv.waitKey(1) == ord('g'):
+            course.ball_types = find_ball_type(balls_in_meters, walls_in_meters,
+                                              obstacle_in_meters, orange_ball_in_meters)
             next_move = display_graph(course)
             next_move.robot_coords = course.robot_coords
             next_move.robot_heading = course.robot_heading
@@ -146,6 +178,8 @@ def analyse_video(path=None, media='CAMERA'):
                 print("Sending next move to robot")
                 asyncio.run(
                     socket_connection.async_send_next_move(next_move))
+
+        frame_counter += 1
 
         # If q is pressed, end the program
         if cv.waitKey(1) == ord('q'):
@@ -233,7 +267,7 @@ def draw_on_frame(frame, course: Course, balls, orange_ball):
         cv.putText(frame, text, (5, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
 
     if course.robot_heading is not None:
-        text = "Angle: " + str(round(course.robot_heading))
+        text = "Heading: " + str(round(course.robot_heading))
         cv.putText(frame, text, (300, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
 
     return frame
@@ -272,9 +306,22 @@ def open_video_capture(media='CAMERA', path=None):
         video_capture.set(4, 480)
     return video_capture
 
+def find_ball_type(balls_m, walls_m, obstacle_m, orange_ball_m):
+
+    ball_list = determine_order_and_type(walls_m, obstacle_m, balls_m, orange_ball_m)
+    print("ball list: ", ball_list)
+    ball_coords_in_order = []
+    ball_types_in_order = []
+    if ball_list is not None:
+        for i in ball_list:
+            ball_coords_in_order.append(i[0])
+            ball_types_in_order.append(i[1])
+    print("ball types: ", ball_types_in_order)
+    return ball_types_in_order
 
 def display_graph(course: Course):
-    # print coords with 2 decimal places
+
+    print("-----------------------------------")
 
     if course.ball_coords is not None:
         ball_coords = [tuple(round(coord, 2) for coord in coords)
@@ -298,6 +345,9 @@ def display_graph(course: Course):
         print(f"Ball types: {course.ball_types}")
     else:
         print("No ball types found")
+
+    print("-----------------------------------")
+
     # create graph
     return gt.create_graph(course)
 

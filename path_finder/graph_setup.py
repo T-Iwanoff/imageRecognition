@@ -32,6 +32,7 @@ def create_graph(course: Course):
 
     start_node = 0
     end_node = nmbr_of_nodes-1
+    orange_ball = False
 
     ### GRAPH CREATION ###
     G = nx.Graph()
@@ -45,7 +46,6 @@ def create_graph(course: Course):
     # add nodes at ball coords
 
     if course.robot_coords is not None:
-        print("adding robot node")
         G.add_node(0)
         if len(course.robot_coords) != 0:
             pos[0] = (course.robot_coords[0], course.robot_coords[1])
@@ -55,6 +55,14 @@ def create_graph(course: Course):
         y = course.ball_coords[i][1]
         G.add_node(i+1)
         pos[i+1] = (x, y)
+
+    if len(course.orange_ball) > 0 and course.orange_ball is not None:
+        G.add_node(nmbr_of_nodes)
+        pos[nmbr_of_nodes] = (course.orange_ball[0], course.orange_ball[1])
+        nmbr_of_nodes += 1
+        orange_ball = True
+
+
 
     # Randomize node positions
     # pos = nx.random_layout(G, dim=2, center=None)
@@ -148,7 +156,7 @@ def create_graph(course: Course):
         # Create expanded obstacles
         middle_of_obstacle = [
             left_obstacle[0] - hor_obs_vector[0]/2], [left_obstacle[1] - hor_obs_vector[1]/2]
-        print("middle_of_obstacle: ", middle_of_obstacle)
+
 
         obs_expanded_corners_point1 = [x + y for x, y in zip(
             middle_of_obstacle, [(x + y)/2 for x, y in zip(hor_obs_vector, vert_obs_vector)])]
@@ -229,16 +237,16 @@ def create_graph(course: Course):
     short_extra_distance = 0.01
     # Reposition nodes if they intersect with obstacles
     if left_obstacle is not None:
-        for i in range(nmbr_of_nodes-1):
+        for i in range(nmbr_of_nodes-2 if orange_ball else nmbr_of_nodes-1):
             if course.ball_types[i] != "none":
                 # If inside obs_expanded_corners_poly
                 if obs_expanded_corners_poly.contains(Point(pos[i+1])):
-                    print("pos[i]: ", pos[i+1])
+
                     pos[i + 1] = find_closest_corner(pos[i+1], obs_expanded_corners)
-                    print("pos[i] after: ", pos[i+1])
+
                     pos[i + 1] = np.squeeze(move_away_from_obstacle(pos[i+1],
                                                                     middle_of_obstacle))
-                    print("pos[i] after after: ", pos[i+1])
+
                     course.ball_coords[i] = pos[i+1]
 
                 elif course.ball_types[i] == "lower_left_corner":
@@ -273,6 +281,54 @@ def create_graph(course: Course):
                     pos[i+1] = [pos[i+1][0], COURSE_HEIGHT -
                                 HALF_OF_ROBOT_WIDTH-short_extra_distance]
                     course.ball_coords[i] = pos[i+1]
+    if orange_ball:
+        if course.ball_types[nmbr_of_nodes-2] != "none":
+                
+                print("nmbr_of_nodes: ", nmbr_of_nodes)
+                print("course.ball_types.length: ", len(course.ball_types))
+                # If inside obs_expanded_corners_poly
+                if obs_expanded_corners_poly.contains(Point(pos[nmbr_of_nodes-1])):
+
+                    pos[nmbr_of_nodes-1] = find_closest_corner(
+                        pos[nmbr_of_nodes-1], obs_expanded_corners)
+
+                    pos[nmbr_of_nodes-1] = np.squeeze(move_away_from_obstacle(pos[nmbr_of_nodes-1],
+                                                                        middle_of_obstacle))
+
+                    course.orange_ball = pos[nmbr_of_nodes-1]
+
+                elif course.ball_types[nmbr_of_nodes-2] == "lower_left_corner":
+                    pos[nmbr_of_nodes-1] = [HALF_OF_ROBOT_WIDTH +
+                                short_extra_distance, HALF_OF_ROBOT_WIDTH+short_extra_distance]
+                    course.orange_ball = pos[nmbr_of_nodes-1]
+                elif course.ball_types[nmbr_of_nodes-2] == "lower_right_corner":
+                    pos[nmbr_of_nodes-1] = [COURSE_WIDTH -
+                                HALF_OF_ROBOT_WIDTH-short_extra_distance, HALF_OF_ROBOT_WIDTH+short_extra_distance]
+                    course.orange_ball = pos[nmbr_of_nodes-1]
+                elif course.ball_types[nmbr_of_nodes-2] == "upper_left_corner":
+                    pos[nmbr_of_nodes-1] = [HALF_OF_ROBOT_WIDTH+short_extra_distance,
+                                COURSE_HEIGHT - HALF_OF_ROBOT_WIDTH-short_extra_distance]
+                    course.orange_ball = pos[nmbr_of_nodes-1]
+                elif course.ball_types[nmbr_of_nodes-2] == "upper_right_corner":
+                    pos[nmbr_of_nodes-1] = [COURSE_WIDTH - HALF_OF_ROBOT_WIDTH-short_extra_distance,
+                                COURSE_HEIGHT - HALF_OF_ROBOT_WIDTH-short_extra_distance]
+                    course.orange_ball = pos[nmbr_of_nodes-1]
+                elif course.ball_types[nmbr_of_nodes-2] == "left_edge":
+                    pos[nmbr_of_nodes-1] = [HALF_OF_ROBOT_WIDTH +
+                                short_extra_distance, pos[nmbr_of_nodes-1][1]]
+                    course.orange_ball = pos[nmbr_of_nodes-1]
+                elif course.ball_types[nmbr_of_nodes-2] == "right_edge":
+                    pos[nmbr_of_nodes-1] = [COURSE_WIDTH -
+                                HALF_OF_ROBOT_WIDTH-short_extra_distance, pos[nmbr_of_nodes-1][1]]
+                    course.orange_ball = pos[nmbr_of_nodes-1]
+                elif course.ball_types[nmbr_of_nodes-2] == "lower_edge":
+                    pos[nmbr_of_nodes-1] = [pos[nmbr_of_nodes-1][0],
+                                HALF_OF_ROBOT_WIDTH+short_extra_distance]
+                    course.orange_ball = pos[nmbr_of_nodes-1]
+                elif course.ball_types[nmbr_of_nodes-2] == "upper_edge":
+                    pos[nmbr_of_nodes-1] = [pos[nmbr_of_nodes-1][0], COURSE_HEIGHT -
+                                HALF_OF_ROBOT_WIDTH-short_extra_distance]
+                    course.orange_ball = pos[nmbr_of_nodes-1]
 
     ### EDGES ###
     edge_weights = {}
@@ -329,7 +385,7 @@ def create_graph(course: Course):
     plt.figure(figsize=(DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
     # nodes
-    print(pos)
+    print("graph positions: ", pos)
     nx.draw_networkx_nodes(G, pos, node_size=NODE_SIZE)
 
     # edges
@@ -418,10 +474,7 @@ def create_graph(course: Course):
                 if pos[tsp[0][i]][0] == course.ball_coords[j][0]:
                     move_types_in_order.append(course.ball_types[j])
 
-    print("pos: ", pos)
-    print("course.ball_coords: ", course.ball_coords)
-
-    print("move_types_in_order: " , move_types_in_order)
+    # print("move_types_in_order: " , move_types_in_order)
 
     # if nmbr_of_nodes > 0: return coords of first node in tsp
     if nmbr_of_nodes > 0:

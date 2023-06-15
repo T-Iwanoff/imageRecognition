@@ -105,8 +105,10 @@ def substitute_in_list(list, value):
     list[0] = value
     return list
 
-# TODO Preserve obstacle
+
 def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
+
+    
 
     # Calibrate the frame
     frame = calibrate_frame(frame)
@@ -128,7 +130,7 @@ def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
         # Copy ROI part from original image to target image
         frame_mask = cv.bitwise_and(mask, frame, mask=roi) + cv.bitwise_and(mask, mask, mask=~roi)
 
-        cv.imshow("course mask", frame_mask)
+        # cv.imshow("course mask", frame_mask)
 
     # Find the balls
     if walls is not None and len(walls):
@@ -150,15 +152,6 @@ def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
     else:
         robot_position = None
         robot_heading = None
-
-    # Discard balls (and robot?) found outside the course
-    if walls is not None and len(walls):
-        if balls is not None and len(balls):
-            balls = remove_objects_outside_walls(walls, balls)
-        # if robot_position is not None and len(robot_position):
-        #     robot_position = remove_objects_outside_walls(walls, robot_position)
-
-    # TODO Add ball type here?
 
     return Course(ball_coords=balls,
                   orange_ball=orange_ball,
