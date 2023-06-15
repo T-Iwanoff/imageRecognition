@@ -56,13 +56,11 @@ def create_graph(course: Course):
         G.add_node(i+1)
         pos[i+1] = (x, y)
 
-    if course.orange_ball is not None:
+    if len(course.orange_ball) > 0 and course.orange_ball is not None:
         G.add_node(nmbr_of_nodes)
         pos[nmbr_of_nodes] = (course.orange_ball[0], course.orange_ball[1])
         nmbr_of_nodes += 1
         orange_ball = True
-
-
 
     # Randomize node positions
     # pos = nx.random_layout(G, dim=2, center=None)
@@ -122,32 +120,37 @@ def create_graph(course: Course):
             vert_obs_vector[0]/np.linalg.norm(vert_obs_vector),
             vert_obs_vector[1]/np.linalg.norm(vert_obs_vector)]
 
-        # Obstacle length vector
-        hor_obs_length_vector = [
+        # Obstacle orthogonal length vector
+        hor_obs_orthog_length_vector = [
             hor_obs_orthog_unit_vector[0]*OBSTACLE_WIDTH, hor_obs_orthog_unit_vector[1]*OBSTACLE_WIDTH]
-        vert_obs_length_vector = [
+        vert_obs_orthog_length_vector = [
             vert_obs_orthog_unit_vector[0]*OBSTACLE_WIDTH, vert_obs_orthog_unit_vector[1]*OBSTACLE_WIDTH]
+
+        hor_obs_length_vector = [
+            hor_obs_unit_vector[0]*HALF_OF_ROBOT_WIDTH, hor_obs_unit_vector[1]*HALF_OF_ROBOT_WIDTH]
+        vert_obs_length_vector = [
+            vert_obs_unit_vector[0]*HALF_OF_ROBOT_WIDTH, vert_obs_unit_vector[1]*HALF_OF_ROBOT_WIDTH]
 
         # Obstacle coords
         hor_obs_coords = [
-            [left_obstacle[0] + hor_obs_length_vector[0],
-                left_obstacle[1] + hor_obs_length_vector[1]],
-            [right_obstacle[0]-hor_obs_length_vector[0],
-                right_obstacle[1]-hor_obs_length_vector[1]],
-            [left_obstacle[0]-hor_obs_length_vector[0],
-                left_obstacle[1]-hor_obs_length_vector[1]],
-            [right_obstacle[0]+hor_obs_length_vector[0],
-                right_obstacle[1]+hor_obs_length_vector[1]]]
+            [left_obstacle[0] + hor_obs_orthog_length_vector[0],
+                left_obstacle[1] + hor_obs_orthog_length_vector[1]],
+            [right_obstacle[0]-hor_obs_orthog_length_vector[0],
+                right_obstacle[1]-hor_obs_orthog_length_vector[1]],
+            [left_obstacle[0]-hor_obs_orthog_length_vector[0],
+                left_obstacle[1]-hor_obs_orthog_length_vector[1]],
+            [right_obstacle[0]+hor_obs_orthog_length_vector[0],
+                right_obstacle[1]+hor_obs_orthog_length_vector[1]]]
 
         vert_obs_coords = [
-            [top_obstacle[0]+vert_obs_length_vector[0],
-                top_obstacle[1]+vert_obs_length_vector[1]],
-            [bottom_obstacle[0]-vert_obs_length_vector[0],
-                bottom_obstacle[1]-vert_obs_length_vector[1]],
-            [top_obstacle[0]-vert_obs_length_vector[0],
-                top_obstacle[1]-vert_obs_length_vector[1]],
-            [bottom_obstacle[0]+vert_obs_length_vector[0],
-                bottom_obstacle[1]+vert_obs_length_vector[1]]]
+            [top_obstacle[0]+vert_obs_orthog_length_vector[0],
+                top_obstacle[1]+vert_obs_orthog_length_vector[1]],
+            [bottom_obstacle[0]-vert_obs_orthog_length_vector[0],
+                bottom_obstacle[1]-vert_obs_orthog_length_vector[1]],
+            [top_obstacle[0]-vert_obs_orthog_length_vector[0],
+                top_obstacle[1]-vert_obs_orthog_length_vector[1]],
+            [bottom_obstacle[0]+vert_obs_orthog_length_vector[0],
+                bottom_obstacle[1]+vert_obs_orthog_length_vector[1]]]
 
         # Order obstacles coords
         hor_obs_coords = order_obstacles(hor_obs_coords)
@@ -156,7 +159,6 @@ def create_graph(course: Course):
         # Create expanded obstacles
         middle_of_obstacle = [
             left_obstacle[0] - hor_obs_vector[0]/2], [left_obstacle[1] - hor_obs_vector[1]/2]
-
 
         obs_expanded_corners_point1 = [x + y for x, y in zip(
             middle_of_obstacle, [(x + y)/2 for x, y in zip(hor_obs_vector, vert_obs_vector)])]
@@ -180,7 +182,45 @@ def create_graph(course: Course):
         ]
 
         # TODO: make obstacles more expanded
-        # obs_expanded_lengths1 = []
+        # hor_obs_extended_top_left = [
+        #     hor_obs_coords[0][0] - hor_obs_length_vector[0], hor_obs_coords[0][1] - hor_obs_length_vector[1]]
+        # hor_obs_extended_top_right = [
+        #     hor_obs_coords[1][0] - hor_obs_length_vector[0], hor_obs_coords[1][1] - hor_obs_length_vector[1]]
+        # hor_obs_extended_bot_right = [
+        #     hor_obs_coords[2][0] + hor_obs_length_vector[0], hor_obs_coords[2][1] + hor_obs_length_vector[1]]
+        # hor_obs_extended_bot_left = [
+        #     hor_obs_coords[3][0] + hor_obs_length_vector[0], hor_obs_coords[3][1] + hor_obs_length_vector[1]]
+        hor_obs_extended_top_left = move_opposite(
+            hor_obs_coords[0], hor_obs_coords[3], HALF_OF_ROBOT_WIDTH*4)
+        hor_obs_extended_top_right = move_opposite(
+            hor_obs_coords[1], hor_obs_coords[2], HALF_OF_ROBOT_WIDTH*4)
+        hor_obs_extended_bot_right = move_opposite(
+            hor_obs_coords[2], hor_obs_coords[1], HALF_OF_ROBOT_WIDTH*4)
+        hor_obs_extended_bot_left = move_opposite(
+            hor_obs_coords[3], hor_obs_coords[0], HALF_OF_ROBOT_WIDTH*4)
+        
+        hor_obs_extended = [
+            hor_obs_extended_top_left,
+            hor_obs_extended_top_right,
+            hor_obs_extended_bot_right,
+            hor_obs_extended_bot_left
+        ]
+
+        vert_obs_extended_top_left = move_opposite(
+            vert_obs_coords[0], vert_obs_coords[3], HALF_OF_ROBOT_WIDTH*4)
+        vert_obs_extended_top_right = move_opposite(
+            vert_obs_coords[1], vert_obs_coords[2], HALF_OF_ROBOT_WIDTH*4)
+        vert_obs_extended_bot_right = move_opposite(
+            vert_obs_coords[2], vert_obs_coords[1], HALF_OF_ROBOT_WIDTH*4)
+        vert_obs_extended_bot_left = move_opposite(
+            vert_obs_coords[3], vert_obs_coords[0], HALF_OF_ROBOT_WIDTH*4)
+
+        vert_obs_extended = [
+            vert_obs_extended_top_left,
+            vert_obs_extended_top_right,
+            vert_obs_extended_bot_right,
+            vert_obs_extended_bot_left
+        ]
 
         # Create expanded walls
         top_left_wall_expanded_point = [
@@ -227,11 +267,14 @@ def create_graph(course: Course):
         vert_obs_poly = Polygon(vert_obs_coords)
         # obstacles expanded
         obs_expanded_corners_poly = Polygon(obs_expanded_corners)
+        hor_obs_extended_poly = Polygon(hor_obs_extended)
+        vert_obs_extended_poly = Polygon(vert_obs_extended)
         # walls expanded
         left_wall_expanded_poly = Polygon(left_wall_expanded)
         top_wall_expanded_poly = Polygon(top_wall_expanded)
         right_wall_expanded_poly = Polygon(right_wall_expanded)
         bottom_wall_expanded_poly = Polygon(bottom_wall_expanded)
+
 
     ### REPOSITION NODES ###
     short_extra_distance = 0.01
@@ -242,12 +285,21 @@ def create_graph(course: Course):
                 # If inside obs_expanded_corners_poly
                 if obs_expanded_corners_poly.contains(Point(pos[i+1])):
 
-                    pos[i + 1] = find_closest_corner(pos[i+1], obs_expanded_corners)
+                    pos[i +
+                        1] = find_closest_corner(pos[i+1], obs_expanded_corners)
 
                     pos[i + 1] = np.squeeze(move_away_from_obstacle(pos[i+1],
                                                                     middle_of_obstacle))
 
                     course.ball_coords[i] = pos[i+1]
+
+                    print("inside obs_expanded_corners_poly")
+                # If inside obs_extended_poly
+                elif hor_obs_extended_poly.contains(Point(pos[i+1])) or vert_obs_extended_poly.contains(Point(pos[i+1])):
+                    pos[i+1] = np.squeeze(move_away_from_obstacle(pos[i+1],
+                                                                  middle_of_obstacle))
+                    course.ball_coords[i] = pos[i+1]
+                    print("inside obs_extended_poly")
 
                 elif course.ball_types[i] == "lower_left_corner":
                     pos[i+1] = [HALF_OF_ROBOT_WIDTH +
@@ -283,52 +335,60 @@ def create_graph(course: Course):
                     course.ball_coords[i] = pos[i+1]
     if orange_ball:
         if course.ball_types[nmbr_of_nodes-2] != "none":
-                
-                print("nmbr_of_nodes: ", nmbr_of_nodes)
-                print("course.ball_types.length: ", len(course.ball_types))
-                # If inside obs_expanded_corners_poly
-                if obs_expanded_corners_poly.contains(Point(pos[nmbr_of_nodes-1])):
 
-                    pos[nmbr_of_nodes-1] = find_closest_corner(
-                        pos[nmbr_of_nodes-1], obs_expanded_corners)
+            print("nmbr_of_nodes: ", nmbr_of_nodes)
+            print("course.ball_types.length: ", len(course.ball_types))
+            # If inside obs_expanded_corners_poly
+            if obs_expanded_corners_poly.contains(Point(pos[nmbr_of_nodes-1])):
 
-                    pos[nmbr_of_nodes-1] = np.squeeze(move_away_from_obstacle(pos[nmbr_of_nodes-1],
-                                                                        middle_of_obstacle))
+                pos[nmbr_of_nodes-1] = find_closest_corner(
+                    pos[nmbr_of_nodes-1], obs_expanded_corners)
 
-                    course.orange_ball = pos[nmbr_of_nodes-1]
+                pos[nmbr_of_nodes-1] = np.squeeze(move_away_from_obstacle(pos[nmbr_of_nodes-1],
+                                                                          middle_of_obstacle))
 
-                elif course.ball_types[nmbr_of_nodes-2] == "lower_left_corner":
-                    pos[nmbr_of_nodes-1] = [HALF_OF_ROBOT_WIDTH +
-                                short_extra_distance, HALF_OF_ROBOT_WIDTH+short_extra_distance]
-                    course.orange_ball = pos[nmbr_of_nodes-1]
-                elif course.ball_types[nmbr_of_nodes-2] == "lower_right_corner":
-                    pos[nmbr_of_nodes-1] = [COURSE_WIDTH -
-                                HALF_OF_ROBOT_WIDTH-short_extra_distance, HALF_OF_ROBOT_WIDTH+short_extra_distance]
-                    course.orange_ball = pos[nmbr_of_nodes-1]
-                elif course.ball_types[nmbr_of_nodes-2] == "upper_left_corner":
-                    pos[nmbr_of_nodes-1] = [HALF_OF_ROBOT_WIDTH+short_extra_distance,
-                                COURSE_HEIGHT - HALF_OF_ROBOT_WIDTH-short_extra_distance]
-                    course.orange_ball = pos[nmbr_of_nodes-1]
-                elif course.ball_types[nmbr_of_nodes-2] == "upper_right_corner":
-                    pos[nmbr_of_nodes-1] = [COURSE_WIDTH - HALF_OF_ROBOT_WIDTH-short_extra_distance,
-                                COURSE_HEIGHT - HALF_OF_ROBOT_WIDTH-short_extra_distance]
-                    course.orange_ball = pos[nmbr_of_nodes-1]
-                elif course.ball_types[nmbr_of_nodes-2] == "left_edge":
-                    pos[nmbr_of_nodes-1] = [HALF_OF_ROBOT_WIDTH +
-                                short_extra_distance, pos[nmbr_of_nodes-1][1]]
-                    course.orange_ball = pos[nmbr_of_nodes-1]
-                elif course.ball_types[nmbr_of_nodes-2] == "right_edge":
-                    pos[nmbr_of_nodes-1] = [COURSE_WIDTH -
-                                HALF_OF_ROBOT_WIDTH-short_extra_distance, pos[nmbr_of_nodes-1][1]]
-                    course.orange_ball = pos[nmbr_of_nodes-1]
-                elif course.ball_types[nmbr_of_nodes-2] == "lower_edge":
-                    pos[nmbr_of_nodes-1] = [pos[nmbr_of_nodes-1][0],
-                                HALF_OF_ROBOT_WIDTH+short_extra_distance]
-                    course.orange_ball = pos[nmbr_of_nodes-1]
-                elif course.ball_types[nmbr_of_nodes-2] == "upper_edge":
-                    pos[nmbr_of_nodes-1] = [pos[nmbr_of_nodes-1][0], COURSE_HEIGHT -
-                                HALF_OF_ROBOT_WIDTH-short_extra_distance]
-                    course.orange_ball = pos[nmbr_of_nodes-1]
+                course.orange_ball = pos[nmbr_of_nodes-1]
+
+            # If inside obs_extended_poly
+            elif hor_obs_extended_poly.contains(Point(pos[nmbr_of_nodes-1])) or vert_obs_extended_poly.contains(Point(pos[nmbr_of_nodes-1])):
+
+                pos[nmbr_of_nodes-1] = np.squeeze(move_away_from_obstacle(pos[nmbr_of_nodes-1],
+                                                                          middle_of_obstacle))
+
+                course.orange_ball = pos[nmbr_of_nodes-1]
+
+            elif course.ball_types[nmbr_of_nodes-2] == "lower_left_corner":
+                pos[nmbr_of_nodes-1] = [HALF_OF_ROBOT_WIDTH +
+                                        short_extra_distance, HALF_OF_ROBOT_WIDTH+short_extra_distance]
+                course.orange_ball = pos[nmbr_of_nodes-1]
+            elif course.ball_types[nmbr_of_nodes-2] == "lower_right_corner":
+                pos[nmbr_of_nodes-1] = [COURSE_WIDTH -
+                                        HALF_OF_ROBOT_WIDTH-short_extra_distance, HALF_OF_ROBOT_WIDTH+short_extra_distance]
+                course.orange_ball = pos[nmbr_of_nodes-1]
+            elif course.ball_types[nmbr_of_nodes-2] == "upper_left_corner":
+                pos[nmbr_of_nodes-1] = [HALF_OF_ROBOT_WIDTH+short_extra_distance,
+                                        COURSE_HEIGHT - HALF_OF_ROBOT_WIDTH-short_extra_distance]
+                course.orange_ball = pos[nmbr_of_nodes-1]
+            elif course.ball_types[nmbr_of_nodes-2] == "upper_right_corner":
+                pos[nmbr_of_nodes-1] = [COURSE_WIDTH - HALF_OF_ROBOT_WIDTH-short_extra_distance,
+                                        COURSE_HEIGHT - HALF_OF_ROBOT_WIDTH-short_extra_distance]
+                course.orange_ball = pos[nmbr_of_nodes-1]
+            elif course.ball_types[nmbr_of_nodes-2] == "left_edge":
+                pos[nmbr_of_nodes-1] = [HALF_OF_ROBOT_WIDTH +
+                                        short_extra_distance, pos[nmbr_of_nodes-1][1]]
+                course.orange_ball = pos[nmbr_of_nodes-1]
+            elif course.ball_types[nmbr_of_nodes-2] == "right_edge":
+                pos[nmbr_of_nodes-1] = [COURSE_WIDTH -
+                                        HALF_OF_ROBOT_WIDTH-short_extra_distance, pos[nmbr_of_nodes-1][1]]
+                course.orange_ball = pos[nmbr_of_nodes-1]
+            elif course.ball_types[nmbr_of_nodes-2] == "lower_edge":
+                pos[nmbr_of_nodes-1] = [pos[nmbr_of_nodes-1][0],
+                                        HALF_OF_ROBOT_WIDTH+short_extra_distance]
+                course.orange_ball = pos[nmbr_of_nodes-1]
+            elif course.ball_types[nmbr_of_nodes-2] == "upper_edge":
+                pos[nmbr_of_nodes-1] = [pos[nmbr_of_nodes-1][0], COURSE_HEIGHT -
+                                        HALF_OF_ROBOT_WIDTH-short_extra_distance]
+                course.orange_ball = pos[nmbr_of_nodes-1]
 
     ### EDGES ###
     edge_weights = {}
@@ -340,7 +400,7 @@ def create_graph(course: Course):
             for j in range(i + 1, nmbr_of_nodes):
                 if G.has_node(i) and G.has_node(j):
                     edge_coords = LineString([pos[i], pos[j]])
-                    if not edge_coords.intersects(hor_obs_poly) and not edge_coords.intersects(vert_obs_poly) and not edge_coords.intersects(obs_expanded_corners_poly) and not edge_coords.intersects(left_wall_expanded_poly) and not edge_coords.intersects(top_wall_expanded_poly) and not edge_coords.intersects(right_wall_expanded_poly) and not edge_coords.intersects(bottom_wall_expanded_poly):
+                    if not edge_coords.intersects(hor_obs_poly) and not edge_coords.intersects(vert_obs_poly) and not edge_coords.intersects(obs_expanded_corners_poly) and not edge_coords.intersects(left_wall_expanded_poly) and not edge_coords.intersects(top_wall_expanded_poly) and not edge_coords.intersects(right_wall_expanded_poly) and not edge_coords.intersects(bottom_wall_expanded_poly) and not edge_coords.intersects(hor_obs_extended_poly) and not edge_coords.intersects(vert_obs_extended_poly):
                         dist = math.sqrt((pos[i][0] - pos[j][0])
                                          ** 2 + (pos[i][1] - pos[j][1]) ** 2)
                         G.add_edge(i, j, weight=dist)
@@ -375,6 +435,7 @@ def create_graph(course: Course):
     #
     end_time = time.time()
     print(f"Algo took: {end_time - start_time} seconds to finish")
+    print("---------------------------------")
 
     # remove fake edges
     for edge in G.edges:
@@ -385,7 +446,6 @@ def create_graph(course: Course):
     plt.figure(figsize=(DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
     # nodes
-    print("graph positions: ", pos)
     nx.draw_networkx_nodes(G, pos, node_size=NODE_SIZE)
 
     # edges
@@ -417,10 +477,12 @@ def create_graph(course: Course):
     # display the obstacles
     if left_obstacle is not None:
 
+        # obstacle patches
         hor_obs_patch = PolygonPatch([(hor_obs_coords[0]),
                                       (hor_obs_coords[1]),
                                       (hor_obs_coords[2]),
                                       (hor_obs_coords[3])], alpha=0.5, color="red")
+
         vert_obs_patch = PolygonPatch([(vert_obs_coords[0]),
                                       (vert_obs_coords[1]),
                                       (vert_obs_coords[2]),
@@ -429,6 +491,17 @@ def create_graph(course: Course):
                                                    (obs_expanded_corners[1]),
                                                    (obs_expanded_corners[2]),
                                                    (obs_expanded_corners[3])], alpha=0.2, color="red")
+
+        hor_obs_extented_patch = PolygonPatch([(hor_obs_extended_top_left),
+                                               (hor_obs_extended_top_right),
+                                               (hor_obs_extended_bot_right),
+                                               (hor_obs_extended_bot_left)], alpha=0.2, color="red")
+        vert_obs_extended_patch = PolygonPatch([(vert_obs_extended_top_left),
+                                                (vert_obs_extended_top_right),
+                                                (vert_obs_extended_bot_right),
+                                                (vert_obs_extended_bot_left)], alpha=0.2, color="red")
+
+        # wall patches
         left_wall_expanded_patch = PolygonPatch([(left_wall_expanded[0]),
                                                  (left_wall_expanded[1]),
                                                  (left_wall_expanded[2]),
@@ -454,6 +527,8 @@ def create_graph(course: Course):
         ax.add_patch(hor_obs_patch)
         ax.add_patch(vert_obs_patch)
         ax.add_patch(obs_expanded_corners_patch)
+        ax.add_patch(hor_obs_extented_patch)
+        ax.add_patch(vert_obs_extended_patch)
 
     # print the graph matrix
     # printGraphMatrix(G)
@@ -482,7 +557,7 @@ def create_graph(course: Course):
             return NextMove(pos[tsp[0][1]], move_types_in_order[0])
         else:
             print("Graph is not connected")
-            return NextMove(move_type = "goal")
+            return NextMove(move_type="goal")
 
 
 def solve_tsp(G):
@@ -544,16 +619,25 @@ def order_obstacles(obstacle_coords):
         if (sorted_coords[0][1] > sorted_coords[1][1]):
             top_left, top_right = sorted_coords[0], sorted_coords[2]
             bottom_left, bottom_right = sorted_coords[1], sorted_coords[3]
+            print("1")
         else:
             top_left, top_right = sorted_coords[0], sorted_coords[1]
             bottom_left, bottom_right = sorted_coords[2], sorted_coords[3]
+            print("2")
     elif (sorted_coords[0][1] < sorted_coords[2][1] and sorted_coords[1][1] < sorted_coords[3][1]):
         if (sorted_coords[0][1] < sorted_coords[1][1]):
-            bottom_left, bottom_right = sorted_coords[0], sorted_coords[2]
-            top_left, top_right = sorted_coords[1], sorted_coords[3]
-        else:
             bottom_left, bottom_right = sorted_coords[0], sorted_coords[1]
             top_left, top_right = sorted_coords[2], sorted_coords[3]
+            print("3")
+        else:
+            if (sorted_coords[2][0]-sorted_coords[0][0] > 0.1):
+                top_left, top_right = sorted_coords[2], sorted_coords[3]
+                bottom_left, bottom_right = sorted_coords[0], sorted_coords[1]
+                print("4")
+            else:
+                top_left, top_right = sorted_coords[0], sorted_coords[2]
+                bottom_left, bottom_right = sorted_coords[1], sorted_coords[3]
+                print("5")
 
     return [top_left, top_right, bottom_right, bottom_left]
 
@@ -621,3 +705,19 @@ def move_away_from_obstacle(corner_coords, middle_coords):
                       reference[1] + scaled_vector[1]]
 
     return new_coordinate
+
+
+def move_opposite(coord1, coord2, length):
+    # Calculate the differences between coordinates
+    dx = coord2[0] - coord1[0]
+    dy = coord2[1] - coord1[1]
+
+    # Calculate the negated differences
+    opposite_dx = -dx
+    opposite_dy = -dy
+
+    # Calculate the new coordinate
+    new_coord = (coord1[0] + opposite_dx * length,
+                 coord1[1] + opposite_dy * length)
+
+    return new_coord
