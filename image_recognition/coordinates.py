@@ -135,7 +135,7 @@ def improve_coordinate_precision(walls, pixel_coordinates, obj):
     if obj == "robot":
         if pixel_coordinates == [0, 0]:
             # print("robot not found!")
-            return None
+            return
 
     # Calculate point relative to the walls
     pixel_coordinates_meter = [find_length_in_meter(walls, pixel_coordinates[0], "x"),

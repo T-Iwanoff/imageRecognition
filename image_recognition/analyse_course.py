@@ -110,7 +110,7 @@ def analyse_video(path=None, media='CAMERA'):
         static_walls = course.wall_coords
 
         # Update or use backup objects
-        if course.obstacle_coords is not None and len(course.obstacle_coords):
+        if course.obstacle_coords is not None and len(course.obstacle_coords) and len(course.obstacle_coords[0]):
             backup_obstacle = course.obstacle_coords
         else:
             course.obstacle_coords = backup_obstacle
