@@ -126,12 +126,16 @@ def analyse_video(path=None, media='CAMERA'):
             course.robot_heading = backup_robot_heading
 
         # Convert to meter
-        balls_in_meters, orange_ball_in_meters, obstacle_in_meters, walls_in_meters =\
-            convert_pixel_to_meter(course)
+        balls_in_meters, orange_ball_in_meters, obstacle_in_meters, walls_in_meters = convert_pixel_to_meter(course)
 
         # Draw on the frame
         draw_frame = draw_on_frame(frame=calibrated_frame, course=course, balls=balls_in_meters,
                                    orange_ball=orange_ball_in_meters)
+        
+        course.obstacle_coords = obstacle_in_meters
+        course.wall_coords = walls_in_meters
+        course.ball_coords = balls_in_meters
+        course.orange_ball = orange_ball_in_meters
 
         # If in setup mode, add guiding lines
         if SETUP_MODE:
@@ -316,6 +320,9 @@ def find_ball_type(balls_m, walls_m, obstacle_m, orange_ball_m):
     return ball_types_in_order
 
 def display_graph(course: Course):
+
+    print("-----------------------------------")
+
     if course.ball_coords is not None:
         ball_coords = [tuple(round(coord, 2) for coord in coords)
                        for coords in course.ball_coords]
@@ -338,6 +345,9 @@ def display_graph(course: Course):
         print(f"Ball types: {course.ball_types}")
     else:
         print("No ball types found")
+
+    print("-----------------------------------")
+
     # create graph
     return gt.create_graph(course)
 

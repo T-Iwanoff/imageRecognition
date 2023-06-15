@@ -36,7 +36,6 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
         # Make course
         course, ball_frame = analyse_frame(frame, walls)
 
-
         # Display the graph
         display_graph(course)
 
@@ -59,7 +58,8 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
             if mac_camera:
                 video_capture = cv.VideoCapture(VIDEO_CAPTURE_DEVICE)
             else:
-                video_capture = cv.VideoCapture(VIDEO_CAPTURE_DEVICE, cv.CAP_DSHOW)
+                video_capture = cv.VideoCapture(
+                    VIDEO_CAPTURE_DEVICE, cv.CAP_DSHOW)
             video_capture.set(3, 640)
             video_capture.set(4, 480)
 
@@ -90,7 +90,6 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 print("Error: Frame not found")
                 exit()
 
-
             # Analyse the frame
             if STATIC_OUTER_WALLS:
                 course, ball_frame = analyse_frame(
@@ -109,10 +108,13 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
             #     course.robot_coords = remove_objects_outside_walls_from_list(course.wall_coords, course.robot_coords, "robot")
 
             if len(course.robot_coords):
-                text = "(" + str(round(course.robot_coords[0], 2)) + ", " + str(round(course.robot_coords[1], 2)) + ")"
-                cv.putText(frame_overlay, text, (5, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
+                text = "(" + str(round(course.robot_coords[0], 2)) + ", " + str(
+                    round(course.robot_coords[1], 2)) + ")"
+                cv.putText(frame_overlay, text, (5, 460),
+                           cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
                 text = "Angle: " + str(round(course.robot_angle))
-                cv.putText(frame_overlay, text, (300, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
+                cv.putText(frame_overlay, text, (300, 460),
+                           cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
 
             if SETUP_MODE:
                 # setup camera center with the course for optimal coordinate calculation
@@ -125,30 +127,32 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 # Course setup lines (setup for outer edge of walls)
                 # horizontal lines
                 # top line
-                cv.line(frame_overlay, (0, 28), (width, 28), (255, 255, 255), 1)
+                cv.line(frame_overlay, (0, 28),
+                        (width, 28), (255, 255, 255), 1)
                 # bottom line
-                cv.line(frame_overlay, (0, 415), (width, 406), (255, 255, 255), 1)
+                cv.line(frame_overlay, (0, 415),
+                        (width, 406), (255, 255, 255), 1)
 
                 # vertical
                 # left line
-                cv.line(frame_overlay, (48, 0), (48, height), (255, 255, 255), 1)
+                cv.line(frame_overlay, (48, 0),
+                        (48, height), (255, 255, 255), 1)
                 # right line
-                cv.line(frame_overlay, (575, 0), (563, height), (255, 255, 255), 1)
+                cv.line(frame_overlay, (575, 0),
+                        (563, height), (255, 255, 255), 1)
 
-                #camera setup rectangle
+                # camera setup rectangle
                 cv.rectangle(frame_overlay, (220, 410), (397, 500), 255, 1)
 
             # Display the frames
             # frame_overlay = overlay_frames(ball_frame, robot_frame)
             cv.imshow('Frame', frame_overlay)
 
-
-
             # print the coordinates of the balls when g is pressed
             if cv.waitKey(1) == ord('g'):
                 next_move = display_graph(course)
                 next_move.robot_coords = course.robot_coords
-                next_move.robot_angle = course.robot_angle
+                next_move.robot_heading = course.robot_angle
                 print("The next move is:", next_move.to_json())
                 if connected:
                     print("Sending next move to robot")
@@ -169,7 +173,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
 def display_graph(course: Course):
     # print coords with 2 decimal places
 
-    print("obstacle coords: ", course.obstacle_coords)
+    print("--------------------")
 
     if course.ball_coords is not None:
         ball_coords = [tuple(round(coord, 2) for coord in coords)
@@ -193,6 +197,9 @@ def display_graph(course: Course):
         print(f"Ball types: {course.ball_types}")
     else:
         print("No ball types found")
+
+    print("--------------------")
+
     # create graph
     return gt.create_graph(course)
 
