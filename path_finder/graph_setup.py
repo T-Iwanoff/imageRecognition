@@ -56,7 +56,7 @@ def create_graph(course: Course):
         G.add_node(i+1)
         pos[i+1] = (x, y)
 
-    if course.orange_ball is not None:
+    if len(course.orange_ball) > 0 and course.orange_ball is not None:
         G.add_node(nmbr_of_nodes)
         pos[nmbr_of_nodes] = (course.orange_ball[0], course.orange_ball[1])
         nmbr_of_nodes += 1
