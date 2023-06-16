@@ -238,7 +238,9 @@ def draw_on_frame(frame, course: Course, balls, orange_ball):
         else:
             cv.drawContours(frame, [course.wall_coords], 0, (255, 0, 0), 2)
 
-    if course.obstacle_coords is not None and len(course.obstacle_coords[0]):
+
+
+    if course.obstacle_coords is not None and len(course.obstacle_coords):
         for coord in course.obstacle_coords:
             cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
 
