@@ -3,16 +3,13 @@
 import json
 import time
 import socket
+from config import ROBOT_IP
 from next_move import NextMove
 import asyncio
 import concurrent.futures
 
 
-ev3_host = '192.168.222.107'   # Mark
-#ev3_host = '192.168.43.206'     # Thor
-# ev3_host = '10.0.1.1' # access point 1
-# ev3_host = '192.168.48.208'  # access point+
-# ev3_host = '0.0.0.0'
+ev3_host = ROBOT_IP
 port = 10000  # Choose the same port number as in the Java program
 
 

@@ -53,8 +53,8 @@ def robot_recognition(frame, wall_corners, mask):
     # upper_bound_center = np.array([140,255,255])
 
     # lower bound and upper bound for center color (blue)
-    lower_bound_center = np.array([80, 95, 50])
-    upper_bound_center = np.array([110, 150, 255])
+    lower_bound_center = np.array([90, 90, 50])
+    upper_bound_center = np.array([110, 250, 255])
 
     # lower bound and upper bound for center color (lego blue)
     # lower_bound_center = np.array([110, 130, 20])
