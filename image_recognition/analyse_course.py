@@ -166,18 +166,32 @@ def analyse_video(path=None, media='CAMERA'):
             #   Send instruction
 
 
-        # print the coordinates of the balls when g is pressed
-        if cv.waitKey(1) == ord('g'):
-            course.ball_types = find_ball_type(balls_in_meters, walls_in_meters,
-                                              obstacle_in_meters, orange_ball_in_meters)
-            next_move = display_graph(course)
-            next_move.robot_coords = course.robot_coords
-            next_move.robot_heading = course.robot_heading
-            print("The next move is:", next_move.to_json())
-            if connected:
-                print("Sending next move to robot")
-                asyncio.run(
-                    socket_connection.async_send_next_move(next_move))
+        # # print the coordinates of the balls when g is pressed
+        # if cv.waitKey(1) == ord('g'):
+        #     course.ball_types = find_ball_type(balls_in_meters, walls_in_meters,
+        #                                       obstacle_in_meters, orange_ball_in_meters)
+        #     next_move = display_graph(course)
+        #     next_move.robot_coords = course.robot_coords
+        #     next_move.robot_heading = course.robot_heading
+        #     print("The next move is:", next_move.to_json())
+        #     if connected:
+        #         print("Sending next move to robot")
+        #         asyncio.run(
+        #             socket_connection.async_send_next_move(next_move))
+        # # print the coordinates of the balls when g is pressed
+
+        course.ball_types = find_ball_type(balls_in_meters, walls_in_meters,
+                                          obstacle_in_meters, orange_ball_in_meters)
+        next_move = display_graph(course)
+        next_move.robot_coords = course.robot_coords
+        next_move.robot_heading = course.robot_heading
+        json_object = next_move.to_json()
+        with open("test.json", "w") as outfile:
+            outfile.write(json_object)
+            outfile.close()
+
+
+
 
         frame_counter += 1
 
