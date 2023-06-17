@@ -1,6 +1,7 @@
 import asyncio
 import copy
 import platform
+import threading
 import time
 
 import cv2
@@ -16,7 +17,6 @@ from image_recognition.coordinates import remove_objects_outside_walls_from_list
 from image_recognition.robotRecognition import robot_recognition
 from next_move import NextMove
 import robot_connection.socket_connection as sc
-
 
 def analyse_course(path=None, media='CAMERA'):
     if media == 'CAMERA':
@@ -83,14 +83,14 @@ def analyse_video(path=None, media='CAMERA'):
     backup_obstacle = []
     backup_robot_pos = []
     backup_robot_heading = None
-    # start_time = time.perf_counter()
-    # timer = time.perf_counter()
+    start_time = time.time()
     # frame_count = 0
     # timer = time.perf_counter() + 4
 
 
     # Analyse the frames
     while True:
+        current_time = time.time()
         # Get the current frame
         ret, frame = video_capture.read()
         if not ret:
@@ -180,17 +180,17 @@ def analyse_video(path=None, media='CAMERA'):
         #             socket_connection.async_send_next_move(next_move))
         # # print the coordinates of the balls when g is pressed
 
-        course.ball_types = find_ball_type(balls_in_meters, walls_in_meters,
-                                          obstacle_in_meters, orange_ball_in_meters)
-        next_move = display_graph(course)
-        next_move.robot_coords = course.robot_coords
-        next_move.robot_heading = course.robot_heading
-        json_object = next_move.to_json()
-        with open("test.json", "w") as outfile:
-            outfile.write(json_object)
-            outfile.close()
-
-
+        if current_time - start_time >= 1:
+            course.ball_types = find_ball_type(balls_in_meters, walls_in_meters,
+                                               obstacle_in_meters, orange_ball_in_meters)
+            next_move = display_graph(course)
+            next_move.robot_coords = course.robot_coords
+            next_move.robot_heading = course.robot_heading
+            json_object = next_move.to_json()
+            with open("test.json", "w") as outfile:
+                outfile.write(json_object)
+                outfile.close()
+            start_time = current_time
 
 
         frame_counter += 1
@@ -252,7 +252,7 @@ def draw_on_frame(frame, course: Course, balls, orange_ball):
         else:
             cv.drawContours(frame, [course.wall_coords], 0, (255, 0, 0), 2)
 
-    if course.obstacle_coords is not None and len(course.obstacle_coords[0]):
+    if course.obstacle_coords is not None and len(course.obstacle_coords):
         for coord in course.obstacle_coords:
             cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
 
@@ -323,44 +323,44 @@ def open_video_capture(media='CAMERA', path=None):
 def find_ball_type(balls_m, walls_m, obstacle_m, orange_ball_m):
 
     ball_list = determine_order_and_type(walls_m, obstacle_m, balls_m, orange_ball_m)
-    print("ball list: ", ball_list)
+    # print("ball list: ", ball_list)
     ball_coords_in_order = []
     ball_types_in_order = []
     if ball_list is not None:
         for i in ball_list:
             ball_coords_in_order.append(i[0])
             ball_types_in_order.append(i[1])
-    print("ball types: ", ball_types_in_order)
+    # print("ball types: ", ball_types_in_order)
     return ball_types_in_order
 
 def display_graph(course: Course):
 
-    print("-----------------------------------")
+    # print("-----------------------------------")
 
     if course.ball_coords is not None:
         ball_coords = [tuple(round(coord, 2) for coord in coords)
                        for coords in course.ball_coords]
-        print(f"Ball coordinates: {ball_coords}")
+        # print(f"Ball coordinates: {ball_coords}")
     else:
         print("No ball coordinates found")
     if course.obstacle_coords is not None:
         obstacle_coords = [tuple(round(coord, 2) for coord in coords)
                            for coords in course.obstacle_coords]
-        print(f"Obstacle coordinates: {obstacle_coords}")
+        # print(f"Obstacle coordinates: {obstacle_coords}")
     else:
         print("No obstacle coordinates found")
     if course.wall_coords is not None:
         wall_coords = [tuple(round(coord, 2) for coord in coords)
                        for coords in course.wall_coords]
-        print(f"Wall coordinates: {wall_coords}")
-    else:
-        print("No wall coordinates found")
-    if course.ball_types is not None:
-        print(f"Ball types: {course.ball_types}")
-    else:
-        print("No ball types found")
+        # print(f"Wall coordinates: {wall_coords}")
+    # else:
+    #     print("No wall coordinates found")
+    # if course.ball_types is not None:
+    #     print(f"Ball types: {course.ball_types}")
+    # else:
+    #     print("No ball types found")
 
-    print("-----------------------------------")
+    # print("-----------------------------------")
 
     # create graph
     return gt.create_graph(course)

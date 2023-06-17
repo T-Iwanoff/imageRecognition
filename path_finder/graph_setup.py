@@ -293,13 +293,13 @@ def create_graph(course: Course):
 
                     course.ball_coords[i] = pos[i+1]
 
-                    print("inside obs_expanded_corners_poly")
+                    # print("inside obs_expanded_corners_poly")
                 # If inside obs_extended_poly
                 elif hor_obs_extended_poly.contains(Point(pos[i+1])) or vert_obs_extended_poly.contains(Point(pos[i+1])):
                     pos[i+1] = np.squeeze(move_away_from_obstacle(pos[i+1],
                                                                   middle_of_obstacle))
                     course.ball_coords[i] = pos[i+1]
-                    print("inside obs_extended_poly")
+                    # print("inside obs_extended_poly")
 
                 elif course.ball_types[i] == "lower_left_corner":
                     pos[i+1] = [HALF_OF_ROBOT_WIDTH +
@@ -336,8 +336,8 @@ def create_graph(course: Course):
     if orange_ball:
         if course.ball_types[nmbr_of_nodes-2] != "none":
 
-            print("nmbr_of_nodes: ", nmbr_of_nodes)
-            print("course.ball_types.length: ", len(course.ball_types))
+            # print("nmbr_of_nodes: ", nmbr_of_nodes)
+            # print("course.ball_types.length: ", len(course.ball_types))
             # If inside obs_expanded_corners_poly
             if obs_expanded_corners_poly.contains(Point(pos[nmbr_of_nodes-1])):
 
@@ -429,13 +429,13 @@ def create_graph(course: Course):
             tsp = solve_tsp(G)
         elif nmbr_of_nodes == 2 and len(G.edges) > 0:
             tsp = [[0, 1], math.dist(pos[0], pos[1])]
-        else:
-            print("Graph is not connected")
+        # else:
+        #     # print("Graph is not connected")
 
     #
     end_time = time.time()
-    print(f"Algo took: {end_time - start_time} seconds to finish")
-    print("---------------------------------")
+    # print(f"Algo took: {end_time - start_time} seconds to finish")
+    # print("---------------------------------")
 
     # remove fake edges
     for edge in G.edges:
@@ -539,7 +539,7 @@ def create_graph(course: Course):
     ax.margins(0.08)  # margin between the nodes and the axis
     plt.axis("on")
     plt.tight_layout()
-    plt.show()
+    # plt.show()
 
     move_types_in_order = []
 
@@ -553,10 +553,10 @@ def create_graph(course: Course):
 
     # if nmbr_of_nodes > 0: return coords of first node in tsp
     if nmbr_of_nodes > 0:
-        if nx.is_connected(G) and len(G.edges) > 0:
+        if nx.is_connected(G) and len(G.edges) > 0 and len(move_types_in_order):
             return NextMove(pos[tsp[0][1]], move_types_in_order[0])
         else:
-            print("Graph is not connected")
+            # print("Graph is not connected")
             return NextMove(move_type="goal")
 
 
@@ -586,8 +586,8 @@ def solve_tsp(G):
     else:
         new_tsp = (tsp[0], tsp[1] + 20000)
 
-    print("Fastest path: " + str(new_tsp[0]))
-    print("Fastest path length in meters: " + str(new_tsp[1]))
+    # print("Fastest path: " + str(new_tsp[0]))
+    # print("Fastest path length in meters: " + str(new_tsp[1]))
 
     # print(tsp)
 
@@ -607,7 +607,7 @@ def print_graph_matrix(G):
     # Print the adjacency matrix using pandas
     df = pd.DataFrame(adj_matrix, columns=node_labels.values(),
                       index=node_labels.values())
-    print(df)
+    # print(df)
 
 
 def order_obstacles(obstacle_coords):
