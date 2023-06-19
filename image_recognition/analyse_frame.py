@@ -142,7 +142,8 @@ def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
         # Remove orange ball from list of balls
         balls = remove_ball_from_list(orange_ball, balls)
 
-        balls.append(orange_ball)
+        #TODO: make balls contain all balls
+        # balls.append(orange_ball)
     else:
         balls = None
         orange_ball = None

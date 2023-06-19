@@ -7,7 +7,7 @@ from robot_connection.connection_test import *
 
 
 
-analyse_course(path='Media/Video/robot.mp4', media='VIDEO')
+analyse_course(path='Media/Video/robot.mp4', media='CAMERA')
 
 # analyse_course(path='Media/Image/Bold2-165-84.5.jpg', media='IMAGE')
 
