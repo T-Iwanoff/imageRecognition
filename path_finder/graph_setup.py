@@ -283,12 +283,13 @@ def create_graph(course: Course):
 
     extra_point_distance = 0.55
 
-    middle_of_obstacle = np.squeeze(middle_of_obstacle)
+
 
     extra_points_in_order = []
 
     # Reposition nodes if they intersect with obstacles
     if left_obstacle is not None:
+        middle_of_obstacle = np.squeeze(middle_of_obstacle)
         for i in range(nmbr_of_nodes-2 if orange_ball else nmbr_of_nodes-1):
             # If inside obs_extended_poly
             if hor_obs_extended_poly.contains(Point(pos[i+1])) or vert_obs_extended_poly.contains(Point(pos[i+1])):
