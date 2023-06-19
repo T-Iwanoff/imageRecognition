@@ -7,7 +7,7 @@ from image_recognition.analyse_frame import analyse_frame, analyse_walls
 import path_finder.graph_setup as gt
 from image_recognition.coordinates import remove_objects_outside_walls_from_list
 from image_recognition.robotRecognition import robot_recognition
-from constants import VIDEO_CAPTURE_DEVICE, SETUP_MODE
+from constants import VIDEO_CAPTURE_DEVICE
 from config import *
 from next_move import NextMove
 import robot_connection.socket_connection as sc
@@ -153,7 +153,7 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
                 next_move = display_graph(course)
                 next_move.robot_coords = course.robot_coords
                 next_move.robot_heading = course.robot_angle
-                print("The next move is:", next_move.to_json())
+                # print("The next move is:", next_move.to_json())
                 if connected:
                     print("Sending next move to robot")
                     asyncio.run(
@@ -173,32 +173,32 @@ def analyse_image(path='Media/Video/MovingBalls.mp4', media='VIDEO', mac_camera=
 def display_graph(course: Course):
     # print coords with 2 decimal places
 
-    print("--------------------")
+    # print("--------------------")
 
     if course.ball_coords is not None:
         ball_coords = [tuple(round(coord, 2) for coord in coords)
                        for coords in course.ball_coords]
-        print(f"Ball coordinates: {ball_coords}")
+        # print(f"Ball coordinates: {ball_coords}")
     else:
         print("No ball coordinates found")
     if course.obstacle_coords is not None:
         obstacle_coords = [tuple(round(coord, 2) for coord in coords)
                            for coords in course.obstacle_coords]
-        print(f"Obstacle coordinates: {obstacle_coords}")
+        # print(f"Obstacle coordinates: {obstacle_coords}")
     else:
         print("No obstacle coordinates found")
     if course.wall_coords is not None:
         wall_coords = [tuple(round(coord, 2) for coord in coords)
                        for coords in course.wall_coords]
-        print(f"Wall coordinates: {wall_coords}")
-    else:
-        print("No wall coordinates found")
-    if course.ball_types is not None:
-        print(f"Ball types: {course.ball_types}")
-    else:
-        print("No ball types found")
+        # print(f"Wall coordinates: {wall_coords}")
+    # else:
+    #     print("No wall coordinates found")
+    # if course.ball_types is not None:
+    #     print(f"Ball types: {course.ball_types}")
+    # else:
+    #     print("No ball types found")
 
-    print("--------------------")
+    # print("--------------------")
 
     # create graph
     return gt.create_graph(course)

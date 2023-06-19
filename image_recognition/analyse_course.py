@@ -57,13 +57,14 @@ def analyse_image(path='Media/Image/Bold2-165-84.5.jpg'):
 
 def analyse_video(path=None, media='CAMERA'):
 
-    # Connect to the robot
-    connected = False
-    if CONNECT_TO_SOCKET:
-        socket_connection = sc.SocketConnection()
-        if (socket_connection.connect()):
-            print("Connected!")
-            connected = True
+    # Use of old socket connection
+    # # Connect to the robot
+    # connected = False
+    # if CONNECT_TO_SOCKET:
+    #     socket_connection = sc.SocketConnection()
+    #     if (socket_connection.connect()):
+    #         print("Connected!")
+    #         connected = True
 
     # Get video capture
     video_capture = open_video_capture(media, path)
@@ -84,13 +85,14 @@ def analyse_video(path=None, media='CAMERA'):
     backup_obstacle = []
     backup_robot_pos = []
     backup_robot_heading = None
-    # start_time = time.perf_counter()
+    start_time = time.perf_counter()
     # timer = time.perf_counter()
     # frame_count = 0
     # timer = time.perf_counter() + 4
 
     # Analyse the frames
     while True:
+        current_time = time.time()
         # Get the current frame
         ret, frame = video_capture.read()
         if not ret:
@@ -165,22 +167,33 @@ def analyse_video(path=None, media='CAMERA'):
         # If connected
         #   Send instruction
 
-        # print the coordinates of the balls when g is pressed
-        if cv.waitKey(1) == ord('g'):
+        # Old socket connection and graph creation activation
+        # # print the coordinates of the balls when g is pressed
+        # if cv.waitKey(1) == ord('g'):
+        #     course.ball_types = find_ball_type(balls_in_meters, walls_in_meters,
+        #                                       obstacle_in_meters, orange_ball_in_meters)
+        #     next_move = display_graph(course)
+        #     next_move.robot_coords = course.robot_coords
+        #     next_move.robot_heading = course.robot_heading
+        #     print("The next move is:", next_move.to_json())
+        #     if connected:
+        #         print("Sending next move to robot")
+        #         asyncio.run(
+        #             socket_connection.async_send_next_move(next_move))
+
+        # Creates next move and writes to JSON
+        if current_time - start_time >= 1:  # Write to JSON once every second
             course.ball_types = find_ball_type(balls_in_meters, walls_in_meters,
                                                obstacle_in_meters, orange_ball_in_meters)
             next_move = display_graph(course)
             next_move.robot_coords = course.robot_coords
             next_move.robot_heading = course.robot_heading
-            print("next_move extra_point: ", next_move.extra_point)
-            print("next_move robot_coords: ", next_move.robot_coords)
-            print("next_move robot_heading: ", next_move.robot_heading)
-            print("next_move ball_coords: ", next_move.next_ball)
-            print("The next move is:", next_move.to_json())
-            if connected:
-                print("Sending next move to robot")
-                asyncio.run(
-                    socket_connection.async_send_next_move(next_move))
+            json_object = next_move.to_json()
+            with open("test.json", "w") as outfile:
+                outfile.write(json_object)
+                outfile.close()
+            start_time = current_time
+
 
         frame_counter += 1
 
@@ -245,7 +258,7 @@ def draw_on_frame(frame, course: Course, balls, orange_ball):
         else:
             cv.drawContours(frame, [course.wall_coords], 0, (255, 0, 0), 2)
 
-    if course.obstacle_coords is not None and len(course.obstacle_coords):
+    if course.obstacle_coords is not None and len(course.obstacle_coords) and len(course.obstacle_coords[0]):
         for coord in course.obstacle_coords:
             cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
 
@@ -327,47 +340,46 @@ def open_video_capture(media='CAMERA', path=None):
 
 def find_ball_type(balls_m, walls_m, obstacle_m, orange_ball_m):
 
-    ball_list = determine_order_and_type(
-        walls_m, obstacle_m, balls_m, orange_ball_m)
-    print("ball list: ", ball_list)
+    ball_list = determine_order_and_type(walls_m, obstacle_m, balls_m, orange_ball_m)
+    # print("ball list: ", ball_list)
     ball_coords_in_order = []
     ball_types_in_order = []
     if ball_list is not None:
         for i in ball_list:
             ball_coords_in_order.append(i[0])
             ball_types_in_order.append(i[1])
-    print("ball types: ", ball_types_in_order)
+    # print("ball types: ", ball_types_in_order)
     return ball_types_in_order
 
 
 def display_graph(course: Course):
 
-    print("-----------------------------------")
+    # print("-----------------------------------")
 
     if course.ball_coords is not None:
         ball_coords = [tuple(round(coord, 2) for coord in coords)
                        for coords in course.ball_coords]
-        print(f"Ball coordinates: {ball_coords}")
+        # print(f"Ball coordinates: {ball_coords}")
     else:
         print("No ball coordinates found")
     if course.obstacle_coords is not None:
         obstacle_coords = [tuple(round(coord, 2) for coord in coords)
                            for coords in course.obstacle_coords]
-        print(f"Obstacle coordinates: {obstacle_coords}")
+        # print(f"Obstacle coordinates: {obstacle_coords}")
     else:
         print("No obstacle coordinates found")
     if course.wall_coords is not None:
         wall_coords = [tuple(round(coord, 2) for coord in coords)
                        for coords in course.wall_coords]
-        print(f"Wall coordinates: {wall_coords}")
-    else:
-        print("No wall coordinates found")
-    if course.ball_types is not None:
-        print(f"Ball types: {course.ball_types}")
-    else:
-        print("No ball types found")
+        # print(f"Wall coordinates: {wall_coords}")
+    # else:
+    #     print("No wall coordinates found")
+    # if course.ball_types is not None:
+    #     print(f"Ball types: {course.ball_types}")
+    # else:
+    #     print("No ball types found")
 
-    print("-----------------------------------")
+    # print("-----------------------------------")
 
     # create graph
     return gt.create_graph(course)

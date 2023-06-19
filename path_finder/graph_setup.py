@@ -473,6 +473,7 @@ def create_graph(course: Course):
                         #     # fake edge weight for algorithm
                         #     G.add_edge(i, j, weight=math.inf)
 
+
         nx.set_edge_attributes(G, edge_weights, "weight")
         # print("nx.connected: ", nx.is_connected(G))
         # print("Anchor level: ", anchor_level)
@@ -484,6 +485,7 @@ def create_graph(course: Course):
             for j in range(i + 1, nmbr_of_nodes):
                 if not G.has_edge(i, j):
                     G.add_edge(i, j, weight=math.inf)
+
 
         # elif nmbr_of_nodes == 2:
         #     edge_coords = LineString([pos[0], pos[1]])
@@ -505,8 +507,8 @@ def create_graph(course: Course):
             tsp = solve_tsp(G)
         elif nmbr_of_nodes == 2 and len(G.edges) > 0:
             tsp = [[0, 1], math.dist(pos[0], pos[1])]
-        else:
-            print("Graph is not connected")
+        # else:
+        #     # print("Graph is not connected")
 
     # print("nx.connected: ", nx.is_connected(G))
 
@@ -539,12 +541,14 @@ def create_graph(course: Course):
     # node labels
     nx.draw_networkx_labels(G, pos, font_size=12, font_family="sans-serif")
 
+
     # edge weight labels
     edge_labels = {k: "{:.2f}".format(v) for k, v in edge_weights.items()}
     nx.draw_networkx_edge_labels(
         G, pos, edge_labels=edge_labels, font_size=6, label_pos=0.5, bbox=dict(boxstyle="round", fc="w", ec="1", alpha=0.9, pad=0.1))
 
     # create the graph display
+
 
     ax = plt.gca()
 
@@ -617,7 +621,7 @@ def create_graph(course: Course):
     ax.margins(0.08)  # margin between the nodes and the axis
     plt.axis("on")
     plt.tight_layout()
-    plt.show()
+    # plt.show()
 
     move_types_in_order = []
     extra_point_in_order = []
@@ -703,7 +707,7 @@ def print_graph_matrix(G):
     # Print the adjacency matrix using pandas
     df = pd.DataFrame(adj_matrix, columns=node_labels.values(),
                       index=node_labels.values())
-    print(df)
+    # print(df)
 
 
 def order_obstacles(obstacle_coords):
@@ -755,8 +759,10 @@ def order_obstacles1(obstacle_coords):
             else:
                 top_left, top_right = sorted_coords[0], sorted_coords[2]
                 bottom_left, bottom_right = sorted_coords[1], sorted_coords[3]
+                print("5")
 
     return [top_left, top_right, bottom_right, bottom_left]
+
 
 
 def expand_obstacle(obstacle_coords, unit_vector, orthog_unit_vector):
