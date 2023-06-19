@@ -613,7 +613,10 @@ def create_graph(course: Course):
 
     if nmbr_of_nodes > 0:
         if nx.is_connected(G) and len(G.edges) > 0:
-            return NextMove(pos[tsp[0][1]], move_types_in_order[0])
+            if len(move_types_in_order)>0:
+                return NextMove(pos[tsp[0][1]], move_types_in_order[0])
+            else:
+                return NextMove(pos[tsp[0][1]], "none")
         else:
             print("Graph is not connected")
             return NextMove(move_type="goal")
