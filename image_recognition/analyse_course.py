@@ -259,7 +259,9 @@ def draw_on_frame(frame, course: Course, balls, orange_ball):
         else:
             cv.drawContours(frame, [course.wall_coords], 0, (255, 0, 0), 2)
 
-    if course.obstacle_coords is not None and len(course.obstacle_coords) and len(course.obstacle_coords[0]):
+
+
+    if course.obstacle_coords is not None and len(course.obstacle_coords):
         for coord in course.obstacle_coords:
             cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
 
@@ -342,7 +344,7 @@ def open_video_capture(media='CAMERA', path=None):
 def find_ball_type(balls_m, walls_m, obstacle_m, orange_ball_m):
 
     ball_list = determine_order_and_type(walls_m, obstacle_m, balls_m, orange_ball_m)
-    # print("ball list: ", ball_list)
+    print("ball list: ", ball_list)
     ball_coords_in_order = []
     ball_types_in_order = []
     if ball_list is not None:

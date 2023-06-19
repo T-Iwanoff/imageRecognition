@@ -11,6 +11,7 @@ from shapely.geometry import LineString, box, shape, Polygon, Point
 from course import Course
 from constants import *
 from next_move import NextMove
+from config import *
 
 ### GRAPH SETTINGS ###
 # display settings
@@ -508,8 +509,8 @@ def create_graph(course: Course):
             tsp = solve_tsp(G)
         elif nmbr_of_nodes == 2 and len(G.edges) > 0:
             tsp = [[0, 1], math.dist(pos[0], pos[1])]
-        # else:
-        #     # print("Graph is not connected")
+        else:
+            print("Graph is not connected")
 
     # print("nx.connected: ", nx.is_connected(G))
 
@@ -524,105 +525,106 @@ def create_graph(course: Course):
             G.remove_edge(edge[0], edge[1])
 
     ### GRAPH DISPLAY ###
-    plt.figure(figsize=(DISPLAY_WIDTH, DISPLAY_HEIGHT))
+    if DISPLAY_GRAPH:
+        plt.figure(figsize=(DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
-    # nodes
-    nx.draw_networkx_nodes(G, pos, node_size=NODE_SIZE)
+        # nodes
+        nx.draw_networkx_nodes(G, pos, node_size=NODE_SIZE)
 
-    # edges
-    nx.draw_networkx_edges(G, pos, width=EDGE_WIDTH)
-    if nmbr_of_nodes > 0:
-        if nx.is_connected(G) and len(G.edges) > 0:
-            nx.draw_networkx_edges(G, pos, edgelist=list(
-                zip(tsp[0], tsp[0][1:])), width=EDGE_WIDTH, edge_color='r')
-        elif len(G.edges) == 1 and len(G.nodes) == 2:
-            # TODO: Add visual edge?
-            print("Graph has 1 ball left and is connected")
+        # edges
+        nx.draw_networkx_edges(G, pos, width=EDGE_WIDTH)
+        if nmbr_of_nodes > 0:
+            if nx.is_connected(G) and len(G.edges) > 0:
+                nx.draw_networkx_edges(G, pos, edgelist=list(
+                    zip(tsp[0], tsp[0][1:])), width=EDGE_WIDTH, edge_color='r')
+            elif len(G.edges) == 1 and len(G.nodes) == 2:
+                # TODO: Add visual edge?
+                print("Graph has 1 ball left and is connected")
 
-    # node labels
-    nx.draw_networkx_labels(G, pos, font_size=12, font_family="sans-serif")
-
-
-    # edge weight labels
-    edge_labels = {k: "{:.2f}".format(v) for k, v in edge_weights.items()}
-    nx.draw_networkx_edge_labels(
-        G, pos, edge_labels=edge_labels, font_size=6, label_pos=0.5, bbox=dict(boxstyle="round", fc="w", ec="1", alpha=0.9, pad=0.1))
-
-    # create the graph display
+        # node labels
+        nx.draw_networkx_labels(G, pos, font_size=12, font_family="sans-serif")
 
 
-    ax = plt.gca()
+        # edge weight labels
+        edge_labels = {k: "{:.2f}".format(v) for k, v in edge_weights.items()}
+        nx.draw_networkx_edge_labels(
+            G, pos, edge_labels=edge_labels, font_size=6, label_pos=0.5, bbox=dict(boxstyle="round", fc="w", ec="1", alpha=0.9, pad=0.1))
 
-    # set the axis limits
-    ax.set_xlim(0, COURSE_WIDTH)
-    ax.set_ylim(0, COURSE_HEIGHT)
+        # create the graph display
 
-    # display the obstacles
-    if left_obstacle is not None:
 
-        # obstacle patches
-        hor_obs_patch = PolygonPatch([(hor_obs_coords[0]),
-                                      (hor_obs_coords[1]),
-                                      (hor_obs_coords[2]),
-                                      (hor_obs_coords[3])], alpha=0.5, color="red")
+        ax = plt.gca()
 
-        vert_obs_patch = PolygonPatch([(vert_obs_coords[0]),
-                                      (vert_obs_coords[1]),
-                                      (vert_obs_coords[2]),
-                                      (vert_obs_coords[3])], alpha=0.5, color="red")
-        obs_expanded_corners_patch = PolygonPatch([(obs_expanded_corners[0]),
-                                                   (obs_expanded_corners[1]),
-                                                   (obs_expanded_corners[2]),
-                                                   (obs_expanded_corners[3])], alpha=0.2, color="red")
+        # set the axis limits
+        ax.set_xlim(0, COURSE_WIDTH)
+        ax.set_ylim(0, COURSE_HEIGHT)
 
-        hor_obs_extented_patch = PolygonPatch([(hor_obs_extended_top_left),
-                                               (hor_obs_extended_top_right),
-                                               (hor_obs_extended_bot_right),
-                                               (hor_obs_extended_bot_left)], alpha=0.2, color="red")
-        vert_obs_extended_patch = PolygonPatch([(vert_obs_extended_top_left),
-                                                (vert_obs_extended_top_right),
-                                                (vert_obs_extended_bot_right),
-                                                (vert_obs_extended_bot_left)], alpha=0.2, color="red")
+        # display the obstacles
+        if left_obstacle is not None:
 
-        # wall patches
-        left_wall_expanded_patch = PolygonPatch([(left_wall_expanded[0]),
-                                                 (left_wall_expanded[1]),
-                                                 (left_wall_expanded[2]),
-                                                 (left_wall_expanded[3])], alpha=0.2, color="red")
-        right_wall_expanded_patch = PolygonPatch([(right_wall_expanded[0]),
-                                                  (right_wall_expanded[1]),
-                                                  (right_wall_expanded[2]),
-                                                  (right_wall_expanded[3])], alpha=0.2, color="red")
-        top_wall_expanded_patch = PolygonPatch([(top_wall_expanded[0]),
-                                                (top_wall_expanded[1]),
-                                                (top_wall_expanded[2]),
-                                                (top_wall_expanded[3])], alpha=0.2, color="red")
-        bottom_wall_expanded_patch = PolygonPatch([(bottom_wall_expanded[0]),
-                                                   (bottom_wall_expanded[1]),
-                                                   (bottom_wall_expanded[2]),
-                                                   (bottom_wall_expanded[3])], alpha=0.2, color="red")
+            # obstacle patches
+            hor_obs_patch = PolygonPatch([(hor_obs_coords[0]),
+                                        (hor_obs_coords[1]),
+                                        (hor_obs_coords[2]),
+                                        (hor_obs_coords[3])], alpha=0.5, color="red")
 
-        ax.add_patch(left_wall_expanded_patch)
-        ax.add_patch(right_wall_expanded_patch)
-        ax.add_patch(top_wall_expanded_patch)
-        ax.add_patch(bottom_wall_expanded_patch)
+            vert_obs_patch = PolygonPatch([(vert_obs_coords[0]),
+                                        (vert_obs_coords[1]),
+                                        (vert_obs_coords[2]),
+                                        (vert_obs_coords[3])], alpha=0.5, color="red")
+            obs_expanded_corners_patch = PolygonPatch([(obs_expanded_corners[0]),
+                                                    (obs_expanded_corners[1]),
+                                                    (obs_expanded_corners[2]),
+                                                    (obs_expanded_corners[3])], alpha=0.2, color="red")
 
-        ax.add_patch(hor_obs_patch)
-        ax.add_patch(vert_obs_patch)
-        ax.add_patch(obs_expanded_corners_patch)
-        ax.add_patch(hor_obs_extented_patch)
-        ax.add_patch(vert_obs_extended_patch)
+            hor_obs_extented_patch = PolygonPatch([(hor_obs_extended_top_left),
+                                                (hor_obs_extended_top_right),
+                                                (hor_obs_extended_bot_right),
+                                                (hor_obs_extended_bot_left)], alpha=0.2, color="red")
+            vert_obs_extended_patch = PolygonPatch([(vert_obs_extended_top_left),
+                                                    (vert_obs_extended_top_right),
+                                                    (vert_obs_extended_bot_right),
+                                                    (vert_obs_extended_bot_left)], alpha=0.2, color="red")
 
-    # print the graph matrix
-    # printGraphMatrix(G)
+            # wall patches
+            left_wall_expanded_patch = PolygonPatch([(left_wall_expanded[0]),
+                                                    (left_wall_expanded[1]),
+                                                    (left_wall_expanded[2]),
+                                                    (left_wall_expanded[3])], alpha=0.2, color="red")
+            right_wall_expanded_patch = PolygonPatch([(right_wall_expanded[0]),
+                                                    (right_wall_expanded[1]),
+                                                    (right_wall_expanded[2]),
+                                                    (right_wall_expanded[3])], alpha=0.2, color="red")
+            top_wall_expanded_patch = PolygonPatch([(top_wall_expanded[0]),
+                                                    (top_wall_expanded[1]),
+                                                    (top_wall_expanded[2]),
+                                                    (top_wall_expanded[3])], alpha=0.2, color="red")
+            bottom_wall_expanded_patch = PolygonPatch([(bottom_wall_expanded[0]),
+                                                    (bottom_wall_expanded[1]),
+                                                    (bottom_wall_expanded[2]),
+                                                    (bottom_wall_expanded[3])], alpha=0.2, color="red")
 
-    # display the graph
-    ax.tick_params(left=True, bottom=True, labelleft=True,
-                   labelbottom=True)  # showing the axis numbers
-    ax.margins(0.08)  # margin between the nodes and the axis
-    plt.axis("on")
-    plt.tight_layout()
-    # plt.show()
+            ax.add_patch(left_wall_expanded_patch)
+            ax.add_patch(right_wall_expanded_patch)
+            ax.add_patch(top_wall_expanded_patch)
+            ax.add_patch(bottom_wall_expanded_patch)
+
+            ax.add_patch(hor_obs_patch)
+            ax.add_patch(vert_obs_patch)
+            ax.add_patch(obs_expanded_corners_patch)
+            ax.add_patch(hor_obs_extented_patch)
+            ax.add_patch(vert_obs_extended_patch)
+
+        # print the graph matrix
+        # printGraphMatrix(G)
+
+        # display the graph
+        ax.tick_params(left=True, bottom=True, labelleft=True,
+                    labelbottom=True)  # showing the axis numbers
+        ax.margins(0.08)  # margin between the nodes and the axis
+        plt.axis("on")
+        plt.tight_layout()
+        plt.show()
 
     move_types_in_order = []
     extra_point_in_order = []
@@ -657,7 +659,7 @@ def create_graph(course: Course):
                 return NextMove(next_ball=pos[tsp[0][1]], move_type=move_types_in_order[0], extra_point=extra_points_in_order[0])
             return NextMove(pos[tsp[0][1]], move_types_in_order[0])
         else:
-            print("Graph is not connected")
+            print("Graph is not connected3")
             return NextMove(move_type="goal")
 
 
