@@ -11,6 +11,7 @@ from course import *
 from image_recognition.calibration import *
 from image_recognition.analyse_frame import analyse_frame, analyse_walls
 import path_finder.graph_setup as gt
+import path_finder.graph_setup1 as gt1
 from image_recognition.coordinates import remove_objects_outside_walls_from_list, improve_coordinate_precision, \
     determine_order_and_type
 from image_recognition.robotRecognition import robot_recognition
@@ -27,7 +28,7 @@ def analyse_course(path=None, media='CAMERA'):
         analyse_image(path)
 
 
-#TODO Fix this method
+# TODO Fix this method
 def analyse_image(path='Media/Image/Bold2-165-84.5.jpg'):
 
     # Get the current frame
@@ -88,7 +89,6 @@ def analyse_video(path=None, media='CAMERA'):
     # frame_count = 0
     # timer = time.perf_counter() + 4
 
-
     # Analyse the frames
     while True:
         # Get the current frame
@@ -97,14 +97,13 @@ def analyse_video(path=None, media='CAMERA'):
             print("Error: Frame not found")
             exit()
 
-
-
         # if np.mod(frame_counter, 2):
         #     print(frame_counter)
         #     pass
 
         # Analyse the frame
-        course, calibrated_frame = analyse_frame(frame, static_walls, saved_balls, saved_orange_balls)
+        course, calibrated_frame = analyse_frame(
+            frame, static_walls, saved_balls, saved_orange_balls)
 
         # Save data for future frames
         static_walls = course.wall_coords
@@ -126,12 +125,13 @@ def analyse_video(path=None, media='CAMERA'):
             course.robot_heading = backup_robot_heading
 
         # Convert to meter
-        balls_in_meters, orange_ball_in_meters, obstacle_in_meters, walls_in_meters = convert_pixel_to_meter(course)
+        balls_in_meters, orange_ball_in_meters, obstacle_in_meters, walls_in_meters = convert_pixel_to_meter(
+            course)
 
         # Draw on the frame
         draw_frame = draw_on_frame(frame=calibrated_frame, course=course, balls=balls_in_meters,
                                    orange_ball=orange_ball_in_meters)
-        
+
         course.obstacle_coords = obstacle_in_meters
         course.wall_coords = walls_in_meters
         course.ball_coords = balls_in_meters
@@ -160,19 +160,22 @@ def analyse_video(path=None, media='CAMERA'):
         # if course.robot_coords != backup_robot_pos:
         #     timer = time.perf_counter()
         # elif time.perf_counter() - timer > 3:
-            # Find ball types
-            # make graph
-            # If connected
-            #   Send instruction
-
+        # Find ball types
+        # make graph
+        # If connected
+        #   Send instruction
 
         # print the coordinates of the balls when g is pressed
         if cv.waitKey(1) == ord('g'):
             course.ball_types = find_ball_type(balls_in_meters, walls_in_meters,
-                                              obstacle_in_meters, orange_ball_in_meters)
+                                               obstacle_in_meters, orange_ball_in_meters)
             next_move = display_graph(course)
             next_move.robot_coords = course.robot_coords
             next_move.robot_heading = course.robot_heading
+            print("next_move extra_point: ", next_move.extra_point)
+            print("next_move robot_coords: ", next_move.robot_coords)
+            print("next_move robot_heading: ", next_move.robot_heading)
+            print("next_move ball_coords: ", next_move.next_ball)
             print("The next move is:", next_move.to_json())
             if connected:
                 print("Sending next move to robot")
@@ -208,23 +211,27 @@ def convert_pixel_to_meter(course: Course):
         if balls is not None and len(balls) and len(balls[0]):
             for ball in balls:
                 # Convert to meter
-                improved_coords = improve_coordinate_precision(walls, ball, "ball")
+                improved_coords = improve_coordinate_precision(
+                    walls, ball, "ball")
                 balls_in_meters.append(improved_coords)
 
         if orange_ball is not None and len(orange_ball):
-            improved_coords = improve_coordinate_precision(walls, orange_ball, "ball")
+            improved_coords = improve_coordinate_precision(
+                walls, orange_ball, "ball")
             orange_ball_in_meters = improved_coords
 
         if obstacle is not None and len(obstacle[0]):
             for coord in obstacle:
                 # Convert to meter
-                improved_coords = improve_coordinate_precision(walls, coord, "ball")
+                improved_coords = improve_coordinate_precision(
+                    walls, coord, "ball")
                 obstacle_in_meters.append(improved_coords)
 
         if walls is not None and len(walls):
             for coord in walls:
                 # Convert to meter
-                improved_coords = improve_coordinate_precision(walls, coord, "wall")
+                improved_coords = improve_coordinate_precision(
+                    walls, coord, "wall")
                 walls_in_meters.append(improved_coords)
 
     return balls_in_meters, orange_ball_in_meters, obstacle_in_meters, walls_in_meters
@@ -238,8 +245,6 @@ def draw_on_frame(frame, course: Course, balls, orange_ball):
         else:
             cv.drawContours(frame, [course.wall_coords], 0, (255, 0, 0), 2)
 
-
-
     if course.obstacle_coords is not None and len(course.obstacle_coords):
         for coord in course.obstacle_coords:
             cv.circle(frame, (coord[0], coord[1]), 2, (0, 255, 255), 2)
@@ -247,30 +252,41 @@ def draw_on_frame(frame, course: Course, balls, orange_ball):
     counter = 0
     if course.ball_coords is not None and len(course.ball_coords) and len(course.ball_coords[0]):
         for ball in course.ball_coords:
-            cv.circle(frame, (ball[0], ball[1]), 1, (0, 0, 0), 2)  # Center of the circle
-            cv.circle(frame, (ball[0], ball[1]), 6, (255, 0, 255), 2)  # Outer circle
+            cv.circle(frame, (ball[0], ball[1]), 1,
+                      (0, 0, 0), 2)  # Center of the circle
+            cv.circle(frame, (ball[0], ball[1]), 6,
+                      (255, 0, 255), 2)  # Outer circle
             # Draw coords on frame
             if balls is not None and len(balls):
-                text = "(" + str(round(balls[counter][0], 2)) + ", " + str(round(balls[counter][1], 2)) + ")"  # meters
+                text = "(" + str(round(balls[counter][0], 2)) + ", " + \
+                    str(round(balls[counter][1], 2)) + ")"  # meters
                 cv.putText(frame, text, (ball[0] - 40, ball[1] - 20), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0),  # pixels
                            1)
                 counter = counter + 1
 
     if course.orange_ball is not None and len(course.orange_ball):
-        cv.circle(frame, (course.orange_ball[0], course.orange_ball[1]), 1, (0, 0, 0), 2)  # Center of the circle
-        cv.circle(frame, (course.orange_ball[0], course.orange_ball[1]), 6, (100, 100, 255), 2)  # Outer circle
+        # Center of the circle
+        cv.circle(
+            frame, (course.orange_ball[0], course.orange_ball[1]), 1, (0, 0, 0), 2)
+        # Outer circle
+        cv.circle(
+            frame, (course.orange_ball[0], course.orange_ball[1]), 6, (100, 100, 255), 2)
         if orange_ball is not None and len(orange_ball):
-            text = "(" + str(round(orange_ball[0], 2)) + ", " + str(round(orange_ball[1], 2)) + ")"
+            text = "(" + str(round(orange_ball[0], 2)) + \
+                ", " + str(round(orange_ball[1], 2)) + ")"
             cv.putText(frame, text, (course.orange_ball[0] - 40, course.orange_ball[1] - 20),
                        cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
 
     if course.robot_coords is not None and len(course.robot_coords):
-        text = "(" + str(round(course.robot_coords[0], 2)) + ", " + str(round(course.robot_coords[1], 2)) + ")"
-        cv.putText(frame, text, (5, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
+        text = "(" + str(round(course.robot_coords[0], 2)) + \
+            ", " + str(round(course.robot_coords[1], 2)) + ")"
+        cv.putText(frame, text, (5, 460),
+                   cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
 
     if course.robot_heading is not None:
         text = "Heading: " + str(round(course.robot_heading))
-        cv.putText(frame, text, (300, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
+        cv.putText(frame, text, (300, 460),
+                   cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
 
     return frame
 
@@ -308,9 +324,11 @@ def open_video_capture(media='CAMERA', path=None):
         video_capture.set(4, 480)
     return video_capture
 
+
 def find_ball_type(balls_m, walls_m, obstacle_m, orange_ball_m):
 
-    ball_list = determine_order_and_type(walls_m, obstacle_m, balls_m, orange_ball_m)
+    ball_list = determine_order_and_type(
+        walls_m, obstacle_m, balls_m, orange_ball_m)
     print("ball list: ", ball_list)
     ball_coords_in_order = []
     ball_types_in_order = []
@@ -320,6 +338,7 @@ def find_ball_type(balls_m, walls_m, obstacle_m, orange_ball_m):
             ball_types_in_order.append(i[1])
     print("ball types: ", ball_types_in_order)
     return ball_types_in_order
+
 
 def display_graph(course: Course):
 
@@ -352,6 +371,7 @@ def display_graph(course: Course):
 
     # create graph
     return gt.create_graph(course)
+    # return gt1.create_graph1(course)
 
 
 def overlay_frames(frame1, frame2):

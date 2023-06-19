@@ -8,6 +8,8 @@ ENABLE_MULTI_FRAME_BALL_DETECTION = True
 AUTOMATED_AREA_DETECT = True
 # Adds guiding lines for adjusting the camera
 SETUP_MODE = False
+# What side of the course is the goal on relative to the camera
+GOAL_SIDE_RELATIVE_TO_CAMERA = "left"
 
 # Select video capture device
 VIDEO_CAPTURE_DEVICE = 0
