@@ -637,12 +637,12 @@ def create_graph(course: Course):
                 if pos[tsp[0][i]][0] == course.ball_coords[j][0]:
                     move_types_in_order.append(course.ball_types[j])
                     extra_point_in_order.append(extra_points_in_order[j])
-
-            if pos[tsp[0][i]][0] == course.orange_ball[0]:
-                move_types_in_order.append(
-                    course.ball_types[len(course.ball_types) - 1])
-                extra_point_in_order.append(
-                    extra_points_in_order[len(course.ball_types) - 1])
+            if orange_ball:
+                if pos[tsp[0][i]][0] == course.orange_ball[0]:
+                    move_types_in_order.append(
+                        course.ball_types[len(course.ball_types) - 1])
+                    extra_point_in_order.append(
+                        extra_points_in_order[len(course.ball_types) - 1])
 
     # print("move_types_in_order: ", move_types_in_order)
     # print("extra_point_in_order: ", extra_point_in_order)

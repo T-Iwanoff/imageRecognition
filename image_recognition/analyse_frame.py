@@ -106,7 +106,7 @@ def substitute_in_list(list, value):
     return list
 
 
-def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
+def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None, saved_angle=None):
 
     
 
@@ -142,7 +142,6 @@ def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
         # Remove orange ball from list of balls
         balls = remove_ball_from_list(orange_ball, balls)
 
-        balls.append(orange_ball)
     else:
         balls = None
         orange_ball = None
@@ -150,7 +149,7 @@ def analyse_frame(frame, walls=None, saved_balls=None, saved_oranges=None):
 
     # Find the robot
     if walls is not None and len(walls):
-        robot_position, robot_heading = robot_recognition(frame, walls, frame_mask)
+        robot_position, robot_heading = robot_recognition(frame, walls, frame_mask, saved_angle)
     else:
         robot_position = None
         robot_heading = None

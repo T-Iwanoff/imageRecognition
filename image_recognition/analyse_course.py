@@ -84,6 +84,7 @@ def analyse_video(path=None, media='CAMERA'):
     saved_orange_balls = []
     backup_obstacle = []
     backup_robot_pos = []
+    saved_angle = []
     backup_robot_heading = None
     start_time = time.perf_counter()
     # timer = time.perf_counter()
@@ -105,7 +106,7 @@ def analyse_video(path=None, media='CAMERA'):
 
         # Analyse the frame
         course, calibrated_frame = analyse_frame(
-            frame, static_walls, saved_balls, saved_orange_balls)
+            frame, static_walls, saved_balls, saved_orange_balls, saved_angle)
 
         # Save data for future frames
         static_walls = course.wall_coords
