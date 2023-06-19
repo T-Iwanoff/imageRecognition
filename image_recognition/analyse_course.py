@@ -84,7 +84,7 @@ def analyse_video(path=None, media='CAMERA'):
     backup_obstacle = []
     backup_robot_pos = []
     backup_robot_heading = None
-    # start_time = time.perf_counter()
+    start_time = time.perf_counter()
     # timer = time.perf_counter()
     # frame_count = 0
     # timer = time.perf_counter() + 4
