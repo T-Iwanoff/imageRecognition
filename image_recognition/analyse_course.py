@@ -56,13 +56,14 @@ def analyse_image(path='Media/Image/Bold2-165-84.5.jpg'):
 
 def analyse_video(path=None, media='CAMERA'):
 
-    # Connect to the robot
-    connected = False
-    if CONNECT_TO_SOCKET:
-        socket_connection = sc.SocketConnection()
-        if (socket_connection.connect()):
-            print("Connected!")
-            connected = True
+    # Use of old socket connection
+    # # Connect to the robot
+    # connected = False
+    # if CONNECT_TO_SOCKET:
+    #     socket_connection = sc.SocketConnection()
+    #     if (socket_connection.connect()):
+    #         print("Connected!")
+    #         connected = True
 
     # Get video capture
     video_capture = open_video_capture(media, path)
@@ -165,7 +166,7 @@ def analyse_video(path=None, media='CAMERA'):
             # If connected
             #   Send instruction
 
-
+        # Old socket connection and graph creation activation
         # # print the coordinates of the balls when g is pressed
         # if cv.waitKey(1) == ord('g'):
         #     course.ball_types = find_ball_type(balls_in_meters, walls_in_meters,
@@ -178,9 +179,9 @@ def analyse_video(path=None, media='CAMERA'):
         #         print("Sending next move to robot")
         #         asyncio.run(
         #             socket_connection.async_send_next_move(next_move))
-        # # print the coordinates of the balls when g is pressed
 
-        if current_time - start_time >= 1:
+        # Creates next move and writes to JSON
+        if current_time - start_time >= 1:  # Write to JSON once every second
             course.ball_types = find_ball_type(balls_in_meters, walls_in_meters,
                                                obstacle_in_meters, orange_ball_in_meters)
             next_move = display_graph(course)
