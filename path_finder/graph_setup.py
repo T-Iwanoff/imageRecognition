@@ -300,7 +300,7 @@ def create_graph(course: Course):
 
             # If inside obs_extended_poly
             elif hor_obs_extended_poly.contains(Point(pos[i+1])) or vert_obs_extended_poly.contains(Point(pos[i+1])):
-                
+
                 pos[i+1] = find_closest_obs_edge(pos[i+1],
                                                  hor_obs_extended, vert_obs_extended)
 
@@ -310,8 +310,8 @@ def create_graph(course: Course):
                 course.ball_types[i] = "middle_edge"
 
                 print("Ball is in obstacle edge")
-                
-            
+
+
             elif course.ball_types[i] != "none":
                 if course.ball_types[i] == "lower_left_corner":
                     pos[i+1] = [HALF_OF_ROBOT_WIDTH +
@@ -374,7 +374,7 @@ def create_graph(course: Course):
             course.ball_types[nmbr_of_nodes-2] = "middle_edge"
 
             print("orange ball is in obstacle edge")
-            
+
         elif course.ball_types[nmbr_of_nodes-2] != "none":
             if course.ball_types[nmbr_of_nodes-2] == "lower_left_corner":
                 pos[nmbr_of_nodes-1] = [HALF_OF_ROBOT_WIDTH +
@@ -449,7 +449,7 @@ def create_graph(course: Course):
                         # else:
                         #     # fake edge weight for algorithm
                         #     G.add_edge(i, j, weight=math.inf)
-            
+
         nx.set_edge_attributes(G, edge_weights, "weight")
         print("nx.connected: ", nx.is_connected(G))
         print("Anchor level: ", anchor_level)
@@ -461,7 +461,7 @@ def create_graph(course: Course):
             for j in range(i + 1, nmbr_of_nodes):
                 if not G.has_edge(i, j):
                     G.add_edge(i, j, weight=math.inf)
-        
+
         # elif nmbr_of_nodes == 2:
         #     edge_coords = LineString([pos[0], pos[1]])
         #     if not edge_coords.intersects(obstacle_1) and not edge_coords.intersects(obstacle_2):
@@ -473,7 +473,7 @@ def create_graph(course: Course):
     # calculate edge weights based on distance between nodes
 
     # add edge weights to the graph
-    
+
 
     ### SHORTEST PATH ###
     start_time = time.time()
@@ -483,11 +483,11 @@ def create_graph(course: Course):
             tsp = solve_tsp(G)
         elif nmbr_of_nodes == 2 and len(G.edges) > 0:
             tsp = [[0, 1], math.dist(pos[0], pos[1])]
-        else:
-            print("Graph is not connected")
+        # else:
+        #     # print("Graph is not connected")
 
     print("nx.connected: ", nx.is_connected(G))
-    
+
 
     end_time = time.time()
     print(f"Algo took: {end_time - start_time} seconds to finish")
@@ -517,14 +517,14 @@ def create_graph(course: Course):
 
     # node labels
     nx.draw_networkx_labels(G, pos, font_size=12, font_family="sans-serif")
-    
+
     # edge weight labels
     edge_labels = {k: "{:.2f}".format(v) for k, v in edge_weights.items()}
     nx.draw_networkx_edge_labels(
         G, pos, edge_labels=edge_labels, font_size=6, label_pos=0.5, bbox=dict(boxstyle="round", fc="w", ec="1", alpha=0.9, pad=0.1))
 
     # create the graph display
-    
+
     ax = plt.gca()
 
     # set the axis limits
@@ -596,10 +596,10 @@ def create_graph(course: Course):
     ax.margins(0.08)  # margin between the nodes and the axis
     plt.axis("on")
     plt.tight_layout()
-    plt.show()
+    # plt.show()
 
     move_types_in_order = []
-    
+
     if nx.is_connected(G) and len(G.edges) > 0:
         for i in range(len(tsp[0])):
             for j in range(len(course.ball_coords)):
@@ -610,7 +610,7 @@ def create_graph(course: Course):
 
     # if nmbr_of_nodes > 0: return coords of first node in tsp
 
-    
+
     if nmbr_of_nodes > 0:
         if nx.is_connected(G) and len(G.edges) > 0:
             return NextMove(pos[tsp[0][1]], move_types_in_order[0])
@@ -666,7 +666,7 @@ def print_graph_matrix(G):
     # Print the adjacency matrix using pandas
     df = pd.DataFrame(adj_matrix, columns=node_labels.values(),
                       index=node_labels.values())
-    print(df)
+    # print(df)
 
 
 def order_obstacles(obstacle_coords):
@@ -718,8 +718,10 @@ def order_obstacles1(obstacle_coords):
             else:
                 top_left, top_right = sorted_coords[0], sorted_coords[2]
                 bottom_left, bottom_right = sorted_coords[1], sorted_coords[3]
+                print("5")
 
     return [top_left, top_right, bottom_right, bottom_left]
+
 
 def expand_obstacle(obstacle_coords, unit_vector, orthog_unit_vector):
 
@@ -798,6 +800,8 @@ def move_away_from_obstacle(corner_coords, middle_coords, length_of_move):
     # Reference coordinate
     reference = middle_coords
 
+    # Length of move
+    length_of_move = 0.2
 
     # Calculate the vector from the reference coordinate to the coordinate
     vector = [coordinate[0] - reference[0], coordinate[1] - reference[1]]
@@ -835,10 +839,10 @@ def place_anchor_points(anchor_level, course: Course, pos, G):
 
     if course.robot_coords is None:
         return
-    
+
     #remove and save last node from pos
     last_node = pos.pop(len(pos) - 1)
-    
+
     #lower left
     if course.robot_coords[0] < COURSE_WIDTH / 2 and course.robot_coords[1] < COURSE_HEIGHT / 2:
         if anchor_level == 0:

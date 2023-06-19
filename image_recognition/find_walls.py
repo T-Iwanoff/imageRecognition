@@ -40,7 +40,7 @@ def warp_frame(box, frame):
         print("No walls detected")
         return
     if box[1][0] - box[0][0] == 0:  # If the walls are detected upside down, return nothing
-        print(box)
+        # print(box)
         print("Wall are upside down")
         return
 

@@ -79,7 +79,7 @@ def determine_order_and_type(walls, obstacle, balls, orange_ball):
 
     # Determine type of orange ball and putting the orange ball in the end of the list
     if len(orange_ball) != 0:
-        print("orange_ball: ", orange_ball)
+        # print("orange_ball: ", orange_ball)
         orange_ball_type = check_type(orange_ball, walls, obstacle)
         ball_list.append([orange_ball[0], orange_ball_type])
 
@@ -235,11 +235,11 @@ def find_goal_coordinates():
     if GOAL_SIDE_RELATIVE_TO_CAMERA == "left":
         goal_coordinates = [0.14,
                             (COURSE_HEIGHT / 2)]
-        print("goal left: ", goal_coordinates)
+        # print("goal left: ", goal_coordinates)
     if GOAL_SIDE_RELATIVE_TO_CAMERA == "right":
         goal_coordinates = [COURSE_WIDTH - 0.14,
                             (COURSE_HEIGHT / 2)]
-        print("goal right: ", goal_coordinates)
+        # print("goal right: ", goal_coordinates)
 
     return goal_coordinates
 
