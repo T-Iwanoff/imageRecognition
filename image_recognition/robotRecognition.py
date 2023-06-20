@@ -62,11 +62,11 @@ def robot_recognition(frame, wall_corners, mask, saved_angle):
 
     # HSV for the test day, based on robot.mp4.
     # lower bound and upper bound for pointer color (light green)
-    lower_bound_pointer = np.array([40, 50, 20])
-    upper_bound_pointer = np.array([80, 100, 255])
+    # lower_bound_pointer = np.array([40, 50, 20])
+    # upper_bound_pointer = np.array([80, 100, 255])
     # # lower bound and upper bound for center color (blue)
-    lower_bound_center = np.array([80, 175, 50])
-    upper_bound_center = np.array([110, 250, 255])
+    # lower_bound_center = np.array([80, 175, 50])
+    # upper_bound_center = np.array([110, 250, 255])
 
     # find the colors within the boundaries from center
     mask_center = cv2.inRange(hsv, lower_bound_center, upper_bound_center)
@@ -153,24 +153,29 @@ def robot_recognition(frame, wall_corners, mask, saved_angle):
     if cX_center != 0 and cY_center != 0 and cX_pointer != 0 and cY_pointer != 0:
         robot_angle = calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)
 
-        # if not saved_angle or saved_angle is None:
-        #     saved_angle.append(int(robot_angle))
-        #
-        # if robot_angle < (sum(saved_angle) / len(saved_angle)) - 3 or robot_angle > (
-        #         sum(saved_angle) / len(saved_angle)) + 3:
-        #     saved_angle.clear()
-        #     saved_angle.append(robot_angle)
-        #     robot_angle = sum(saved_angle) / len(saved_angle)
-        # else:
-        #     saved_angle.append(robot_angle)
-        #     robot_angle = sum(saved_angle) / len(saved_angle)
-        # print("robot angle: ", robot_angle)
-        #
-        # # create a guide line from the front of the robot to see the actual pointer angle of the robot.
+        if not saved_angle or saved_angle is None:
+            saved_angle.append(int(robot_angle))
+
+        if robot_angle < (sum(saved_angle) / len(saved_angle)) - 3 or robot_angle > (
+                sum(saved_angle) / len(saved_angle)) + 3:
+            saved_angle.clear()
+            saved_angle.append(robot_angle)
+            robot_angle = sum(saved_angle) / len(saved_angle)
+        else:
+            saved_angle.append(robot_angle)
+            robot_angle = sum(saved_angle) / len(saved_angle)
+        print("robot angle: ", robot_angle)
+
+        # create a guideline from the front of the robot to see the actual pointer angle of the robot.
+        # guideline for old angle
         # k = -10
         # vX = k * cX_pointer + (1 - k) * cX_center
         # vY = k * cY_pointer + (1 - k) * cY_center
-        # cv2.line(frame, [cX_center, cY_center], [vX, vY], (255, 255, 255), 3)
+        # cv2.line(frame, [cX_center, cY_center], [vX, vY], (255, 20, 20), 3)
+        # guideline for optimized angle
+        vX = int(cX_center + math.cos(math.radians(-robot_angle)) * 300)
+        vY = int(cY_center + math.sin(math.radians(-robot_angle)) * 300)
+        cv2.line(frame, [cX_center, cY_center], [vX, vY], (255, 255, 255), 3)
         return robot_pos, robot_angle
 
     else:
