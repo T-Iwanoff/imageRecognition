@@ -19,6 +19,8 @@ from next_move import NextMove
 import robot_connection.socket_connection as sc
 
 
+
+
 def analyse_course(path=None, media='CAMERA'):
     if media == 'CAMERA':
         analyse_video()
@@ -90,6 +92,9 @@ def analyse_video(path=None, media='CAMERA'):
     # frame_count = 0
     # timer = time.perf_counter() + 4
 
+    mid_goal = False
+    
+
     # Analyse the frames
     while True:
         current_time = time.time()
@@ -139,6 +144,9 @@ def analyse_video(path=None, media='CAMERA'):
         course.ball_coords = balls_in_meters
         course.orange_ball = orange_ball_in_meters
 
+        if len(course.ball_coords) > 7:
+            mid_goal = False
+
         # If in setup mode, add guiding lines
         if SETUP_MODE:
             draw_frame = draw_setup_lines(draw_frame)
@@ -185,7 +193,11 @@ def analyse_video(path=None, media='CAMERA'):
         if current_time - start_time >= 1:  # Write to JSON once every second
             course.ball_types = find_ball_type(balls_in_meters, walls_in_meters,
                                                obstacle_in_meters, orange_ball_in_meters)
-            next_move = display_graph(course)
+            if not mid_goal and len(course.ball_coords) < 7:
+                next_move = NextMove(move_type = "goal")
+                mid_goal = True
+            else:
+                next_move = display_graph(course)
             next_move.robot_coords = course.robot_coords
             next_move.robot_heading = course.robot_heading
             json_object = next_move.to_json()

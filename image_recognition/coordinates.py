@@ -105,11 +105,6 @@ def check_type(ball, walls, obstacle):
              ball[1] > walls[1][1] - DETERMINATION_THRESHOLD):
         ball_type = "upper_right_corner"
 
-    # Checking for middle ball
-    elif (ball[0] > obstacle[0][0] and ball[0] < obstacle[2][0]) and \
-            (ball[1] > obstacle[3][1] and ball[1] < obstacle[1][1]):
-        ball_type = "middle"
-
     # Checking for edge ball
     elif ball[0] < DETERMINATION_THRESHOLD:
         ball_type = "left_edge"
