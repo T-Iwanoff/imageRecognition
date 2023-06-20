@@ -740,8 +740,72 @@ def create_graph(course: Course):
             print("next_move: ", next_move.next_ball, next_move.move_type, next_move.extra_point)
             return next_move
         else:
-            print("GOING TO Goal")
-            return NextMove(move_type="goal")
+
+            if GOAL_SIDE_RELATIVE_TO_CAMERA == "left":
+                # IF CLOSE ENOUGH
+                if math.dist(course.robot_coords, LEFT_GOAL_POINT) < 0.15:
+                    return NextMove(move_type="goal")
+                
+
+                # lower left
+                if course.robot_coords[0] < COURSE_WIDTH / 2 and course.robot_coords[1] < COURSE_HEIGHT / 2:
+                    return NextMove(move_type="none", next_ball=LEFT_GOAL_POINT)
+                # lower right
+                elif course.robot_coords[0] > COURSE_WIDTH / 2 and course.robot_coords[1] < COURSE_HEIGHT / 2:
+                    
+                    # if close enough to BOT_RIGHT_ANCHOR
+                    if math.dist(course.robot_coords, BOT_RIGHT_ANCHOR) < 0.15:
+                        return NextMove(move_type="none", next_ball=BOT_RIGHT_ANCHOR)
+                    else:
+                        return NextMove(move_type="none", next_ball=BOT_LEFT_ANCHOR)
+                # upper left
+                elif course.robot_coords[0] < COURSE_WIDTH / 2 and course.robot_coords[1] > COURSE_HEIGHT / 2:
+                    return NextMove(move_type="none", next_ball=LEFT_GOAL_POINT)
+                # upper right
+                elif course.robot_coords[0] > COURSE_WIDTH / 2 and course.robot_coords[1] > COURSE_HEIGHT / 2:
+
+                    # if close enough to TOP_RIGHT_ANCHOR
+                    if math.dist(course.robot_coords, TOP_RIGHT_ANCHOR) < 0.15:
+                        return NextMove(move_type="none", next_ball=TOP_RIGHT_ANCHOR)
+                    else:
+                        return NextMove(move_type="none", next_ball=TOP_LEFT_ANCHOR)
+            elif GOAL_SIDE_RELATIVE_TO_CAMERA == "right":
+                # IF CLOSE ENOUGH
+                if math.dist(course.robot_coords, RIGHT_GOAL_POINT) < 0.15:
+                    return NextMove(move_type="goal")
+                
+                
+                # lower left
+                if course.robot_coords[0] < COURSE_WIDTH / 2 and course.robot_coords[1] < COURSE_HEIGHT / 2:
+
+                    # if close enough to BOT_LEFT_ANCHOR
+                    if math.dist(course.robot_coords, BOT_LEFT_ANCHOR) < 0.15:
+                        return NextMove(move_type="none", next_ball=BOT_LEFT_ANCHOR)
+                    else:
+                        return NextMove(move_type="none", next_ball=BOT_RIGHT_ANCHOR)
+
+                # lower right
+                elif course.robot_coords[0] > COURSE_WIDTH / 2 and course.robot_coords[1] < COURSE_HEIGHT / 2:
+                    return NextMove(move_type="none", next_ball=RIGHT_GOAL_POINT)
+                # upper left
+                elif course.robot_coords[0] < COURSE_WIDTH / 2 and course.robot_coords[1] > COURSE_HEIGHT / 2:
+
+                    # if close enough to TOP_LEFT_ANCHOR
+                    if math.dist(course.robot_coords, TOP_LEFT_ANCHOR) < 0.15:
+                        return NextMove(move_type="none", next_ball=TOP_LEFT_ANCHOR)
+                    else:
+                        return NextMove(move_type="none", next_ball=TOP_RIGHT_ANCHOR)
+
+                # upper right
+                elif course.robot_coords[0] > COURSE_WIDTH / 2 and course.robot_coords[1] > COURSE_HEIGHT / 2:
+                    return NextMove(move_type="none", next_ball=RIGHT_GOAL_POINT)
+            
+        # else:
+        #     print("GOING TO Goal")
+        #     return NextMove(move_type="goal")
+
+
+
         # if nx.is_connected(G) and len(G.edges) > 0:
         #     print("tsp: ", tsp[0])
         #     print("nextMove: nextnode =" , tsp[0][1], "move_type = ", move_types_in_order[0], "extra_point = ", extra_point_in_order[0])

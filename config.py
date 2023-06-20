@@ -9,7 +9,7 @@ AUTOMATED_AREA_DETECT = True
 # Adds guiding lines for adjusting the camera
 SETUP_MODE = False
 # What side of the course is the goal on relative to the camera
-GOAL_SIDE_RELATIVE_TO_CAMERA = "left"
+GOAL_SIDE_RELATIVE_TO_CAMERA = "right"
 # Display Graph
 DISPLAY_GRAPH = False
 
