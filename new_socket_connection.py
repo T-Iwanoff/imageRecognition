@@ -5,8 +5,8 @@ import socket
 from next_move import NextMove
 
 # HOST = "192.168.43.134"  # Standard loopback interface address (localhost)
-HOST = 'localhost' # insert pc ipv4 here (find in terminal with ipconfig command)
-PORT = 5000  # Port to listen on, we are using 5000
+HOST = '192.168.17.79' # insert pc ipv4 here (find in terminal with ipconfig command)
+PORT = 10000  # Port to listen on, we are using 10000
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))
