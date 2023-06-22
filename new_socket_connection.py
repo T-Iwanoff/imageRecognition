@@ -4,6 +4,8 @@ import socket
 
 from next_move import NextMove
 
+# inspiration from https://realpython.com/python-sockets/
+
 # HOST = "192.168.43.134"  # Standard loopback interface address (localhost)
 # HOST = '192.168.17.79' # insert pc ipv4 here (find in terminal with ipconfig command)
 HOST = "192.168.181.232"
