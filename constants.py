@@ -37,7 +37,7 @@ ROUNDING_AMOUNT = 3
 
 # Camera constants
 # Distance from camera to floor
-CAMERA_HEIGHT = 1.685  # Measure with each setup
+CAMERA_HEIGHT = 1.66  # Measure with each setup
 # Measure with each setup by testing for 3 ball positions.
 CAMERA_DISTORT_X = 0.23
 # Measure with each setup by testing for 3 ball positions.
@@ -71,8 +71,8 @@ TOP_RIGHT_ANCHOR = [COURSE_WIDTH*(3/4), COURSE_HEIGHT*(3/4)]
 BOT_RIGHT_ANCHOR = [COURSE_WIDTH*(3/4), COURSE_HEIGHT*(1/4)]
 BOT_LEFT_ANCHOR = [COURSE_WIDTH*(1/4), COURSE_HEIGHT*(1/4)]
 
-LEFT_GOAL_POINT = [0.15, COURSE_HEIGHT / 2]
-RIGHT_GOAL_POINT = [COURSE_WIDTH - 0.15, COURSE_HEIGHT / 2]
+LEFT_GOAL_POINT = [0.40, COURSE_HEIGHT / 2]
+RIGHT_GOAL_POINT = [COURSE_WIDTH - 0.40, COURSE_HEIGHT / 2]
 
 
 # Select video capture device

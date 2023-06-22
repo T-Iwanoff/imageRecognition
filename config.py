@@ -11,7 +11,7 @@ SETUP_MODE = False
 # What side of the course is the goal on relative to the camera
 GOAL_SIDE_RELATIVE_TO_CAMERA = "right"
 # Display Graph
-DISPLAY_GRAPH = False
+DISPLAY_GRAPH = True
 
 # Select video capture device
 VIDEO_CAPTURE_DEVICE = 0

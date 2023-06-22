@@ -44,13 +44,13 @@ def robot_recognition(frame, wall_corners, mask):
     # convert to hsv colorspace
     hsv = cv2.cvtColor(mask, cv2.COLOR_BGR2HSV)
 
-    # # lower bound and upper bound for pointer color (light green)
+    # lower bound and upper bound for pointer color (light green)
     # lower_bound_pointer = np.array([50, 50, 20])
     # upper_bound_pointer = np.array([80, 100, 255])
 
-    # # lower bound and upper bound for center color (dark blue)
-    # # lower_bound_center = np.array([110,60,50])
-    # # upper_bound_center = np.array([140,255,255])
+    # # # lower bound and upper bound for center color (dark blue)
+    # # # lower_bound_center = np.array([110,60,50])
+    # # # upper_bound_center = np.array([140,255,255])
 
     # # lower bound and upper bound for center color (blue)
     # lower_bound_center = np.array([90, 90, 50])
@@ -62,11 +62,24 @@ def robot_recognition(frame, wall_corners, mask):
 
     # HSV for the test day, based on robot.mp4.
     # lower bound and upper bound for pointer color (light green)
-    lower_bound_pointer = np.array([30, 30, 20])
-    upper_bound_pointer = np.array([80, 150, 255])
+    # REAL
+    #____________________________________________
+    lower_bound_pointer = np.array([40, 61, 20])
+    upper_bound_pointer = np.array([86, 136, 255])
+    # lower bound and upper bound for center color (blue)
+    lower_bound_center = np.array([71, 52, 132])
+    upper_bound_center = np.array([109, 249, 255])
+    #--------------------------------------------
+    # REAL
+
+    # ____________________________________________
+    # lower bound and upper bound for pointer color (light green)
+    # # ____________________________________________
+    # lower_bound_pointer = np.array([40, 60, 32])
+    # upper_bound_pointer = np.array([80, 255, 255])
     # # lower bound and upper bound for center color (blue)
-    lower_bound_center = np.array([80, 105, 50])
-    upper_bound_center = np.array([110, 250, 255])
+    # lower_bound_center = np.array([67, 131, 137])
+    # upper_bound_center = np.array([131, 255, 255])
 
     # find the colors within the boundaries from center
     mask_center = cv2.inRange(hsv, lower_bound_center, upper_bound_center)
@@ -153,6 +166,25 @@ def robot_recognition(frame, wall_corners, mask):
     robot_pos = improve_coordinate_precision(wall_corners, robot_coords, "robot")
     if cX_center != 0 and cY_center != 0 and cX_pointer != 0 and cY_pointer != 0:
         robot_angle = calculate_angle(cX_center, cY_center, cX_pointer, cY_pointer)
+
+        # if not saved_angle or saved_angle is None:
+        #     saved_angle.append(int(robot_angle))
+        # if robot_angle < (sum(saved_angle) / len(saved_angle)) - 3 or robot_angle > (
+        #         sum(saved_angle) / len(saved_angle)) + 3:
+        #     saved_angle.clear()
+        #     saved_angle.append(robot_angle)
+        #     robot_angle = sum(saved_angle) / len(saved_angle)
+        # else:
+        #     saved_angle.append(robot_angle)
+        #     robot_angle = sum(saved_angle) / len(saved_angle)
+        # # print("robot angle: ", robot_angle)
+
+        # # # create a guide line from the front of the robot to see the actual pointer angle of the robot.
+        # # k = -10
+        # # vX = k * cX_pointer + (1 - k) * cX_center
+        # # vY = k * cY_pointer + (1 - k) * cY_center
+        # # cv2.line(frame, [cX_center, cY_center], [vX, vY], (255, 255, 255), 3)
+
         return robot_pos, robot_angle
     else:
         return None, None

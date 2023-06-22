@@ -88,6 +88,7 @@ def analyse_video(path=None, media='CAMERA'):
     backup_robot_pos = []
     backup_robot_heading = None
     start_time = time.perf_counter()
+
     # timer = time.perf_counter()
     # frame_count = 0
     # timer = time.perf_counter() + 4
@@ -190,14 +191,14 @@ def analyse_video(path=None, media='CAMERA'):
         #             socket_connection.async_send_next_move(next_move))
 
         # Creates next move and writes to JSON
-        if current_time - start_time >= 1:  # Write to JSON once every second
+        if current_time - start_time >= 0.10:  # Write to JSON once every second
             course.ball_types = find_ball_type(balls_in_meters, walls_in_meters,
                                                obstacle_in_meters, orange_ball_in_meters)
-            if not mid_goal and len(course.ball_coords) < 7:
-                next_move = NextMove(move_type = "goal")
-                mid_goal = True
-            else:
-                next_move = display_graph(course)
+            # if not mid_goal and len(course.ball_coords) < 7:
+            #     next_move = NextMove(move_type = "goal")
+            #     mid_goal = True
+            # else:
+            next_move = display_graph(course)
             next_move.robot_coords = course.robot_coords
             next_move.robot_heading = course.robot_heading
             json_object = next_move.to_json()
@@ -325,16 +326,16 @@ def draw_setup_lines(frame):
 
     # Course setup lines (setup for outer edge of walls)
     # top line
-    cv.line(frame, (0, 28), (width, 28), (255, 255, 255), 1)
+    cv.line(frame, (0, 45), (width, 54), (255, 255, 255), 1)
     # bottom line
-    cv.line(frame, (0, 415), (width, 406), (255, 255, 255), 1)
+    cv.line(frame, (0, 432), (width, 438), (255, 255, 255), 1)
     # left line
-    cv.line(frame, (48, 0), (48, height), (255, 255, 255), 1)
+    cv.line(frame, (54, 0), (53, height), (255, 255, 255), 1)
     # right line
-    cv.line(frame, (575, 0), (563, height), (255, 255, 255), 1)
+    cv.line(frame, (580, 0), (579, height), (255, 255, 255), 1)
 
     # camera setup rectangle
-    cv.rectangle(frame, (220, 410), (397, 500), 255, 1)
+    cv.rectangle(frame, (226, 435), (408, 500), 255, 1)
 
     return frame
 
@@ -355,7 +356,7 @@ def open_video_capture(media='CAMERA', path=None):
 def find_ball_type(balls_m, walls_m, obstacle_m, orange_ball_m):
 
     ball_list = determine_order_and_type(walls_m, obstacle_m, balls_m, orange_ball_m)
-    print("ball list: ", ball_list)
+
     ball_coords_in_order = []
     ball_types_in_order = []
     if ball_list is not None:
