@@ -125,7 +125,7 @@ def create_graph1(course: Course):
     }
 
     # reposition nodes
-    course, pos = reposition_nodes(course, pos, polygons, middle_of_obstacle)
+    course, pos, extra_points = reposition_nodes(course, pos, polygons, middle_of_obstacle)
 
     ### EDGES ###
     # add edges
@@ -332,7 +332,7 @@ def reposition_nodes(course: Course, pos, polygons: dict, middle_of_obstacle):
                             HALF_ROBOT_LENGTH-wall_extra_distance]
                 course.ball_coords[i] = pos[i+1]
     
-    return course, pos
+    return course, pos, extra_points
 
 def add_edges(G, pos, course: Course, polygons: dict):
     anchor_level = 0

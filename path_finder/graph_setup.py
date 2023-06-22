@@ -284,9 +284,7 @@ def create_graph(course: Course):
 
     extra_point_distance = 0.55
 
-
-
-    extra_points_in_order = []
+    extra_points = []
 
     # Reposition nodes if they intersect with obstacles
     if left_obstacle is not None:
@@ -303,7 +301,7 @@ def create_graph(course: Course):
                 course.ball_coords[i] = pos[i+1]
                 course.ball_types[i] = "middle_edge"
 
-                extra_points_in_order.append(np.squeeze(move_opposite(
+                extra_points.append(np.squeeze(move_opposite(
                     pos[i+1], middle_of_obstacle, extra_point_distance)).tolist())
 
                 # print("extra_point: ", extra_points_in_order)
@@ -322,15 +320,13 @@ def create_graph(course: Course):
                 course.ball_coords[i] = pos[i+1]
                 course.ball_types[i] = "middle_corner"
 
-                extra_points_in_order.append(np.squeeze(move_opposite(
+                extra_points.append(np.squeeze(move_opposite(
                     pos[i+1], middle_of_obstacle, extra_point_distance)).tolist())
 
-                
-
             elif course.ball_types[i] == "none":
-                extra_points_in_order.append([0, 0])
+                extra_points.append([0, 0])
             elif course.ball_types[i] != "none":
-                extra_points_in_order.append([0, 0])
+                extra_points.append([0, 0])
                 if course.ball_types[i] == "lower_left_corner":
                     pos[i+1] = [HALF_ROBOT_LENGTH +
                                 short_extra_distance, HALF_ROBOT_LENGTH+short_extra_distance]
@@ -377,9 +373,8 @@ def create_graph(course: Course):
 
             course.ball_types[nmbr_of_nodes-2] = "middle_edge"
 
-            extra_points_in_order.append(np.squeeze(move_opposite(
+            extra_points.append(np.squeeze(move_opposite(
                 pos[nmbr_of_nodes-1], middle_of_obstacle, extra_point_distance)).tolist())
-
 
         # If inside obs_expanded_corners_poly
         elif obs_expanded_corners_poly.contains(Point(pos[nmbr_of_nodes-1])):
@@ -389,18 +384,17 @@ def create_graph(course: Course):
 
             pos[nmbr_of_nodes-1] = np.squeeze(move_away_from_obstacle(pos[nmbr_of_nodes-1],
                                                                       middle_of_obstacle, corner_extra_distance)).tolist()
-            
 
             course.orange_ball = pos[nmbr_of_nodes-1]
             course.ball_types[nmbr_of_nodes-2] = "middle_corner"
 
-            extra_points_in_order.append(np.squeeze(move_opposite(
+            extra_points.append(np.squeeze(move_opposite(
                 pos[nmbr_of_nodes-1], middle_of_obstacle, extra_point_distance)).tolist())
 
         elif course.ball_types[nmbr_of_nodes-2] == "none":
-            extra_points_in_order.append([0, 0])
+            extra_points.append([0, 0])
         elif course.ball_types[nmbr_of_nodes-2] != "none":
-            extra_points_in_order.append([0, 0])
+            extra_points.append([0, 0])
             if course.ball_types[nmbr_of_nodes-2] == "lower_left_corner":
                 pos[nmbr_of_nodes-1] = [HALF_ROBOT_LENGTH +
                                         short_extra_distance, HALF_ROBOT_LENGTH+short_extra_distance]
@@ -454,12 +448,24 @@ def create_graph(course: Course):
                     #     # fake edge weight for algorithm
                     #     G.add_edge(i, j, weight=math.inf)
         # TODO: Is nx connected when only 2 nodes?
-        while not nx.is_connected(G) and len(pos) > 1 and anchor_level < 3:
+        # check if graph is connected and if node 0 is connected to at least 2 nodes
+        robot_not_connected = True
+
+        for i in G.nodes:
+            if G.has_edge(0, i):
+                robot_not_connected = False
+                break
+        while robot_not_connected and len(pos) > 1 and anchor_level < 5:
+            for i in G.nodes:
+                if G.has_edge(0, i):
+                    robot_not_connected = False
+
             # remove all edges
             G.remove_edges_from(list(G.edges()))
             edge_weights = {}
 
-            pos, G = place_anchor_points(anchor_level, course, pos, G)
+            extra_points, course, pos, G = place_anchor_points(
+                anchor_level, extra_points, course, pos, G)
             anchor_level += 1
             for i in range(len(pos)):
                 for j in range(i + 1, len(pos)):
@@ -471,15 +477,30 @@ def create_graph(course: Course):
                                              ** 2 + (pos[i][1] - pos[j][1]) ** 2)
                             G.add_edge(i, j, weight=dist)
                             edge_weights[(i, j)] = dist
-                        # else:
-                        #     # fake edge weight for algorithm
-                        #     G.add_edge(i, j, weight=math.inf)
+        # while (not nx.is_connected(G) or G.degree[0] < 2) and len(pos) > 1 and anchor_level < 5:
+        #     # remove all edges
+        #     G.remove_edges_from(list(G.edges()))
+        #     print("G.edges() after removing all edges: ", G.edges())
+        #     edge_weights = {}
 
+        #     extra_points, course, pos, G = place_anchor_points(anchor_level, extra_points, course, pos, G)
+        #     anchor_level += 1
+        #     for i in range(len(pos)):
+        #         for j in range(i + 1, len(pos)):
+        #             # if nodes exist
+        #             if G.has_node(i) and G.has_node(j):
+        #                 edge_coords = LineString([pos[i], pos[j]])
+        #                 if not edge_coords.intersects(hor_obs_poly) and not edge_coords.intersects(vert_obs_poly) and not edge_coords.intersects(obs_expanded_corners_poly) and not edge_coords.intersects(left_wall_expanded_poly) and not edge_coords.intersects(top_wall_expanded_poly) and not edge_coords.intersects(right_wall_expanded_poly) and not edge_coords.intersects(bottom_wall_expanded_poly) and not edge_coords.intersects(hor_obs_extended_poly) and not edge_coords.intersects(vert_obs_extended_poly):
+        #                     dist = math.sqrt((pos[i][0] - pos[j][0])
+        #                                      ** 2 + (pos[i][1] - pos[j][1]) ** 2)
+        #                     G.add_edge(i, j, weight=dist)
+        #                     edge_weights[(i, j)] = dist
+        #                 # else:
+        #                 #     # fake edge weight for algorithm
+        #                 #     G.add_edge(i, j, weight=math.inf)
 
         nx.set_edge_attributes(G, edge_weights, "weight")
-        # print("nx.connected: ", nx.is_connected(G))
-        # print("Anchor level: ", anchor_level)
-        # print("Pos: ", pos)
+
         nmbr_of_nodes = len(pos)
 
         # add fake edges for all nodes not connected to each other
@@ -487,7 +508,6 @@ def create_graph(course: Course):
             for j in range(i + 1, nmbr_of_nodes):
                 if not G.has_edge(i, j):
                     G.add_edge(i, j, weight=math.inf)
-
 
         # elif nmbr_of_nodes == 2:
         #     edge_coords = LineString([pos[0], pos[1]])
@@ -504,13 +524,18 @@ def create_graph(course: Course):
     ### SHORTEST PATH ###
     start_time = time.time()
 
-    if nmbr_of_nodes > 0:
-        if nx.is_connected(G) and len(G.edges) > 0 and nmbr_of_nodes > 2:
-            tsp = solve_tsp(G)
-        elif nmbr_of_nodes == 2 and len(G.edges) > 0:
-            tsp = [[0, 1], math.dist(pos[0], pos[1])]
-        else:
-            print("Graph is not connected")
+    # if nmbr_of_nodes > 0:
+    #     if nx.is_connected(G) and len(G.edges) > 0 and nmbr_of_nodes > 2:
+    #         tsp = solve_tsp(G)
+    #     elif nmbr_of_nodes == 2 and len(G.edges) > 0:
+    #         print("2 nodesssssssssss")
+    #         tsp = [[0, 1], math.dist(pos[0], pos[1])]
+
+    # find closest node connected to node 0
+
+    # # remove the node with the same number as closest_node
+    # tsp[0].remove(closest_node)
+    # tsp[0].insert(1, closest_node)
 
     # print("nx.connected: ", nx.is_connected(G))
 
@@ -524,6 +549,18 @@ def create_graph(course: Course):
         if G[edge[0]][edge[1]]["weight"] == math.inf:
             G.remove_edge(edge[0], edge[1])
 
+    # check through all edges and if connected to 0 find closest node
+    closest_node = None
+    closest_node_dist = 0
+    for i in G.nodes:
+        if G.has_edge(0, i):
+            if closest_node is None:
+                closest_node = i
+                closest_node_dist = edge_weights[(0, i)]
+            elif edge_weights[(0, i)] < closest_node_dist:
+                closest_node = i
+                closest_node_dist = edge_weights[(0, i)]
+
     ### GRAPH DISPLAY ###
     if DISPLAY_GRAPH:
         plt.figure(figsize=(DISPLAY_WIDTH, DISPLAY_HEIGHT))
@@ -533,17 +570,16 @@ def create_graph(course: Course):
 
         # edges
         nx.draw_networkx_edges(G, pos, width=EDGE_WIDTH)
-        if nmbr_of_nodes > 0:
-            if nx.is_connected(G) and len(G.edges) > 0:
-                nx.draw_networkx_edges(G, pos, edgelist=list(
-                    zip(tsp[0], tsp[0][1:])), width=EDGE_WIDTH, edge_color='r')
-            elif len(G.edges) == 1 and len(G.nodes) == 2:
-                # TODO: Add visual edge?
-                print("Graph has 1 ball left and is connected")
+        # if nmbr_of_nodes > 0:
+        #     if len(G.edges) > 0:
+        #         nx.draw_networkx_edges(G, pos, edgelist=list(
+        #             zip(tsp[0], tsp[0][1:])), width=EDGE_WIDTH, edge_color='r')
+        #     elif len(G.edges) == 1 and len(G.nodes) == 2:
+        #         # TODO: Add visual edge?
+        #         print("Graph has 1 ball left and is connected")
 
         # node labels
         nx.draw_networkx_labels(G, pos, font_size=12, font_family="sans-serif")
-
 
         # edge weight labels
         edge_labels = {k: "{:.2f}".format(v) for k, v in edge_weights.items()}
@@ -551,7 +587,6 @@ def create_graph(course: Course):
             G, pos, edge_labels=edge_labels, font_size=6, label_pos=0.5, bbox=dict(boxstyle="round", fc="w", ec="1", alpha=0.9, pad=0.1))
 
         # create the graph display
-
 
         ax = plt.gca()
 
@@ -564,23 +599,23 @@ def create_graph(course: Course):
 
             # obstacle patches
             hor_obs_patch = PolygonPatch([(hor_obs_coords[0]),
-                                        (hor_obs_coords[1]),
-                                        (hor_obs_coords[2]),
-                                        (hor_obs_coords[3])], alpha=0.5, color="red")
+                                          (hor_obs_coords[1]),
+                                          (hor_obs_coords[2]),
+                                          (hor_obs_coords[3])], alpha=0.5, color="red")
 
             vert_obs_patch = PolygonPatch([(vert_obs_coords[0]),
-                                        (vert_obs_coords[1]),
-                                        (vert_obs_coords[2]),
-                                        (vert_obs_coords[3])], alpha=0.5, color="red")
+                                           (vert_obs_coords[1]),
+                                           (vert_obs_coords[2]),
+                                           (vert_obs_coords[3])], alpha=0.5, color="red")
             obs_expanded_corners_patch = PolygonPatch([(obs_expanded_corners[0]),
-                                                    (obs_expanded_corners[1]),
-                                                    (obs_expanded_corners[2]),
-                                                    (obs_expanded_corners[3])], alpha=0.2, color="red")
+                                                       (obs_expanded_corners[1]),
+                                                       (obs_expanded_corners[2]),
+                                                       (obs_expanded_corners[3])], alpha=0.2, color="red")
 
             hor_obs_extented_patch = PolygonPatch([(hor_obs_extended_top_left),
-                                                (hor_obs_extended_top_right),
-                                                (hor_obs_extended_bot_right),
-                                                (hor_obs_extended_bot_left)], alpha=0.2, color="red")
+                                                   (hor_obs_extended_top_right),
+                                                   (hor_obs_extended_bot_right),
+                                                   (hor_obs_extended_bot_left)], alpha=0.2, color="red")
             vert_obs_extended_patch = PolygonPatch([(vert_obs_extended_top_left),
                                                     (vert_obs_extended_top_right),
                                                     (vert_obs_extended_bot_right),
@@ -592,17 +627,17 @@ def create_graph(course: Course):
                                                     (left_wall_expanded[2]),
                                                     (left_wall_expanded[3])], alpha=0.2, color="red")
             right_wall_expanded_patch = PolygonPatch([(right_wall_expanded[0]),
-                                                    (right_wall_expanded[1]),
-                                                    (right_wall_expanded[2]),
-                                                    (right_wall_expanded[3])], alpha=0.2, color="red")
+                                                      (right_wall_expanded[1]),
+                                                      (right_wall_expanded[2]),
+                                                      (right_wall_expanded[3])], alpha=0.2, color="red")
             top_wall_expanded_patch = PolygonPatch([(top_wall_expanded[0]),
                                                     (top_wall_expanded[1]),
                                                     (top_wall_expanded[2]),
                                                     (top_wall_expanded[3])], alpha=0.2, color="red")
             bottom_wall_expanded_patch = PolygonPatch([(bottom_wall_expanded[0]),
-                                                    (bottom_wall_expanded[1]),
-                                                    (bottom_wall_expanded[2]),
-                                                    (bottom_wall_expanded[3])], alpha=0.2, color="red")
+                                                       (bottom_wall_expanded[1]),
+                                                       (bottom_wall_expanded[2]),
+                                                       (bottom_wall_expanded[3])], alpha=0.2, color="red")
 
             ax.add_patch(left_wall_expanded_patch)
             ax.add_patch(right_wall_expanded_patch)
@@ -620,10 +655,11 @@ def create_graph(course: Course):
 
         # display the graph
         ax.tick_params(left=True, bottom=True, labelleft=True,
-                    labelbottom=True)  # showing the axis numbers
+                       labelbottom=True)  # showing the axis numbers
         ax.margins(0.08)  # margin between the nodes and the axis
         plt.axis("on")
         plt.tight_layout()
+
         plt.show()
 
     move_types_in_order = []
@@ -631,36 +667,133 @@ def create_graph(course: Course):
 
     # print("tsp: ", tsp)
     # print("course.ball_coords: ", course.ball_coords)
-    # print("extra_points: ", extra_points_in_order)
 
-    if nx.is_connected(G) and len(G.edges) > 0:
-        for i in range(len(tsp[0])):
-            for j in range(len(course.ball_coords)):
-                if pos[tsp[0][i]][0] == course.ball_coords[j][0]:
-                    move_types_in_order.append(course.ball_types[j])
-                    extra_point_in_order.append(extra_points_in_order[j])
-            if orange_ball:
-                if pos[tsp[0][i]][0] == course.orange_ball[0]:
-                    move_types_in_order.append(
-                        course.ball_types[len(course.ball_types) - 1])
-                    extra_point_in_order.append(
-                        extra_points_in_order[len(course.ball_types) - 1])
+    # if len(G.edges) > 0:
+    #     for i in range(len(tsp[0])):
+    #         for j in range(len(course.ball_coords)):
+    #             if pos[tsp[0][i]][0] == course.ball_coords[j][0]:
+    #                 move_types_in_order.append(course.ball_types[j])
+    #                 extra_point_in_order.append(extra_points[j])
+    #         if orange_ball:
+    #             if pos[tsp[0][i]][0] == course.orange_ball[0]:
+    #                 move_types_in_order.append(
+    #                     course.ball_types[len(course.ball_types) - 1])
+    #                 extra_point_in_order.append(
+    #                     extra_points[len(course.ball_types) - 1])
 
     # print("move_types_in_order: ", move_types_in_order)
     # print("extra_point_in_order: ", extra_point_in_order)
 
+    # next_move = NextMove(next_ball = closest_node, move_type = move_types_in_order[0], extra_point = extra_point_in_order[0])
+
     # if nmbr_of_nodes > 0: return coords of first node in tsp
 
     # print("pos: ", pos)
+    # if
+    #     closest_dist = math.inf
+    #     for node in G.nodes:
+    #         if node != 0 and G.has_edge(0, node):
+    #             dist = G[0][node]["weight"]
+    #             if dist < closest_dist:
+    #                 closest_dist = dist
+    #                 closest_node = node
 
-    if nmbr_of_nodes > 0:
-        if nx.is_connected(G) and len(G.edges) > 0:
-            if move_types_in_order[0] == "middle_corner" or "middle_edge":
-                return NextMove(next_ball=pos[tsp[0][1]], move_type=move_types_in_order[0], extra_point=extra_points_in_order[0])
-            return NextMove(pos[tsp[0][1]], move_types_in_order[0])
+    # change tsp to go from closest node to node 0
+    # print("closest node: ", closest_node)
+
+    if nmbr_of_nodes > 0 and course.robot_coords != None:
+        if len(course.robot_coords) > 0:
+            if closest_node != None:
+                next_move = NextMove(
+                    next_ball=pos[closest_node], move_type=course.ball_types[closest_node-1], extra_point=extra_points[closest_node-1])
+                print("next_move: ", next_move.next_ball,
+                      next_move.move_type, next_move.extra_point)
+                return next_move
+            else:
+
+                if GOAL_SIDE_RELATIVE_TO_CAMERA == "left":
+                    # IF CLOSE ENOUGH
+                    if math.dist(course.robot_coords, LEFT_GOAL_POINT) < 0.15:
+
+                        return NextMove(move_type="goal")
+
+                    # lower left
+                    if course.robot_coords[0] < COURSE_WIDTH / 2 and course.robot_coords[1] < COURSE_HEIGHT / 2:
+                        return NextMove(move_type="none", next_ball=LEFT_GOAL_POINT)
+                    # lower right
+                    elif course.robot_coords[0] > COURSE_WIDTH / 2 and course.robot_coords[1] < COURSE_HEIGHT / 2:
+
+                        # if close enough to BOT_RIGHT_ANCHOR
+                        if math.dist(course.robot_coords, BOT_RIGHT_ANCHOR) > 0.15:
+                            return NextMove(move_type="none", next_ball=BOT_RIGHT_ANCHOR)
+                        else:
+                            return NextMove(move_type="none", next_ball=BOT_LEFT_ANCHOR)
+                    # upper left
+                    elif course.robot_coords[0] < COURSE_WIDTH / 2 and course.robot_coords[1] > COURSE_HEIGHT / 2:
+                        return NextMove(move_type="none", next_ball=LEFT_GOAL_POINT)
+                    # upper right
+                    elif course.robot_coords[0] > COURSE_WIDTH / 2 and course.robot_coords[1] > COURSE_HEIGHT / 2:
+
+                        # if close enough to TOP_RIGHT_ANCHOR
+                        if math.dist(course.robot_coords, TOP_RIGHT_ANCHOR) > 0.15:
+                            return NextMove(move_type="none", next_ball=TOP_RIGHT_ANCHOR)
+                        else:
+                            return NextMove(move_type="none", next_ball=TOP_LEFT_ANCHOR)
+                elif GOAL_SIDE_RELATIVE_TO_CAMERA == "right":
+
+                    # IF CLOSE ENOUGH
+                    if math.dist(course.robot_coords, RIGHT_GOAL_POINT) < 0.15:
+                        print("close enough to goal!!!")
+                        return NextMove(move_type="goal")
+
+                    # lower left
+                    if course.robot_coords[0] < COURSE_WIDTH / 2 and course.robot_coords[1] < COURSE_HEIGHT / 2:
+
+                        # if close enough to BOT_LEFT_ANCHOR
+                        if math.dist(course.robot_coords, BOT_LEFT_ANCHOR) > 0.15:
+                            return NextMove(move_type="none", next_ball=BOT_LEFT_ANCHOR)
+                        else:
+                            return NextMove(move_type="none", next_ball=BOT_RIGHT_ANCHOR)
+
+                    # lower right
+                    elif course.robot_coords[0] > COURSE_WIDTH / 2 and course.robot_coords[1] < COURSE_HEIGHT / 2:
+                        return NextMove(move_type="none", next_ball=RIGHT_GOAL_POINT)
+                    # upper left
+                    elif course.robot_coords[0] < COURSE_WIDTH / 2 and course.robot_coords[1] > COURSE_HEIGHT / 2:
+
+                        # if close enough to TOP_LEFT_ANCHOR
+                        if math.dist(course.robot_coords, TOP_LEFT_ANCHOR) > 0.15:
+                            return NextMove(move_type="none", next_ball=TOP_LEFT_ANCHOR)
+                        else:
+                            return NextMove(move_type="none", next_ball=TOP_RIGHT_ANCHOR)
+
+                    # upper right
+                    elif course.robot_coords[0] > COURSE_WIDTH / 2 and course.robot_coords[1] > COURSE_HEIGHT / 2:
+                        return NextMove(move_type="none", next_ball=RIGHT_GOAL_POINT)
+
         else:
-            print("Graph is not connected3")
+            print("GOING TO Goal")
             return NextMove(move_type="goal")
+
+        # if nx.is_connected(G) and len(G.edges) > 0:
+        #     print("tsp: ", tsp[0])
+        #     print("nextMove: nextnode =" , tsp[0][1], "move_type = ", move_types_in_order[0], "extra_point = ", extra_point_in_order[0])
+        #     if move_types_in_order[0] == "middle_corner" or "middle_edge":
+        #         return NextMove(next_ball=pos[tsp[0][1]], move_type=move_types_in_order[0], extra_point=extra_point_in_order[0])
+        #     return NextMove(pos[tsp[0][1]], move_types_in_order[0])
+        # elif len(G.edges) > 0:
+        #     print("tsp: ", tsp[0])
+        #     print("nextMove: nextnode =" , tsp[0][1], "move_type = ", move_types_in_order[0], "extra_point = ", extra_point_in_order[0])
+        #     if move_types_in_order[0] == "middle_corner" or "middle_edge":
+        #         return NextMove(next_ball=pos[tsp[0][1]], move_type=move_types_in_order[0], extra_point=extra_point_in_order[0])
+        #     return NextMove(pos[tsp[0][1]], move_types_in_order[0])
+        # else:
+        #     print("Graph is not connected3")
+        #     print(nx.is_connected(G))
+        #     return NextMove(move_type="goal")
+    else:
+
+        return NextMove(move_type="goal")
 
 
 def solve_tsp(G):
@@ -691,8 +824,6 @@ def solve_tsp(G):
 
     # print("Fastest path: " + str(new_tsp[0]))
     # print("Fastest path length in meters: " + str(new_tsp[1]))
-
-    # print(tsp)
 
     return new_tsp
 
@@ -765,7 +896,6 @@ def order_obstacles1(obstacle_coords):
                 print("5")
 
     return [top_left, top_right, bottom_right, bottom_left]
-
 
 
 def expand_obstacle(obstacle_coords, unit_vector, orthog_unit_vector):
@@ -882,68 +1012,96 @@ def move_opposite(coord1, coord2, length):
     return new_coord
 
 
-def place_anchor_points(anchor_level, course: Course, pos, G):
+def place_anchor_points(anchor_level, extra_points, course: Course, pos, G):
 
     if course.robot_coords is None or len(course.robot_coords) == 0:
-        return pos, G
+        return extra_points, course, pos, G
 
     # remove and save last node from pos
     last_node = pos.pop(len(pos) - 1)
+    # remove last type from course.ball_types
+    last_type = course.ball_types.pop(len(course.ball_types) - 1)
+    # remove last extra point from extra_points
+    last_extra_point = extra_points.pop(len(extra_points) - 1)
 
     # lower left
     if course.robot_coords[0] < COURSE_WIDTH / 2 and course.robot_coords[1] < COURSE_HEIGHT / 2:
         if anchor_level == 0:
             pos[len(pos)] = (TOP_LEFT_ANCHOR)
-            G.add_node(len(pos))
-            pos[len(pos)] = (BOT_RIGHT_ANCHOR)
-            G.add_node(len(pos))
+
         if anchor_level == 1:
             pos[len(pos)] = (TOP_RIGHT_ANCHOR)
-            G.add_node(len(pos))
+
         if anchor_level == 2:
+            pos[len(pos)] = (BOT_RIGHT_ANCHOR)
+
+        if anchor_level == 3:
             pos[len(pos)] = (BOT_LEFT_ANCHOR)
-            G.add_node(len(pos))
+
+        G.add_node(len(pos))
+        course.ball_coords.append(pos[len(pos)-1])
+        course.ball_types.append("none")
+        extra_points.append([0, 0])
     # lower right
     elif course.robot_coords[0] > COURSE_WIDTH / 2 and course.robot_coords[1] < COURSE_HEIGHT / 2:
         if anchor_level == 0:
-            pos[len(pos)] = (TOP_RIGHT_ANCHOR)
-            G.add_node(len(pos))
             pos[len(pos)] = (BOT_LEFT_ANCHOR)
-            G.add_node(len(pos))
+
         if anchor_level == 1:
             pos[len(pos)] = (TOP_LEFT_ANCHOR)
-            G.add_node(len(pos))
-        if anchor_level == 2:
+
+        if anchor_level == 3:
+            pos[len(pos)] = (TOP_RIGHT_ANCHOR)
+
+        if anchor_level == 4:
             pos[len(pos)] = (BOT_RIGHT_ANCHOR)
-            G.add_node(len(pos))
+
+        G.add_node(len(pos))
+        course.ball_coords.append(pos[len(pos)-1])
+        course.ball_types.append("none")
+        extra_points.append([0, 0])
     # upper left
     elif course.robot_coords[0] < COURSE_WIDTH / 2 and course.robot_coords[1] > COURSE_HEIGHT / 2:
         if anchor_level == 0:
-            pos[len(pos)] = (BOT_LEFT_ANCHOR)
-            G.add_node(len(pos))
             pos[len(pos)] = (TOP_RIGHT_ANCHOR)
-            G.add_node(len(pos))
+
         if anchor_level == 1:
             pos[len(pos)] = (BOT_RIGHT_ANCHOR)
-            G.add_node(len(pos))
+
         if anchor_level == 2:
+            pos[len(pos)] = (BOT_LEFT_ANCHOR)
+
+        if anchor_level == 3:
             pos[len(pos)] = (TOP_LEFT_ANCHOR)
-            G.add_node(len(pos))
+
+        G.add_node(len(pos))
+        course.ball_coords.append(pos[len(pos)-1])
+        course.ball_types.append("none")
+        extra_points.append([0, 0])
     # upper right
     elif course.robot_coords[0] > COURSE_WIDTH / 2 and course.robot_coords[1] > COURSE_HEIGHT / 2:
         if anchor_level == 0:
             pos[len(pos)] = (BOT_RIGHT_ANCHOR)
-            G.add_node(len(pos))
-            pos[len(pos)] = (TOP_LEFT_ANCHOR)
-            G.add_node(len(pos))
+
         if anchor_level == 1:
             pos[len(pos)] = (BOT_LEFT_ANCHOR)
-            G.add_node(len(pos))
+
         if anchor_level == 2:
+            pos[len(pos)] = (TOP_LEFT_ANCHOR)
+
+        if anchor_level == 3:
             pos[len(pos)] = (TOP_RIGHT_ANCHOR)
-            G.add_node(len(pos))
+
+        G.add_node(len(pos))
+        course.ball_coords.append(pos[len(pos)-1])
+        course.ball_types.append("none")
+        extra_points.append([0, 0])
 
     # add last node back to pos
     pos[len(pos)] = (last_node)
+    # add last type back to course.ball_types
+    course.ball_types.append(last_type)
+    # add last extra point back to extra_points
+    extra_points.append(last_extra_point)
 
-    return pos, G
+    return extra_points, course, pos, G

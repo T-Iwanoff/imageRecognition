@@ -37,7 +37,12 @@ def find_orange_circle(frame, mask):
 
     hsv = cv.cvtColor(mask, cv.COLOR_BGR2HSV)
 
-    low_orange = np.array([10, 80, 245])
+    # old
+    #low_orange = np.array([10, 80, 245])
+    #high_orange = np.array([45, 255, 255])
+
+    # new
+    low_orange = np.array([16, 109, 221])
     high_orange = np.array([45, 255, 255])
 
     mask = cv.inRange(hsv, low_orange, high_orange)
